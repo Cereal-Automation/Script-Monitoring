@@ -7,23 +7,7 @@ plugins {
 }
 
 repositories {
-    maven {
-        url = uri("https://maven.cereal-automation.com/releases")
-    }
     mavenCentral()
-}
-
-dependencies {
-    implementation("com.cereal-automation:cereal-sdk:1.0.0:all")
-    implementation("com.cereal-automation:cereal-licensing:1.0.0")
-
-    // Other Cereal libraries, uncomment to use them.
-    // implementation("com.cereal-automation:cereal-chrome-driver:0.11.0:all")
-
-    testImplementation(kotlin("test"))
-    testImplementation("com.cereal-automation:cereal-test-utils:1.0.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    testImplementation("io.mockk:mockk:1.13.9")
 }
 
 tasks {
