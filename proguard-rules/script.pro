@@ -56,3 +56,5 @@
 -keepattributes Signature
 
 -ignorewarnings
+
+-keep class kotlin.Metadata { *; }
