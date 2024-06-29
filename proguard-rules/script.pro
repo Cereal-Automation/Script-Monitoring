@@ -50,8 +50,6 @@
 # Keep script signature
 -keepattributes Signature
 
--ignorewarnings
-
 -keep class kotlin.Metadata
 
 # Keep the configuration annotations
