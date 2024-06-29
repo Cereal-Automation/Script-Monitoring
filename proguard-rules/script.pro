@@ -32,11 +32,6 @@
 # Preserve all annotations.
 -keepattributes *Annotation*
 
-# Preserve all public applications.
--keepclasseswithmembers public class * {
-    public static void main(java.lang.String[]);
-}
-
 # Preserve the special static methods that are required in all enumeration
 # classes.
 -keepclassmembers enum * {
@@ -57,4 +52,13 @@
 
 -ignorewarnings
 
--keep class kotlin.Metadata { *; }
+-keep class kotlin.Metadata
+
+# Keep the configuration annotations
+-keepclassmembers class * {
+    @com.cereal.sdk.ScriptConfigurationItem *;
+    @com.cereal.sdk.TaskConfigurationItem *;
+}
+
+# Keep the enum class so that annotations are preserved.
+-keep enum * {}
