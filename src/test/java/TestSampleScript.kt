@@ -2,6 +2,7 @@ import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
 import com.cereal.script.sample.SampleConfiguration
 import com.cereal.script.sample.SampleScript
+import com.cereal.sdk.models.proxy.Proxy
 import com.cereal.test.TestScriptRunner
 import com.cereal.test.components.TestComponentProviderFactory
 import io.mockk.coEvery
@@ -26,11 +27,14 @@ class TestSampleScript {
 
         // Mock the configuration values
         val configuration = mockk<SampleConfiguration> {
-            every { keyString() } returns "Some random string"
-            every { keyBoolean() } returns true
-            every { keyInteger() } returns 100
-            every { keyFloat() } returns 101.0f
-            every { keyDouble() } returns 102.0
+            every { nullableStringValue() } returns null
+            every { booleanValue() } returns true
+            every { integerValue() } returns 100
+            every { floatValue() } returns 101.0f
+            every { doubleValue() } returns 102.0
+            every { proxyValue() } returns Proxy(id="some-id", address = "10.0.0.0", port = 10000)
+            every { usernameValue() } returns "MyUsername"
+            every { passwordValue() } returns "MyPassword"
         }
         val componentProviderFactory = TestComponentProviderFactory()
 

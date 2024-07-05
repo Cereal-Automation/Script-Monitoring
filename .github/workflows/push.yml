@@ -28,3 +28,5 @@ jobs:
           java-version: 17
       - name: Test
         run: ./gradlew test
+      - name: Smoke test build
+        run: ./gradlew obfuscateArtifact
