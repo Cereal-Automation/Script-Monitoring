@@ -44,6 +44,8 @@
 -keep,allowoptimization public class * extends com.cereal.sdk.Script {
     public <methods>;
 }
+-keep class * implements com.cereal.sdk.ScriptConfiguration
+
 # Keep the SDK signature intact
 -keep class com.cereal.sdk.** { *; }
 
