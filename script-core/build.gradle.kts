@@ -2,15 +2,8 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    maven {
-        url = uri("https://maven.cereal-automation.com/releases")
-    }
-    mavenCentral()
-}
-
 dependencies {
-    implementation("com.cereal-automation:cereal-sdk:1.2.0:all")
+    api("com.cereal-automation:cereal-sdk:1.2.0:all")
     implementation("com.cereal-automation:cereal-licensing:1.2.0")
 
     implementation("com.prof18.rssparser:rssparser:6.0.7")

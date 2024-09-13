@@ -6,8 +6,13 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        maven {
+            url = uri("https://maven.cereal-automation.com/releases")
+        }
+        mavenCentral()
+    }
 }
 
 tasks {
