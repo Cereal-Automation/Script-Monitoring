@@ -9,21 +9,9 @@
 1. Create a new GitHub repository and use this repository as template.
 2. Clone your project
 ```sh
-git clone https://github.com/Your-Org/Script-Repo-Name.git
+git clone https://github.com/Cereal-Automation/Script-Monitoring.git
 ```
 3. Open the project in your preferred IDE. We recommend using IntelliJ IDEA because of easier troubleshooting when you need any help.
-
-## Configuring template
-* You'll need to update the script name in several files:
-  * `settings.gradle.kts` update rootProject.name.
-  * `.idea/.name` update the file content.
-* Update package_name, name and version in `src/main/resources/manifest.json`.
-* Rename the package `com.cereal.script.sample` to something you like.
-
-## Usage
-* The repository contains a SampleScript class which is the main entrance for Cereal to start your script. Remove any boilerplate code from that class that you don't need and rename the script to something more descriptive. Do the same for SampleConfiguration.
-* Implement the functionality of your script.
-* Verify that your script is working properly by running the included test (see TestSampleScript.kt)
 
 ### Available gradle commands
 * Run all tests
@@ -53,3 +41,9 @@ A GitHub actions configuration is included in this repository. It contains the f
 
 * On each push to master tests will run.
 * When a tag is created an obfuscated release JAR is generated.
+
+## Architecture
+
+### Monitor strategies
+
+### Monitor datasources

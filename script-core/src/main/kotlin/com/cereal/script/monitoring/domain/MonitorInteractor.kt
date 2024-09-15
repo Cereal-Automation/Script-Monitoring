@@ -2,33 +2,55 @@ package com.cereal.script.monitoring.domain
 
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.MonitorMode
-import com.cereal.script.monitoring.domain.repository.ItemMonitorRepository
+import com.cereal.script.monitoring.domain.repository.ItemRepository
+import com.cereal.script.monitoring.domain.repository.LogRepository
+import com.cereal.script.monitoring.domain.repository.NotificationRepository
 import com.cereal.script.monitoring.domain.strategy.EqualsOrBelowPriceMonitorStrategy
+import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import com.cereal.script.monitoring.domain.strategy.NewItemMonitorStrategy
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
-class MonitorInteractor(private val itemMonitorRepository: ItemMonitorRepository) {
+class MonitorInteractor(private val itemRepository: ItemRepository, private val notificationRepository: NotificationRepository, private val logRepository: LogRepository) {
 
-    private val monitorStrategyMap = mapOf(
-        MonitorMode.NewItem::class to NewItemMonitorStrategy(),
-        MonitorMode.EqualsOrBelowPrice::class to EqualsOrBelowPriceMonitorStrategy()
-    )
+    suspend operator fun invoke(config: Config) {
+        val strategy = getMonitorStrategy(config.mode)
 
-    suspend operator fun invoke(config: Config): Flow<MonitoredItem> {
-        val strategy = monitorStrategyMap[config.mode::class] ?: throw RuntimeException("No strategy found for monitor mode ${config.mode}")
+        logRepository.add("Start collecting data...")
 
-        return itemMonitorRepository.getItems().map { item ->
+        return itemRepository.getItems().collect { item ->
+            logRepository.add(item.getItemFoundText())
+
             val notify = strategy.shouldNotify(item)
-            MonitoredItem(item, notify)
+
+            if(notify && !notificationRepository.isItemNotified(item)) {
+                logRepository.add("Sending notification for '${item.name}'.")
+
+                val message = strategy.getNotificationMessage(item)
+                notificationRepository.notify(message)
+                notificationRepository.setItemNotified(item)
+            }
+        }
+    }
+
+    private fun getMonitorStrategy(mode: MonitorMode): MonitorStrategy {
+        return when(mode) {
+            is MonitorMode.NewItem -> NewItemMonitorStrategy(mode.since)
+            is MonitorMode.EqualsOrBelowPrice -> EqualsOrBelowPriceMonitorStrategy(mode.price)
+        }
+    }
+
+    private fun Item.getItemFoundText(): String {
+        return buildString {
+            append("Found item $name")
+
+            if (values.isNotEmpty()) {
+                append(" [")
+                append(values.joinToString(", ") {
+                    "${it.commonName}: $it"
+                })
+                append("]")
+            }
         }
     }
 
     data class Config(val mode: MonitorMode)
-
-    data class MonitoredItem(
-        val item: Item,
-        val notify: Boolean,
-    )
-
 }

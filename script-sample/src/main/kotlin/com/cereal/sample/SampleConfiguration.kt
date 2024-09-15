@@ -1,5 +1,5 @@
 package com.cereal.sample
 
-import com.cereal.script.monitoring.MonitoringConfiguration
+import com.cereal.sdk.ScriptConfiguration
 
-interface SampleConfiguration : MonitoringConfiguration
+interface SampleConfiguration : ScriptConfiguration

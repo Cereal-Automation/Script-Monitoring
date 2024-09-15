@@ -3,33 +3,31 @@ package com.cereal.script.monitoring
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
 import com.cereal.script.monitoring.domain.MonitorInteractor
-import com.cereal.script.monitoring.domain.models.MonitorMode
-import com.cereal.script.monitoring.domain.models.Value
-import com.cereal.script.monitoring.domain.repository.ItemMonitorRepository
+import com.cereal.script.monitoring.domain.models.*
 import com.cereal.sdk.component.ComponentProvider
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
+import com.cereal.sdk.ScriptConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
-abstract class MonitoringScript<T : MonitoringConfiguration> : Script<T> {
+abstract class MonitoringScript<T: ScriptConfiguration> : Script<T> {
 
     abstract val scriptId: String?
     abstract val scriptPublicKey: String?
     abstract val monitorMode: MonitorMode
-
-    abstract fun getItemMonitorRepository(): ItemMonitorRepository
+    abstract val dataSource: DataSource
 
     private var isLicensed = false
 
-    private lateinit var interactor: MonitorInteractor
     private var job: Job? = null
+    private lateinit var monitorFactory: MonitorFactory
 
     override suspend fun onStart(configuration: T, provider: ComponentProvider): Boolean {
-        interactor = MonitorInteractor(getItemMonitorRepository())
+        monitorFactory = MonitorFactory(provider, dataSource)
 
         val scriptId = scriptId
         val scriptPublicKey = scriptPublicKey
@@ -55,15 +53,13 @@ abstract class MonitoringScript<T : MonitoringConfiguration> : Script<T> {
             return ExecutionResult.Error("Unlicensed")
         }
 
-        statusUpdate("Start monitoring ...")
-
+        val interactor = monitorFactory.createInteractor(statusUpdate)
         job = CoroutineScope(Dispatchers.Default).launch {
-            interactor(MonitorInteractor.Config(monitorMode)).collect {
-                statusUpdate(it.getStatusText(monitorMode))
-                if (it.notify) {
-                    statusUpdate("Sending notification for '${it.item.name}'.")
-                    // TODO: Notify
-                }
+            try {
+                interactor(MonitorInteractor.Config(monitorMode))
+            }
+            catch(e: MissingValueTypeException) {
+                // TODO
             }
         }
 
@@ -74,13 +70,4 @@ abstract class MonitoringScript<T : MonitoringConfiguration> : Script<T> {
         job?.cancel()
     }
 
-    private fun MonitorInteractor.MonitoredItem.getStatusText(mode: MonitorMode): String {
-        return when(mode) {
-            is MonitorMode.NewItem -> "Found item ${item.name}"
-            is MonitorMode.EqualsOrBelowPrice -> {
-                val price = (item.values?.firstOrNull { it is Value.Price } as Value.Price?)?.value
-                "Found item '${item.name}' with price $price."
-            }
-        }
-    }
 }
