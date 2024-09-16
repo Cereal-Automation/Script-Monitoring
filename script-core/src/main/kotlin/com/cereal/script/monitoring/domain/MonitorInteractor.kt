@@ -1,24 +1,20 @@
 package com.cereal.script.monitoring.domain
 
 import com.cereal.script.monitoring.domain.models.Item
-import com.cereal.script.monitoring.domain.models.MissingValueTypeException
 import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.script.monitoring.domain.repository.ItemRepository
 import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
-import com.cereal.script.monitoring.domain.strategy.EqualsOrBelowPriceMonitorStrategy
-import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
-import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrategy
-import com.cereal.script.monitoring.domain.strategy.StockAvailableMonitorStrategy
 
 class MonitorInteractor(
+    private val monitorStrategyFactory: MonitorStrategyFactory,
     private val itemRepository: ItemRepository,
     private val notificationRepository: NotificationRepository,
-    private val logRepository: LogRepository
+    private val logRepository: LogRepository,
 ) {
 
     suspend operator fun invoke(config: Config) {
-        val strategy = createMonitorStrategy(config.mode)
+        val strategy = monitorStrategyFactory.create(config.mode)
 
         logRepository.add("Start collecting data...")
 
@@ -27,8 +23,8 @@ class MonitorInteractor(
 
             val notify = try {
                 strategy.shouldNotify(item)
-            } catch (e: MissingValueTypeException) {
-                logRepository.add("Unable to determine if a notification needs to be triggered for '${item.name}' because data is missing.")
+            } catch (e: Exception) {
+                logRepository.add("Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}")
                 false
             }
 
@@ -37,21 +33,13 @@ class MonitorInteractor(
 
                 val message = try {
                     strategy.getNotificationMessage(item)
-                } catch (e: MissingValueTypeException) {
+                } catch (e: Exception) {
                     "There was a change detected in '${item.name}'."
                 }
 
                 notificationRepository.notify(message)
                 notificationRepository.setItemNotified(item)
             }
-        }
-    }
-
-    private fun createMonitorStrategy(mode: MonitorMode): MonitorStrategy {
-        return when (mode) {
-            is MonitorMode.NewItemAvailable -> NewItemAvailableMonitorStrategy(mode.since)
-            is MonitorMode.EqualsOrBelowPrice -> EqualsOrBelowPriceMonitorStrategy(mode.price)
-            is MonitorMode.StockAvailable -> StockAvailableMonitorStrategy()
         }
     }
 

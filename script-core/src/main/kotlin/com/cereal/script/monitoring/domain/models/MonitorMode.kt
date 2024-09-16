@@ -5,6 +5,6 @@ import java.time.Instant
 
 sealed class MonitorMode {
     data class NewItemAvailable(val since: Instant) : MonitorMode()
-    data class EqualsOrBelowPrice(val price: BigDecimal) : MonitorMode()
+    data class EqualsOrBelowPrice(val price: BigDecimal, val currency: Currency) : MonitorMode()
     data object StockAvailable : MonitorMode()
 }
