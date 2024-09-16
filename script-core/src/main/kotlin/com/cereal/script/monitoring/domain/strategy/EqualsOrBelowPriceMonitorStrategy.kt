@@ -9,12 +9,12 @@ import java.math.BigDecimal
 class EqualsOrBelowPriceMonitorStrategy(private val price: BigDecimal): MonitorStrategy {
 
     override suspend fun shouldNotify(item: Item): Boolean {
-        val itemPrice = item.requireValue<ItemValue.Price>().price
+        val itemPrice = item.requireValue<ItemValue.Price>().value
         return itemPrice <= price
     }
 
     override fun getNotificationMessage(item: Item): String {
-        val itemPrice = item.requireValue<ItemValue.Price>().price
+        val itemPrice = item.requireValue<ItemValue.Price>().value
         return "${item.name} is available for $itemPrice"
     }
 }

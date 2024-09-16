@@ -4,6 +4,7 @@ import java.math.BigDecimal
 import java.time.Instant
 
 sealed class MonitorMode {
-    data class NewItem(val since: Instant): MonitorMode()
-    data class EqualsOrBelowPrice(val price: BigDecimal): MonitorMode()
+    data class NewItem(val since: Instant) : MonitorMode()
+    data class EqualsOrBelowPrice(val price: BigDecimal) : MonitorMode()
+    data object StockAvailable : MonitorMode()
 }

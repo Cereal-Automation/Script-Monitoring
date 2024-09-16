@@ -3,17 +3,17 @@ package com.cereal.script.monitoring.domain.strategy
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.models.requireValue
-import java.time.Instant
 
-class NewItemMonitorStrategy(private val since: Instant) : MonitorStrategy {
+class StockAvailableMonitorStrategy : MonitorStrategy {
 
     override suspend fun shouldNotify(item: Item): Boolean {
-        val publishDate = item.requireValue<ItemValue.PublishDate>().value
-
-        return publishDate > since
+        val stock = item.requireValue<ItemValue.Stock>().value
+        return stock > 0
     }
 
     override fun getNotificationMessage(item: Item): String {
-        return "Found new item: ${item.name}."
+        val stock = item.requireValue<ItemValue.Stock>().value
+
+        return "${item.name} is in stock (${stock})!"
     }
 }
