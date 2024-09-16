@@ -3,18 +3,19 @@ package com.cereal.script.monitoring
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
 import com.cereal.script.monitoring.domain.MonitorInteractor
-import com.cereal.script.monitoring.domain.models.*
-import com.cereal.sdk.component.ComponentProvider
+import com.cereal.script.monitoring.domain.models.DataSource
+import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.ScriptConfiguration
+import com.cereal.sdk.component.ComponentProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
-abstract class MonitoringScript<T: ScriptConfiguration> : Script<T> {
+abstract class MonitoringScript<T : ScriptConfiguration> : Script<T> {
 
     abstract val scriptId: String?
     abstract val scriptPublicKey: String?
@@ -32,7 +33,7 @@ abstract class MonitoringScript<T: ScriptConfiguration> : Script<T> {
         val scriptId = scriptId
         val scriptPublicKey = scriptPublicKey
 
-        if(scriptId != null && scriptPublicKey != null) {
+        if (scriptId != null && scriptPublicKey != null) {
             val licenseChecker = LicenseChecker(scriptId, scriptPublicKey, provider.license())
             val licenseResult = licenseChecker.checkAccess()
             isLicensed = licenseResult is LicenseState.Licensed
@@ -47,20 +48,25 @@ abstract class MonitoringScript<T: ScriptConfiguration> : Script<T> {
         }
     }
 
-    override suspend fun execute(configuration: T, provider: ComponentProvider, statusUpdate: suspend (message: String) -> Unit): ExecutionResult {
+    override suspend fun execute(
+        configuration: T,
+        provider: ComponentProvider,
+        statusUpdate: suspend (message: String) -> Unit
+    ): ExecutionResult {
         // Prevent execution when user is not licensed.
-        if(!isLicensed) {
+        if (!isLicensed) {
             return ExecutionResult.Error("Unlicensed")
         }
 
-        val interactor = monitorFactory.createInteractor(statusUpdate)
-        job = CoroutineScope(Dispatchers.Default).launch {
-            try {
+        try {
+            val interactor = monitorFactory.createInteractor(statusUpdate)
+            job = CoroutineScope(Dispatchers.Default).launch {
+
                 interactor(MonitorInteractor.Config(monitorMode))
             }
-            catch(e: MissingValueTypeException) {
-                // TODO
-            }
+        } catch (e: Exception) {
+            statusUpdate("An error occurred with message: ${e.message}")
+            return ExecutionResult.Error("Error while monitoring")
         }
 
         return ExecutionResult.Loop("Finished check, looping...", 5000)
