@@ -7,6 +7,7 @@ import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
 import java.time.Instant
+import kotlin.time.Duration.Companion.seconds
 
 
 class SampleScript : Script<SampleConfiguration> {
@@ -27,7 +28,7 @@ class SampleScript : Script<SampleConfiguration> {
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit
     ): ExecutionResult {
-        return itemMonitor.execute(provider, statusUpdate)
+        return itemMonitor.execute(provider, statusUpdate, sleep = configuration.monitorInterval()?.seconds)
     }
 
     override suspend fun onFinish(configuration: SampleConfiguration, provider: ComponentProvider) {

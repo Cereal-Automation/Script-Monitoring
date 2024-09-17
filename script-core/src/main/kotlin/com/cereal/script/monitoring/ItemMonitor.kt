@@ -11,13 +11,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 class ItemMonitor(
     private val scriptId: String,
     private val scriptPublicKey: String?,
     private val monitorMode: MonitorMode,
-    private val dataSource: DataSource
+    private val dataSource: DataSource,
 ) {
     private var isLicensed = false
 
@@ -47,7 +50,8 @@ class ItemMonitor(
 
     suspend fun execute(
         provider: ComponentProvider,
-        statusUpdate: suspend (message: String) -> Unit
+        statusUpdate: suspend (message: String) -> Unit,
+        sleep: Duration? = null
     ): ExecutionResult {
         // Prevent execution when user is not licensed.
         if (!isLicensed) {
@@ -64,11 +68,18 @@ class ItemMonitor(
             return ExecutionResult.Error("Error while monitoring")
         }
 
-        return ExecutionResult.Loop("Finished check, looping...", 5000)
+        val delay =
+            max(MIN_INTERVAL_DURATION.inWholeMilliseconds, (sleep ?: DEFAULT_INTERVAL_DURATION).inWholeMilliseconds)
+        return ExecutionResult.Loop("Finished check, looping...", delay)
     }
 
     fun onFinish(provider: ComponentProvider) {
         job?.cancel()
+    }
+
+    companion object {
+        val DEFAULT_INTERVAL_DURATION = 5.seconds
+        val MIN_INTERVAL_DURATION = 1.seconds
     }
 
 }
