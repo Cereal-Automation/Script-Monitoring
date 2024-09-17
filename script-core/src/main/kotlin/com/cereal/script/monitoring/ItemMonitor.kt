@@ -6,8 +6,6 @@ import com.cereal.script.monitoring.domain.MonitorInteractor
 import com.cereal.script.monitoring.domain.models.DataSource
 import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.sdk.ExecutionResult
-import com.cereal.sdk.Script
-import com.cereal.sdk.ScriptConfiguration
 import com.cereal.sdk.component.ComponentProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,25 +13,24 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
-abstract class MonitoringScript<T : ScriptConfiguration> : Script<T> {
-
-    abstract val scriptId: String?
-    abstract val scriptPublicKey: String?
-    abstract val monitorMode: MonitorMode
-    abstract val dataSource: DataSource
-
+class ItemMonitor(
+    private val scriptId: String,
+    private val scriptPublicKey: String?,
+    private val monitorMode: MonitorMode,
+    private val dataSource: DataSource
+) {
     private var isLicensed = false
 
     private var job: Job? = null
     private lateinit var monitorFactory: MonitorFactory
 
-    override suspend fun onStart(configuration: T, provider: ComponentProvider): Boolean {
+    suspend fun onStart(provider: ComponentProvider): Boolean {
         monitorFactory = MonitorFactory(provider, dataSource)
 
         val scriptId = scriptId
         val scriptPublicKey = scriptPublicKey
 
-        if (scriptId != null && scriptPublicKey != null) {
+        if (scriptPublicKey != null) {
             val licenseChecker = LicenseChecker(scriptId, scriptPublicKey, provider.license())
             val licenseResult = licenseChecker.checkAccess()
             isLicensed = licenseResult is LicenseState.Licensed
@@ -48,8 +45,7 @@ abstract class MonitoringScript<T : ScriptConfiguration> : Script<T> {
         }
     }
 
-    override suspend fun execute(
-        configuration: T,
+    suspend fun execute(
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit
     ): ExecutionResult {
@@ -61,7 +57,6 @@ abstract class MonitoringScript<T : ScriptConfiguration> : Script<T> {
         try {
             val interactor = monitorFactory.createInteractor(statusUpdate)
             job = CoroutineScope(Dispatchers.Default).launch {
-
                 interactor(MonitorInteractor.Config(monitorMode))
             }
         } catch (e: Exception) {
@@ -72,7 +67,7 @@ abstract class MonitoringScript<T : ScriptConfiguration> : Script<T> {
         return ExecutionResult.Loop("Finished check, looping...", 5000)
     }
 
-    override suspend fun onFinish(configuration: T, provider: ComponentProvider) {
+    fun onFinish(provider: ComponentProvider) {
         job?.cancel()
     }
 
