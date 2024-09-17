@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RssFeedItemRepository(private val rssFeedUrl: String, private val logger: LoggerComponent): ItemRepository {
-
-    private val rssParser = RssParser()
+class RssFeedItemRepository(
+    private val rssFeedUrl: String,
+    private val logger: LoggerComponent,
+    private val rssParser: RssParser = RssParser()
+) : ItemRepository {
     private val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
 
     override suspend fun getItems(): Flow<Item> {
@@ -22,17 +24,17 @@ class RssFeedItemRepository(private val rssFeedUrl: String, private val logger: 
 
             rssChannel.items.forEach {
                 val id = it.guid
-                val url = it.sourceUrl
+                val url = it.link
                 val name = it.title
 
-                if(id != null && url != null && name != null) {
+                if (id != null && url != null && name != null) {
                     val values = listOfNotNull(
                         getPublishDate(it)
                     )
                     val item = Item(id, url, name, values)
                     emit(item)
                 } else {
-                    logger.warn("Skipping RSS feed item because non-empty values were expected but found: [id=$id, url=$url, name=$name]")
+                    logger.warn("Skipping RSS feed item because empty values were found: [id=$id, url=$url, name=$name]")
                 }
             }
         }
