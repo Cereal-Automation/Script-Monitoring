@@ -9,7 +9,8 @@ enum class Currency(val code: String, val symbol: String) {
     AUD("AUD", "A$"),
     CAD("CAD", "C$"),
     CNY("CNY", "¥"),
-    CHF("CHF", "CHF");
+    CHF("CHF", "CHF"),
+    ;
 
     companion object {
         fun fromCode(code: String): Currency? {

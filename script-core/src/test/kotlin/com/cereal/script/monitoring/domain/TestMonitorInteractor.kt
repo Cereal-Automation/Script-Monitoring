@@ -21,7 +21,6 @@ import java.time.Instant
 
 @RunWith(value = Parameterized::class)
 class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotifications: Int) {
-
     private lateinit var itemRepository: ItemRepository
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var logRepository: LogRepository
@@ -38,59 +37,64 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
     }
 
     @Test
-    fun testNotification() = runBlocking {
-        coEvery { itemRepository.getItems() } returns flowOf(
-            Item(
-                id = "foo",
-                url = "http://cereal-automation.com",
-                name = "Foo",
-                values = listOf(
-                    ItemValue.PublishDate(Instant.now()),
-                    ItemValue.Stock(1),
-                    ItemValue.Price(BigDecimal("10.00"), Currency.EUR)
+    fun testNotification() =
+        runBlocking {
+            coEvery { itemRepository.getItems() } returns
+                flowOf(
+                    Item(
+                        id = "foo",
+                        url = "http://cereal-automation.com",
+                        name = "Foo",
+                        values =
+                            listOf(
+                                ItemValue.PublishDate(Instant.now()),
+                                ItemValue.Stock(1),
+                                ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
+                            ),
+                    ),
+                    Item(
+                        id = "bar",
+                        url = "http://cereal-automation.com",
+                        name = "Bar",
+                        values =
+                            listOf(
+                                ItemValue.PublishDate(Instant.now()),
+                                ItemValue.Stock(0),
+                                ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
+                            ),
+                    ),
+                    Item(
+                        id = "baz",
+                        url = "http://cereal-automation.com",
+                        name = "Baz",
+                        values =
+                            listOf(
+                                ItemValue.PublishDate(Instant.now().minusSeconds(60)),
+                                ItemValue.Stock(0),
+                                ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
+                            ),
+                    ),
+                    Item(
+                        id = "foo",
+                        url = "http://cereal-automation.com",
+                        name = "Foo",
+                        values =
+                            listOf(
+                                ItemValue.PublishDate(Instant.now()),
+                                ItemValue.Stock(1),
+                                ItemValue.Price(BigDecimal("50.00"), Currency.EUR),
+                            ),
+                    ),
                 )
-            ),
-            Item(
-                id = "bar",
-                url = "http://cereal-automation.com",
-                name = "Bar",
-                values = listOf(
-                    ItemValue.PublishDate(Instant.now()),
-                    ItemValue.Stock(0),
-                    ItemValue.Price(BigDecimal("10.00"), Currency.EUR)
-                )
-            ),
-            Item(
-                id = "baz",
-                url = "http://cereal-automation.com",
-                name = "Baz",
-                values = listOf(
-                    ItemValue.PublishDate(Instant.now().minusSeconds(60)),
-                    ItemValue.Stock(0),
-                    ItemValue.Price(BigDecimal("10.00"), Currency.EUR)
-                )
-            ),
-            Item(
-                id = "foo",
-                url = "http://cereal-automation.com",
-                name = "Foo",
-                values = listOf(
-                    ItemValue.PublishDate(Instant.now()),
-                    ItemValue.Stock(1),
-                    ItemValue.Price(BigDecimal("50.00"), Currency.EUR)
-                )
-            ),
-        )
 
-        interactor.invoke(
-            config = MonitorInteractor.Config(monitorMode)
-        )
+            interactor.invoke(
+                config = MonitorInteractor.Config(monitorMode),
+            )
 
-        coVerify(exactly = numberOfNotifications) { notificationRepository.notify(any()) }
-    }
+            coVerify(exactly = numberOfNotifications) { notificationRepository.notify(any()) }
+        }
 
     companion object {
-
         @JvmStatic
         @Parameterized.Parameters
         fun data(): List<Array<Any>> {
@@ -98,31 +102,35 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
                 // New item available
                 arrayOf(
                     MonitorMode.NewItemAvailable(
-                        Instant.now().minusSeconds(1)
-                    ), 3
+                        Instant.now().minusSeconds(1),
+                    ),
+                    3,
                 ),
                 arrayOf(
                     MonitorMode.NewItemAvailable(
-                        Instant.now().plusSeconds(1)
-                    ), 0
+                        Instant.now().plusSeconds(1),
+                    ),
+                    0,
                 ),
                 arrayOf(
                     MonitorMode.NewItemAvailable(
-                        Instant.now().minusSeconds(100)
-                    ), 4
+                        Instant.now().minusSeconds(100),
+                    ),
+                    4,
                 ),
-
                 // Stock available
                 arrayOf(
-                    MonitorMode.StockAvailable, 2
+                    MonitorMode.StockAvailable,
+                    2,
                 ),
-
                 // Price equals or below
                 arrayOf(
-                    MonitorMode.EqualsOrBelowPrice(BigDecimal("1"), Currency.EUR), 0
+                    MonitorMode.EqualsOrBelowPrice(BigDecimal("1"), Currency.EUR),
+                    0,
                 ),
                 arrayOf(
-                    MonitorMode.EqualsOrBelowPrice(BigDecimal("50"), Currency.EUR), 4
+                    MonitorMode.EqualsOrBelowPrice(BigDecimal("50"), Currency.EUR),
+                    4,
                 ),
             )
         }

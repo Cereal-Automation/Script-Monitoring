@@ -4,11 +4,12 @@ import com.cereal.sdk.ScriptConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 
 interface SampleConfiguration : ScriptConfiguration {
-
     @ScriptConfigurationItem(
         keyName = KEY_MONITOR_INTERVAL,
         name = "Interval",
-        description = "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 1 second, defaults to 5 seconds."
+        description =
+            "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 1" +
+                "second, defaults to 5 seconds.",
     )
     fun monitorInterval(): Int?
 

@@ -7,7 +7,6 @@ import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrat
 import com.cereal.script.monitoring.domain.strategy.StockAvailableMonitorStrategy
 
 class MonitorStrategyFactory {
-
     fun create(mode: MonitorMode): MonitorStrategy {
         return when (mode) {
             is MonitorMode.NewItemAvailable -> NewItemAvailableMonitorStrategy(mode.since)

@@ -15,7 +15,6 @@ import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-
 class Monitor(
     private val scriptId: String,
     private val scriptPublicKey: String?,
@@ -46,7 +45,7 @@ class Monitor(
     suspend fun execute(
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
-        sleep: Duration? = null
+        sleep: Duration? = null,
     ): ExecutionResult {
         // Prevent execution when user is not licensed.
         if (!isLicensed) {
@@ -77,20 +76,21 @@ class Monitor(
 
     private fun createInteractor(
         provider: ComponentProvider,
-        statusUpdate: suspend (message: String) -> Unit
+        statusUpdate: suspend (message: String) -> Unit,
     ): MonitorInteractor {
         val notificationRepository = ScriptNotificationRepository(provider.preference(), provider.notification())
         val logRepository = ScriptLogRepository(provider.logger(), statusUpdate)
         val monitorStrategyFactory = MonitorStrategyFactory()
-        val monitorRepository = when (val source = dataSource) {
-            is DataSource.RssFeed -> RssFeedItemRepository(source.rssFeedUrl, provider.logger())
-        }
+        val monitorRepository =
+            when (val source = dataSource) {
+                is DataSource.RssFeed -> RssFeedItemRepository(source.rssFeedUrl, provider.logger())
+            }
 
         return MonitorInteractor(
             monitorStrategyFactory,
             monitorRepository,
             notificationRepository,
-            logRepository
+            logRepository,
         )
     }
 }

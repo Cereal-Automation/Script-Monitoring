@@ -12,7 +12,6 @@ class MonitorInteractor(
     private val notificationRepository: NotificationRepository,
     private val logRepository: LogRepository,
 ) {
-
     suspend operator fun invoke(config: Config) {
         val strategy = monitorStrategyFactory.create(config.mode)
 
@@ -21,12 +20,15 @@ class MonitorInteractor(
         return itemRepository.getItems().collect { item ->
             logRepository.add(item.getItemFoundText())
 
-            val notify = try {
-                strategy.shouldNotify(item)
-            } catch (e: Exception) {
-                logRepository.add("Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}")
-                false
-            }
+            val notify =
+                try {
+                    strategy.shouldNotify(item)
+                } catch (e: Exception) {
+                    logRepository.add(
+                        "Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}",
+                    )
+                    false
+                }
 
             if (notify && !notificationRepository.isItemNotified(item)) {
                 logRepository.add("Sending notification for '${item.name}'.")
@@ -43,19 +45,22 @@ class MonitorInteractor(
         }
     }
 
-    private fun Item.getItemFoundText(): String {
-        return buildString {
+    private fun Item.getItemFoundText(): String =
+        buildString {
             append("Found item $name")
 
             if (values.isNotEmpty()) {
                 append(" [")
-                append(values.joinToString(", ") {
-                    "${it.commonName}: $it"
-                })
+                append(
+                    values.joinToString(", ") {
+                        "${it.commonName}: $it"
+                    },
+                )
                 append("]")
             }
         }
-    }
 
-    data class Config(val mode: MonitorMode)
+    data class Config(
+        val mode: MonitorMode,
+    )
 }

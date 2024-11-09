@@ -4,6 +4,7 @@ apply(from = "proguard.gradle")
 plugins {
     kotlin("jvm") version "1.9.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 allprojects {
@@ -11,6 +12,15 @@ allprojects {
         maven {
             url = uri("https://maven.cereal-automation.com/releases")
         }
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint") // Version should be inherited from parent
+
+    repositories {
+        // Required to download KtLint
         mavenCentral()
     }
 }

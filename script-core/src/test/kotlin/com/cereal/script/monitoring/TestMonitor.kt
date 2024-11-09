@@ -16,27 +16,26 @@ import kotlin.time.Duration.Companion.seconds
 
 @RunWith(value = Parameterized::class)
 class TestMonitor(private val monitor: Monitor) {
-
     @Test
-    fun testMonitor() = runBlocking {
-        // Mock the LicenseChecker
-        mockkConstructor(LicenseChecker::class)
-        coEvery { anyConstructed<LicenseChecker>().checkAccess() } returns LicenseState.Licensed
+    fun testMonitor() =
+        runBlocking {
+            // Mock the LicenseChecker
+            mockkConstructor(LicenseChecker::class)
+            coEvery { anyConstructed<LicenseChecker>().checkAccess() } returns LicenseState.Licensed
 
-        val componentProviderFactory = TestComponentProviderFactory()
-        val componentProvider: ComponentProvider = componentProviderFactory.create()
+            val componentProviderFactory = TestComponentProviderFactory()
+            val componentProvider: ComponentProvider = componentProviderFactory.create()
 
-        withTimeout(15.seconds) {
-            monitor.onStart(componentProvider)
-            val result = monitor.execute(componentProvider, {})
-            monitor.onFinish()
+            withTimeout(15.seconds) {
+                monitor.onStart(componentProvider)
+                val result = monitor.execute(componentProvider, {})
+                monitor.onFinish()
 
-            assert(result is ExecutionResult.Loop)
+                assert(result is ExecutionResult.Loop)
+            }
         }
-    }
 
     companion object {
-
         @JvmStatic
         @Parameterized.Parameters
         fun data(): List<Array<Monitor>> {

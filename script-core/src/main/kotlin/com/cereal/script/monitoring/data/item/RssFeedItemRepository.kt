@@ -9,17 +9,17 @@ import com.prof18.rssparser.model.RssItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class RssFeedItemRepository(
     private val rssFeedUrl: String,
     private val logger: LoggerComponent,
-    private val rssParser: RssParser = RssParser()
+    private val rssParser: RssParser = RssParser(),
 ) : ItemRepository {
     private val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH)
 
-    override suspend fun getItems(): Flow<Item> {
-        return flow {
+    override suspend fun getItems(): Flow<Item> =
+        flow {
             val rssChannel = rssParser.getRssChannel(rssFeedUrl)
 
             rssChannel.items.forEach {
@@ -28,9 +28,10 @@ class RssFeedItemRepository(
                 val name = it.title
 
                 if (id != null && url != null && name != null) {
-                    val values = listOfNotNull(
-                        getPublishDate(it)
-                    )
+                    val values =
+                        listOfNotNull(
+                            getPublishDate(it),
+                        )
                     val item = Item(id, url, name, values)
                     emit(item)
                 } else {
@@ -38,14 +39,14 @@ class RssFeedItemRepository(
                 }
             }
         }
-    }
 
-    private fun getPublishDate(rssItem: RssItem): ItemValue.PublishDate? {
-        return try {
+    private fun getPublishDate(rssItem: RssItem): ItemValue.PublishDate? =
+        try {
             ItemValue.PublishDate(dateFormat.parse(rssItem.pubDate).toInstant())
         } catch (e: Exception) {
-            logger.warn("Expected to find a publish date for RSS item with guid ${rssItem.guid} but couldn't read the date because: ${e.message}")
+            logger.warn(
+                "Expected to find a publish date for RSS item with guid ${rssItem.guid} but couldn't read the date because: ${e.message}",
+            )
             null
         }
-    }
 }
