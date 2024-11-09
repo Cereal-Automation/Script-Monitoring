@@ -1,31 +1,20 @@
 package com.cereal.script.monitoring
 
-import com.cereal.script.monitoring.data.ScriptLogRepository
-import com.cereal.script.monitoring.data.ScriptNotificationRepository
-import com.cereal.script.monitoring.data.item.RssFeedItemRepository
-import com.cereal.script.monitoring.domain.MonitorInteractor
-import com.cereal.script.monitoring.domain.MonitorStrategyFactory
 import com.cereal.script.monitoring.domain.models.DataSource
-import com.cereal.script.monitoring.domain.repository.ItemRepository
-import com.cereal.sdk.component.ComponentProvider
+import com.cereal.script.monitoring.domain.models.MonitorMode
+import java.time.Instant
 
-class MonitorFactory(private val provider: ComponentProvider, private val dataSource: DataSource) {
-
-    fun createInteractor(statusUpdate: suspend (message: String) -> Unit): MonitorInteractor {
-        val notificationRepository = ScriptNotificationRepository(provider.preference(), provider.notification())
-        val logRepository = ScriptLogRepository(provider.logger(), statusUpdate)
-        val monitorStrategyFactory = MonitorStrategyFactory()
-        return MonitorInteractor(
-            monitorStrategyFactory,
-            getItemMonitorRepository(provider),
-            notificationRepository,
-            logRepository
+object MonitorFactory {
+    val allMonitors = listOf(
+        createSampleMonitor()
+    )
+    
+    fun createSampleMonitor(): Monitor {
+        return Monitor(
+            scriptId = "com.cereal-automation.sample-monitor",
+            scriptPublicKey = null,
+            monitorMode = MonitorMode.NewItemAvailable(Instant.now()),
+            dataSource = DataSource.RssFeed("https://feeds.rijksoverheid.nl/nieuws.rss")
         )
-    }
-
-    private fun getItemMonitorRepository(provider: ComponentProvider): ItemRepository {
-        return when (val source = dataSource) {
-            is DataSource.RssFeed -> RssFeedItemRepository(source.rssFeedUrl, provider.logger())
-        }
     }
 }

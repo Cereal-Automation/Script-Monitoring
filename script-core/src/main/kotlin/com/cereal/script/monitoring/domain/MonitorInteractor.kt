@@ -31,14 +31,14 @@ class MonitorInteractor(
             if (notify && !notificationRepository.isItemNotified(item)) {
                 logRepository.add("Sending notification for '${item.name}'.")
 
-                val message = try {
-                    strategy.getNotificationMessage(item)
-                } catch (e: Exception) {
-                    "There was a change detected in '${item.name}'."
-                }
+                try {
+                    val message = strategy.getNotificationMessage(item)
 
-                notificationRepository.notify(message)
-                notificationRepository.setItemNotified(item)
+                    notificationRepository.notify(message)
+                    notificationRepository.setItemNotified(item)
+                } catch (e: Exception) {
+                    logRepository.add("Unable to create a notification for '${item.name}' because: ${e.message}")
+                }
             }
         }
     }

@@ -2,21 +2,21 @@ package com.cereal.script.monitoring
 
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
+import com.cereal.script.monitoring.data.ScriptLogRepository
+import com.cereal.script.monitoring.data.ScriptNotificationRepository
+import com.cereal.script.monitoring.data.item.RssFeedItemRepository
 import com.cereal.script.monitoring.domain.MonitorInteractor
+import com.cereal.script.monitoring.domain.MonitorStrategyFactory
 import com.cereal.script.monitoring.domain.models.DataSource
 import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 
-class ItemMonitor(
+class Monitor(
     private val scriptId: String,
     private val scriptPublicKey: String?,
     private val monitorMode: MonitorMode,
@@ -24,12 +24,7 @@ class ItemMonitor(
 ) {
     private var isLicensed = false
 
-    private var job: Job? = null
-    private lateinit var monitorFactory: MonitorFactory
-
     suspend fun onStart(provider: ComponentProvider): Boolean {
-        monitorFactory = MonitorFactory(provider, dataSource)
-
         val scriptId = scriptId
         val scriptPublicKey = scriptPublicKey
 
@@ -59,10 +54,8 @@ class ItemMonitor(
         }
 
         try {
-            val interactor = monitorFactory.createInteractor(statusUpdate)
-            job = CoroutineScope(Dispatchers.Default).launch {
-                interactor(MonitorInteractor.Config(monitorMode))
-            }
+            val interactor = createInteractor(provider, statusUpdate)
+            interactor(MonitorInteractor.Config(monitorMode))
         } catch (e: Exception) {
             statusUpdate("An error occurred with message: ${e.message}")
             return ExecutionResult.Error("Error while monitoring")
@@ -73,8 +66,8 @@ class ItemMonitor(
         return ExecutionResult.Loop("Finished check, looping...", delay)
     }
 
-    fun onFinish(provider: ComponentProvider) {
-        job?.cancel()
+    fun onFinish() {
+        // No-op
     }
 
     companion object {
@@ -82,4 +75,22 @@ class ItemMonitor(
         val MIN_INTERVAL_DURATION = 1.seconds
     }
 
+    private fun createInteractor(
+        provider: ComponentProvider,
+        statusUpdate: suspend (message: String) -> Unit
+    ): MonitorInteractor {
+        val notificationRepository = ScriptNotificationRepository(provider.preference(), provider.notification())
+        val logRepository = ScriptLogRepository(provider.logger(), statusUpdate)
+        val monitorStrategyFactory = MonitorStrategyFactory()
+        val monitorRepository = when (val source = dataSource) {
+            is DataSource.RssFeed -> RssFeedItemRepository(source.rssFeedUrl, provider.logger())
+        }
+
+        return MonitorInteractor(
+            monitorStrategyFactory,
+            monitorRepository,
+            notificationRepository,
+            logRepository
+        )
+    }
 }
