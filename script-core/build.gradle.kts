@@ -6,14 +6,14 @@ dependencies {
     api("com.cereal-automation:cereal-sdk:1.4.0:all")
     implementation("com.cereal-automation:cereal-licensing:1.4.0")
 
-    implementation("com.prof18.rssparser:rssparser:6.0.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("com.prof18.rssparser:rssparser:6.0.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 
     testImplementation(kotlin("test"))
     testImplementation("com.cereal-automation:cereal-test-utils:1.4.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation("io.mockk:mockk:1.13.9")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation("io.mockk:mockk:1.13.13")
 
     testImplementation(kotlin("test"))
 }
