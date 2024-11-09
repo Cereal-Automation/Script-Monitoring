@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v2
@@ -24,6 +24,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+      - name: Ktlint check
+        run: ./gradlew ktlintCheck
       - name: Test
         run: ./gradlew test
       - name: Smoke test build
