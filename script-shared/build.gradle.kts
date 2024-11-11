@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":script-shared"))
+    api(project(":monitoring"))
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
