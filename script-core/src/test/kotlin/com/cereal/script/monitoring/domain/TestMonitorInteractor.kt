@@ -20,7 +20,10 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @RunWith(value = Parameterized::class)
-class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotifications: Int) {
+class TestMonitorInteractor(
+    val monitorMode: MonitorMode,
+    val numberOfNotifications: Int,
+) {
     private lateinit var itemRepository: ItemRepository
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var logRepository: LogRepository
@@ -48,7 +51,7 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
                         values =
                             listOf(
                                 ItemValue.PublishDate(Instant.now()),
-                                ItemValue.Stock(1),
+                                ItemValue.AvailableStock(1),
                                 ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
                             ),
                     ),
@@ -59,7 +62,7 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
                         values =
                             listOf(
                                 ItemValue.PublishDate(Instant.now()),
-                                ItemValue.Stock(0),
+                                ItemValue.AvailableStock(0),
                                 ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
                             ),
                     ),
@@ -70,7 +73,7 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
                         values =
                             listOf(
                                 ItemValue.PublishDate(Instant.now().minusSeconds(60)),
-                                ItemValue.Stock(0),
+                                ItemValue.AvailableStock(0),
                                 ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
                             ),
                     ),
@@ -81,7 +84,7 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
                         values =
                             listOf(
                                 ItemValue.PublishDate(Instant.now()),
-                                ItemValue.Stock(1),
+                                ItemValue.AvailableStock(1),
                                 ItemValue.Price(BigDecimal("50.00"), Currency.EUR),
                             ),
                     ),
@@ -97,8 +100,8 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data(): List<Array<Any>> {
-            return listOf(
+        fun data(): List<Array<Any>> =
+            listOf(
                 // New item available
                 arrayOf(
                     MonitorMode.NewItemAvailable(
@@ -133,6 +136,5 @@ class TestMonitorInteractor(val monitorMode: MonitorMode, val numberOfNotificati
                     4,
                 ),
             )
-        }
     }
 }

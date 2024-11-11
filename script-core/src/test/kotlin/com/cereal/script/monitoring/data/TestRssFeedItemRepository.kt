@@ -1,6 +1,6 @@
 package com.cereal.script.monitoring.data
 
-import com.cereal.script.monitoring.data.item.RssFeedItemRepository
+import com.cereal.script.monitoring.data.item.rss.RssFeedItemRepository
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.sdk.component.logger.LoggerComponent
@@ -43,8 +43,8 @@ class TestRssFeedItemRepository {
             )
         }
 
-    private fun buildRssChannel(): RssChannel {
-        return RssChannel(
+    private fun buildRssChannel(): RssChannel =
+        RssChannel(
             items =
                 listOf(
                     RssItem(
@@ -73,5 +73,4 @@ class TestRssFeedItemRepository {
             updatePeriod = null,
             itunesChannelData = null,
         )
-    }
 }

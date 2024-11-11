@@ -1,4 +1,4 @@
-package com.cereal.script.monitoring.data.item
+package com.cereal.script.monitoring.data.item.rss
 
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue

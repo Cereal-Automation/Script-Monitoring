@@ -1,0 +1,12 @@
+package com.cereal.script.monitoring.data.item.nike.models
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class DisplayColors(
+    @SerialName("colorDescription")
+    val colorDescription: String = "",
+    @SerialName("simpleColor")
+    val simpleColor: SimpleColor = SimpleColor(),
+)

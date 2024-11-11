@@ -25,9 +25,12 @@ sealed class ItemValue(
 
     /**
      * The date at which the item was published.
+     *
+     * @param value null when publish date couldn't reliably be determined. For example when the user just started
+     * monitoring items and there's no publish date information in the data retrieved from the external datasource.
      */
     data class PublishDate(
-        val value: Instant,
+        val value: Instant?,
     ) : ItemValue("publish date") {
         override fun toString(): String {
             val localDateTime = LocalDateTime.ofInstant(value, ZoneId.systemDefault())
@@ -36,10 +39,16 @@ sealed class ItemValue(
         }
     }
 
-    data class Stock(
+    data class AvailableStock(
         val value: Int,
     ) : ItemValue("stock") {
         override fun toString(): String = value.toString()
+    }
+
+    data class InStock(
+        val value: Boolean,
+    ) : ItemValue("in stock") {
+        override fun toString(): String = if (value) "yes" else "no"
     }
 }
 

@@ -65,3 +65,8 @@ A GitHub actions configuration is included in this repository. It contains the f
 
 * Copy the `script-sample` module to a new module and adjust the manifest.json.
 * Add a new factory method to the `MonitoryFactory` class and add it to the `allMonitors` property.
+
+## Tips
+
+* Use the https://plugins.jetbrains.com/plugin/9960-json-to-kotlin-class-jsontokotlinclass- plugin to generate classes
+  from JSON.

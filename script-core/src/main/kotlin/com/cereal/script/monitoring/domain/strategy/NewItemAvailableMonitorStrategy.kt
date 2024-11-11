@@ -5,14 +5,13 @@ import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.models.requireValue
 import java.time.Instant
 
-class NewItemAvailableMonitorStrategy(private val since: Instant) : MonitorStrategy {
-    override suspend fun shouldNotify(item: Item): Boolean {
-        val publishDate = item.requireValue<ItemValue.PublishDate>().value
+class NewItemAvailableMonitorStrategy(
+    private val since: Instant,
+) : MonitorStrategy {
+    override suspend fun shouldNotify(item: Item): Boolean =
+        item.requireValue<ItemValue.PublishDate>().value?.let {
+            it > since
+        } ?: false
 
-        return publishDate > since
-    }
-
-    override fun getNotificationMessage(item: Item): String {
-        return "Found new item: ${item.name}."
-    }
+    override fun getNotificationMessage(item: Item): String = "Found new item: ${item.name}."
 }

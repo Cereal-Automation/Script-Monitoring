@@ -26,5 +26,5 @@ task("obfuscateArtifact", type: ProGuardTask, dependsOn: tasks.shadowJar) {
     // dependencies
     libraryjars sourceSets.main.compileClasspath
 
-    configuration files("proguard-rules/script.pro", "proguard-rules/cereal-licensing.pro")
+    configuration files("proguard-rules/script.pro", "proguard-rules/cereal-licensing.pro", "proguard-rules/kotlinx-serialization.pro")
 }

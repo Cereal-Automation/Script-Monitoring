@@ -2,7 +2,7 @@ apply(from = "packaging.gradle")
 apply(from = "proguard.gradle")
 
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.0.21"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }

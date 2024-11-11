@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization") version "2.0.20"
 }
 
 dependencies {
@@ -8,6 +9,8 @@ dependencies {
 
     implementation("com.prof18.rssparser:rssparser:6.0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("it.skrape:skrapeit:1.2.2")
 
     testImplementation(kotlin("test"))
     testImplementation("com.cereal-automation:cereal-test-utils:1.4.0")

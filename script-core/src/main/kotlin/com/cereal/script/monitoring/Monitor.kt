@@ -4,7 +4,7 @@ import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
 import com.cereal.script.monitoring.data.ScriptLogRepository
 import com.cereal.script.monitoring.data.ScriptNotificationRepository
-import com.cereal.script.monitoring.data.item.RssFeedItemRepository
+import com.cereal.script.monitoring.data.item.rss.RssFeedItemRepository
 import com.cereal.script.monitoring.domain.MonitorInteractor
 import com.cereal.script.monitoring.domain.MonitorStrategyFactory
 import com.cereal.script.monitoring.domain.models.DataSource
