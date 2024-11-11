@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.seconds
 class Monitor(
     private val scriptId: String,
     private val scriptPublicKey: String?,
-    private val monitorMode: MonitorMode,
+    private val monitorModes: List<MonitorMode>,
     private val itemRepository: ItemRepository,
     private val sleep: Duration? = null,
 ) {
@@ -53,7 +53,7 @@ class Monitor(
 
         try {
             val interactor = createInteractor(provider, statusUpdate)
-            interactor(MonitorInteractor.Config(monitorMode))
+            interactor(MonitorInteractor.Config(monitorModes))
         } catch (e: Exception) {
             statusUpdate("An error occurred with message: ${e.message}")
             return ExecutionResult.Error("Error while monitoring")

@@ -20,7 +20,7 @@ class SampleScript : Script<SampleConfiguration> {
             Monitor(
                 scriptId = "com.cereal-automation.monitor.sample",
                 scriptPublicKey = null,
-                monitorMode = MonitorMode.NewItemAvailable(Instant.now()),
+                monitorModes = listOf(MonitorMode.NewItemAvailable(Instant.now())),
                 itemRepository = RssFeedItemRepository("https://feeds.rijksoverheid.nl/nieuws.rss", provider.logger()),
                 sleep = configuration.monitorInterval()?.seconds,
             )

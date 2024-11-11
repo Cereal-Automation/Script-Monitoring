@@ -20,7 +20,7 @@ class NikeScript : Script<NikeConfiguration> {
             Monitor(
                 scriptId = "com.cereal-automation.monitor.nike",
                 scriptPublicKey = null,
-                monitorMode = MonitorMode.NewItemAvailable(Instant.now()),
+                monitorModes = listOf(MonitorMode.NewItemAvailable(Instant.now())),
                 itemRepository = NikeApiItemRepository(configuration.categoryUrl()),
                 sleep = configuration.monitorInterval()?.seconds,
             )
