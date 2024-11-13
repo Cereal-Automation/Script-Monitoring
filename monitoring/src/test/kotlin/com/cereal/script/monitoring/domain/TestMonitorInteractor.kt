@@ -91,7 +91,7 @@ class TestMonitorInteractor(
                 )
 
             interactor.invoke(
-                config = MonitorInteractor.Config(monitorMode),
+                config = MonitorInteractor.Config(listOf(monitorMode)),
             )
 
             coVerify(exactly = numberOfNotifications) { notificationRepository.notify(any()) }

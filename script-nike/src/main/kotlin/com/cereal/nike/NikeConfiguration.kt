@@ -11,7 +11,23 @@ interface NikeConfiguration : BaseConfiguration {
     )
     fun categoryUrl(): String
 
+    @ScriptConfigurationItem(
+        keyName = KEY_MONITOR_PRICE,
+        name = "Monitor price drops",
+        description = "If enabled, send a notification when the price of a product changes.",
+    )
+    fun monitorPriceDrops(): Boolean
+
+    @ScriptConfigurationItem(
+        keyName = KEY_MONITOR_NEW_PRODUCTS,
+        name = "Monitor new products",
+        description = "If enabled, send a notification when there is a new product.",
+    )
+    fun monitorNewProduct(): Boolean
+
     companion object {
         const val KEY_CATEGORY_URL = "category_url"
+        const val KEY_MONITOR_PRICE = "monitor_price"
+        const val KEY_MONITOR_NEW_PRODUCTS = "monitor_new_products"
     }
 }

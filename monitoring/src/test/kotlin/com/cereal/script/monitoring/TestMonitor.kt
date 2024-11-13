@@ -28,7 +28,7 @@ class TestMonitor {
                 Monitor(
                     scriptId = "com.cereal-automation.test",
                     scriptPublicKey = null,
-                    monitorMode = MonitorMode.NewItemAvailable(Instant.now()),
+                    monitorModes = listOf(MonitorMode.NewItemAvailable(Instant.now())),
                     itemRepository = FakeItemRepository(emptyList()),
                 )
             monitor.onStart(componentProvider)

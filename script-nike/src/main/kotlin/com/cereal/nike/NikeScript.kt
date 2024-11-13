@@ -16,11 +16,21 @@ class NikeScript : Script<NikeConfiguration> {
         configuration: NikeConfiguration,
         provider: ComponentProvider,
     ): Boolean {
+        val monitorModes =
+            buildList<MonitorMode> {
+                if (configuration.monitorNewProduct()) {
+                    add(MonitorMode.NewItemAvailable(Instant.now()))
+                }
+                if (configuration.monitorPriceDrops()) {
+                    add(MonitorMode.PriceDrop)
+                }
+            }
+
         monitor =
             Monitor(
                 scriptId = "com.cereal-automation.monitor.nike",
                 scriptPublicKey = null,
-                monitorModes = listOf(MonitorMode.NewItemAvailable(Instant.now())),
+                monitorModes = monitorModes,
                 itemRepository = NikeApiItemRepository(configuration.categoryUrl()),
                 sleep = configuration.monitorInterval()?.seconds,
             )
