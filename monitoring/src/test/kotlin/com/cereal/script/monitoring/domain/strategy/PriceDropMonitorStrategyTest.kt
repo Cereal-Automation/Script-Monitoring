@@ -1,9 +1,8 @@
-package com.cereal.script.monitoring.domain
+package com.cereal.script.monitoring.domain.strategy
 
 import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
-import com.cereal.script.monitoring.domain.strategy.PriceDropMonitorStrategy
 import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import kotlin.test.Test
