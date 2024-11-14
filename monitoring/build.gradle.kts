@@ -7,7 +7,7 @@ dependencies {
     api("com.cereal-automation:cereal-sdk:1.4.0:all")
     api("com.cereal-automation:cereal-licensing:1.4.0")
 
-    implementation("com.prof18.rssparser:rssparser:6.0.8")
+    api("com.prof18.rssparser:rssparser:6.0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("it.skrape:skrapeit:1.2.2")
