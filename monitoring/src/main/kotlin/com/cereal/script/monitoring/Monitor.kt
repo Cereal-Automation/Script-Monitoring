@@ -5,9 +5,8 @@ import com.cereal.licensechecker.LicenseState
 import com.cereal.script.monitoring.data.ScriptLogRepository
 import com.cereal.script.monitoring.data.ScriptNotificationRepository
 import com.cereal.script.monitoring.domain.MonitorInteractor
-import com.cereal.script.monitoring.domain.MonitorStrategyFactory
-import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.script.monitoring.domain.repository.ItemRepository
+import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
 import kotlin.math.max
@@ -17,7 +16,7 @@ import kotlin.time.Duration.Companion.seconds
 class Monitor(
     private val scriptId: String,
     private val scriptPublicKey: String?,
-    private val monitorModes: List<MonitorMode>,
+    private val strategies: List<MonitorStrategy>,
     private val itemRepository: ItemRepository,
     private val sleep: Duration? = null,
 ) {
@@ -53,7 +52,7 @@ class Monitor(
 
         try {
             val interactor = createInteractor(provider, statusUpdate)
-            interactor(MonitorInteractor.Config(monitorModes))
+            interactor(MonitorInteractor.Config(strategies))
         } catch (e: Exception) {
             statusUpdate("An error occurred with message: ${e.message}")
             return ExecutionResult.Error("Error while monitoring")
@@ -79,10 +78,8 @@ class Monitor(
     ): MonitorInteractor {
         val notificationRepository = ScriptNotificationRepository(provider.preference(), provider.notification())
         val logRepository = ScriptLogRepository(provider.logger(), statusUpdate)
-        val monitorStrategyFactory = MonitorStrategyFactory()
 
         return MonitorInteractor(
-            monitorStrategyFactory,
             itemRepository,
             notificationRepository,
             logRepository,

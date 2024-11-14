@@ -3,10 +3,13 @@ package com.cereal.script.monitoring.domain
 import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
-import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.script.monitoring.domain.repository.ItemRepository
 import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
+import com.cereal.script.monitoring.domain.strategy.EqualsOrBelowPriceMonitorStrategy
+import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
+import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrategy
+import com.cereal.script.monitoring.domain.strategy.StockAvailableMonitorStrategy
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -21,7 +24,7 @@ import java.time.Instant
 
 @RunWith(value = Parameterized::class)
 class TestMonitorInteractor(
-    val monitorMode: MonitorMode,
+    val strategy: MonitorStrategy,
     val numberOfNotifications: Int,
 ) {
     private lateinit var itemRepository: ItemRepository
@@ -36,7 +39,7 @@ class TestMonitorInteractor(
         notificationRepository = mockk<NotificationRepository>(relaxed = true)
         logRepository = mockk<LogRepository>(relaxed = true)
 
-        interactor = MonitorInteractor(MonitorStrategyFactory(), itemRepository, notificationRepository, logRepository)
+        interactor = MonitorInteractor(itemRepository, notificationRepository, logRepository)
     }
 
     @Test
@@ -91,7 +94,7 @@ class TestMonitorInteractor(
                 )
 
             interactor.invoke(
-                config = MonitorInteractor.Config(listOf(monitorMode)),
+                config = MonitorInteractor.Config(listOf(strategy)),
             )
 
             coVerify(exactly = numberOfNotifications) { notificationRepository.notify(any()) }
@@ -104,35 +107,35 @@ class TestMonitorInteractor(
             listOf(
                 // New item available
                 arrayOf(
-                    MonitorMode.NewItemAvailable(
+                    NewItemAvailableMonitorStrategy(
                         Instant.now().minusSeconds(1),
                     ),
                     3,
                 ),
                 arrayOf(
-                    MonitorMode.NewItemAvailable(
+                    NewItemAvailableMonitorStrategy(
                         Instant.now().plusSeconds(1),
                     ),
                     0,
                 ),
                 arrayOf(
-                    MonitorMode.NewItemAvailable(
+                    NewItemAvailableMonitorStrategy(
                         Instant.now().minusSeconds(100),
                     ),
                     4,
                 ),
                 // Stock available
                 arrayOf(
-                    MonitorMode.StockAvailable,
+                    StockAvailableMonitorStrategy(),
                     2,
                 ),
                 // Price equals or below
                 arrayOf(
-                    MonitorMode.EqualsOrBelowPrice(BigDecimal("1"), Currency.EUR),
+                    EqualsOrBelowPriceMonitorStrategy(BigDecimal("1"), Currency.EUR),
                     0,
                 ),
                 arrayOf(
-                    MonitorMode.EqualsOrBelowPrice(BigDecimal("50"), Currency.EUR),
+                    EqualsOrBelowPriceMonitorStrategy(BigDecimal("50"), Currency.EUR),
                     4,
                 ),
             )

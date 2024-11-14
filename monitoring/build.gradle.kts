@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     api("com.cereal-automation:cereal-sdk:1.4.0:all")
-    implementation("com.cereal-automation:cereal-licensing:1.4.0")
+    api("com.cereal-automation:cereal-licensing:1.4.0")
 
     implementation("com.prof18.rssparser:rssparser:6.0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")

@@ -2,7 +2,8 @@ package com.cereal.nike
 
 import com.cereal.script.monitoring.Monitor
 import com.cereal.script.monitoring.data.item.nike.NikeApiItemRepository
-import com.cereal.script.monitoring.domain.models.MonitorMode
+import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrategy
+import com.cereal.script.monitoring.domain.strategy.PriceDropMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
@@ -16,13 +17,13 @@ class NikeScript : Script<NikeConfiguration> {
         configuration: NikeConfiguration,
         provider: ComponentProvider,
     ): Boolean {
-        val monitorModes =
-            buildList<MonitorMode> {
+        val strategies =
+            buildList {
                 if (configuration.monitorNewProduct()) {
-                    add(MonitorMode.NewItemAvailable(Instant.now()))
+                    add(NewItemAvailableMonitorStrategy(Instant.now()))
                 }
                 if (configuration.monitorPriceDrops()) {
-                    add(MonitorMode.PriceDrop)
+                    add(PriceDropMonitorStrategy())
                 }
             }
 
@@ -30,7 +31,7 @@ class NikeScript : Script<NikeConfiguration> {
             Monitor(
                 scriptId = "com.cereal-automation.monitor.nike",
                 scriptPublicKey = null,
-                monitorModes = monitorModes,
+                strategies = strategies,
                 itemRepository = NikeApiItemRepository(configuration.categoryUrl()),
                 sleep = configuration.monitorInterval()?.seconds,
             )

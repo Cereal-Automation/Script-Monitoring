@@ -10,17 +10,17 @@ import java.time.Instant
 import kotlin.test.Test
 
 class NewItemAvailableMonitorStrategyTest {
-
     @Test
     fun `shouldNotify returns true for item with publish date after since`() {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
-        val item = Item(
-            "item1",
-            "http://example.com/test",
-            "Test",
-            listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z")))
-        )
+        val item =
+            Item(
+                "item1",
+                "http://example.com/test",
+                "Test",
+                listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
+            )
 
         val result = runBlocking { strategy.shouldNotify(item) }
 
@@ -31,12 +31,13 @@ class NewItemAvailableMonitorStrategyTest {
     fun `shouldNotify returns false for item with publish date before since`() {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
-        val item = Item(
-            "item1",
-            "http://example.com/test",
-            "Test",
-            listOf(ItemValue.PublishDate(Instant.parse("2022-12-31T23:59:59Z")))
-        )
+        val item =
+            Item(
+                "item1",
+                "http://example.com/test",
+                "Test",
+                listOf(ItemValue.PublishDate(Instant.parse("2022-12-31T23:59:59Z"))),
+            )
 
         val result = runBlocking { strategy.shouldNotify(item) }
 
@@ -58,12 +59,13 @@ class NewItemAvailableMonitorStrategyTest {
     fun `getNotificationMessage returns correct message`() {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
-        val item = Item(
-            "item1",
-            "http://example.com/test",
-            "Test",
-            listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z")))
-        )
+        val item =
+            Item(
+                "item1",
+                "http://example.com/test",
+                "Test",
+                listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
+            )
 
         val message = strategy.getNotificationMessage(item)
 

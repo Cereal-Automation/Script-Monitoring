@@ -1,7 +1,6 @@
 package com.cereal.script.monitoring.domain
 
 import com.cereal.script.monitoring.domain.models.Item
-import com.cereal.script.monitoring.domain.models.MonitorMode
 import com.cereal.script.monitoring.domain.repository.ItemRepository
 import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
@@ -9,13 +8,12 @@ import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import kotlinx.coroutines.flow.catch
 
 class MonitorInteractor(
-    private val monitorStrategyFactory: MonitorStrategyFactory,
     private val itemRepository: ItemRepository,
     private val notificationRepository: NotificationRepository,
     private val logRepository: LogRepository,
 ) {
     suspend operator fun invoke(config: Config) {
-        val strategies = config.modes.map { monitorStrategyFactory.create(it) }
+        val strategies = config.strategies
 
         logRepository.add("Start collecting data...")
 
@@ -75,6 +73,6 @@ class MonitorInteractor(
         }
 
     data class Config(
-        val modes: List<MonitorMode>,
+        val strategies: List<MonitorStrategy>,
     )
 }

@@ -2,7 +2,7 @@ package com.cereal.script.monitoring
 
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
-import com.cereal.script.monitoring.domain.models.MonitorMode
+import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.monitoring.fixtures.FakeItemRepository
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
@@ -28,7 +28,7 @@ class TestMonitor {
                 Monitor(
                     scriptId = "com.cereal-automation.test",
                     scriptPublicKey = null,
-                    monitorModes = listOf(MonitorMode.NewItemAvailable(Instant.now())),
+                    strategies = listOf(NewItemAvailableMonitorStrategy(Instant.now())),
                     itemRepository = FakeItemRepository(emptyList()),
                 )
             monitor.onStart(componentProvider)

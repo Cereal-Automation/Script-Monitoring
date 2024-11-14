@@ -2,7 +2,7 @@ package com.cereal.sample
 
 import com.cereal.script.monitoring.Monitor
 import com.cereal.script.monitoring.data.item.rss.RssFeedItemRepository
-import com.cereal.script.monitoring.domain.models.MonitorMode
+import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
@@ -20,7 +20,7 @@ class SampleScript : Script<SampleConfiguration> {
             Monitor(
                 scriptId = "com.cereal-automation.monitor.sample",
                 scriptPublicKey = null,
-                monitorModes = listOf(MonitorMode.NewItemAvailable(Instant.now())),
+                strategies = listOf(NewItemAvailableMonitorStrategy(Instant.now())),
                 itemRepository = RssFeedItemRepository("https://feeds.rijksoverheid.nl/nieuws.rss", provider.logger()),
                 sleep = configuration.monitorInterval()?.seconds,
             )
