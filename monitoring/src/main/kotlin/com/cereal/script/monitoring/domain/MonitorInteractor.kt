@@ -43,7 +43,7 @@ class MonitorInteractor(
                 false
             }
 
-        if (notify && !notificationRepository.isItemNotified(item)) {
+        if (notify) {
             logRepository.add("Sending notification for '${item.name}'.")
 
             try {
