@@ -1,7 +1,7 @@
 package com.cereal.script.monitoring.data.item.nike
 
 enum class ScrapeCategory(
-    val text: String,
+    private val text: String,
     val url: String,
 ) {
     MEN_NEW_RELEASES("Men - New releases", "https://www.nike.com/nl/w/nieuwe-releases-heren-3n82yznik1"),
