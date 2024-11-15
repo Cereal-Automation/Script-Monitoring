@@ -135,8 +135,8 @@ class TestMonitorInteractor {
                     0,
                 ),
                 TestData(
-                    EqualsOrBelowPriceMonitorStrategy(BigDecimal("50"), Currency.EUR),
-                    4,
+                    EqualsOrBelowPriceMonitorStrategy(BigDecimal("10"), Currency.EUR),
+                    3,
                 ),
             )
     }
