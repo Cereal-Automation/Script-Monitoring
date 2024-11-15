@@ -3,9 +3,9 @@ package com.cereal.script.monitoring.domain.strategy
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue.AvailableStock
 import com.cereal.script.monitoring.domain.models.MissingValueTypeException
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 
 class StockAvailableMonitorStrategyTest {
@@ -53,7 +53,7 @@ class StockAvailableMonitorStrategyTest {
 
         try {
             runBlocking { monitorStrategy.shouldNotify(item) }
-            assertFalse("Expected MissingValueTypeException but no exception was thrown", true)
+            assertFalse(true, "Expected MissingValueTypeException but no exception was thrown")
         } catch (e: MissingValueTypeException) {
             assertTrue(true)
         }
@@ -101,7 +101,7 @@ class StockAvailableMonitorStrategyTest {
 
         try {
             monitorStrategy.getNotificationMessage(item)
-            assertFalse("Expected MissingValueTypeException but no exception was thrown", true)
+            assertFalse(true, "Expected MissingValueTypeException but no exception was thrown")
         } catch (e: MissingValueTypeException) {
             assertTrue(true)
         }

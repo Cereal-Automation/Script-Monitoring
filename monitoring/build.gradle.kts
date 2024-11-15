@@ -13,12 +13,27 @@ dependencies {
     implementation("it.skrape:skrapeit:1.2.2")
 
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("com.cereal-automation:cereal-test-utils:1.4.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     testImplementation("io.mockk:mockk:1.13.13")
 
     testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    description = "Runs only the integrations tests."
+    group = "verification"
 }
 
 kotlin {

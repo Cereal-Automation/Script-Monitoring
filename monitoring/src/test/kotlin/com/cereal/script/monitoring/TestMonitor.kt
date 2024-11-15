@@ -10,7 +10,7 @@ import com.cereal.test.components.TestComponentProviderFactory
 import io.mockk.coEvery
 import io.mockk.mockkConstructor
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.time.Instant
 
 class TestMonitor {

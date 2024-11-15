@@ -9,9 +9,9 @@ import com.prof18.rssparser.model.RssChannel
 import com.prof18.rssparser.model.RssItem
 import io.mockk.coEvery
 import io.mockk.mockk
-import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.time.Instant
 
 class TestRssFeedItemRepository {

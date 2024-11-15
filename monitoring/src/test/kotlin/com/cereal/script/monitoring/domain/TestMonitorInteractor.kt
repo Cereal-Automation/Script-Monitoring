@@ -15,25 +15,20 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigDecimal
 import java.time.Instant
 
-@RunWith(value = Parameterized::class)
-class TestMonitorInteractor(
-    val strategy: MonitorStrategy,
-    val numberOfNotifications: Int,
-) {
+class TestMonitorInteractor {
     private lateinit var itemRepository: ItemRepository
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var logRepository: LogRepository
 
     private lateinit var interactor: MonitorInteractor
 
-    @Before
+    @BeforeEach
     fun init() {
         itemRepository = mockk<ItemRepository>(relaxed = true)
         notificationRepository = mockk<NotificationRepository>(relaxed = true)
@@ -42,8 +37,9 @@ class TestMonitorInteractor(
         interactor = MonitorInteractor(itemRepository, notificationRepository, logRepository)
     }
 
-    @Test
-    fun testNotification() =
+    @ParameterizedTest
+    @MethodSource("data")
+    fun testNotification(data: TestData) =
         runBlocking {
             coEvery { itemRepository.getItems() } returns
                 flowOf(
@@ -94,47 +90,51 @@ class TestMonitorInteractor(
                 )
 
             interactor.invoke(
-                config = MonitorInteractor.Config(listOf(strategy)),
+                config = MonitorInteractor.Config(listOf(data.strategy)),
             )
 
-            coVerify(exactly = numberOfNotifications) { notificationRepository.notify(any()) }
+            coVerify(exactly = data.numberOfNotifications) { notificationRepository.notify(any()) }
         }
+
+    data class TestData(
+        val strategy: MonitorStrategy,
+        val numberOfNotifications: Int,
+    )
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): List<Array<Any>> =
+        fun data(): List<TestData> =
             listOf(
                 // New item available
-                arrayOf(
+                TestData(
                     NewItemAvailableMonitorStrategy(
                         Instant.now().minusSeconds(1),
                     ),
                     3,
                 ),
-                arrayOf(
+                TestData(
                     NewItemAvailableMonitorStrategy(
                         Instant.now().plusSeconds(1),
                     ),
                     0,
                 ),
-                arrayOf(
+                TestData(
                     NewItemAvailableMonitorStrategy(
                         Instant.now().minusSeconds(100),
                     ),
                     4,
                 ),
                 // Stock available
-                arrayOf(
+                TestData(
                     StockAvailableMonitorStrategy(),
                     2,
                 ),
                 // Price equals or below
-                arrayOf(
+                TestData(
                     EqualsOrBelowPriceMonitorStrategy(BigDecimal("1"), Currency.EUR),
                     0,
                 ),
-                arrayOf(
+                TestData(
                     EqualsOrBelowPriceMonitorStrategy(BigDecimal("50"), Currency.EUR),
                     4,
                 ),

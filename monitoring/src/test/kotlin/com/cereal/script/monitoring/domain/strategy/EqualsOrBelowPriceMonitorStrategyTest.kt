@@ -4,9 +4,9 @@ import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.CurrencyMismatchException
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import java.math.BigDecimal
 import kotlin.test.Test
 
