@@ -22,7 +22,8 @@ class PriceDropMonitorStrategy : MonitorStrategy {
     }
 
     override fun getNotificationMessage(item: Item): String {
-        val itemPrice = item.requireValue<ItemValue.Price>().value
-        return "Price for ${item.name} dropped to $itemPrice"
+        val price = item.requireValue<ItemValue.Price>()
+
+        return "Price for ${item.name} dropped to $price."
     }
 }
