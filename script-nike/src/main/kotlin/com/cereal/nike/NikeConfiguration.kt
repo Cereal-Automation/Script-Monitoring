@@ -1,15 +1,16 @@
 package com.cereal.nike
 
+import com.cereal.script.monitoring.data.item.nike.ScrapeCategory
 import com.cereal.sdk.ScriptConfigurationItem
 import com.cereal.shared.BaseConfiguration
 
 interface NikeConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(
-        keyName = KEY_CATEGORY_URL,
-        name = "Category URL",
-        description = "The url of the category to monitor. For example https://www.nike.com/w/mens-shoes-nik1zy7ok",
+        keyName = KEY_CATEGORY,
+        name = "Category",
+        description = "The category to monitor.",
     )
-    fun categoryUrl(): String
+    fun category(): ScrapeCategory
 
     @ScriptConfigurationItem(
         keyName = KEY_MONITOR_PRICE,
@@ -26,7 +27,7 @@ interface NikeConfiguration : BaseConfiguration {
     fun monitorNewProduct(): Boolean
 
     companion object {
-        const val KEY_CATEGORY_URL = "category_url"
+        const val KEY_CATEGORY = "category"
         const val KEY_MONITOR_PRICE = "monitor_price"
         const val KEY_MONITOR_NEW_PRODUCTS = "monitor_new_products"
     }

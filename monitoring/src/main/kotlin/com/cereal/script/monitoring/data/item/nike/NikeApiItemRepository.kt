@@ -29,7 +29,7 @@ import java.time.Instant
  * 3. Augment data from step 2 by scraping product detail pages to add some more data on products.
  */
 class NikeApiItemRepository(
-    private val startUrl: String,
+    private val category: ScrapeCategory,
 ) : ItemRepository {
     private val json =
         Json {
@@ -41,7 +41,7 @@ class NikeApiItemRepository(
     private val defaultCurrencyCode = Currency.USD
 
     override suspend fun getItems(): Flow<Item> =
-        flow { emitAll(parseFirstPage(startUrl)) }
+        flow { emitAll(parseFirstPage(category.url)) }
             .onCompletion { cause ->
                 if (cause == null) {
                     firstRun = false

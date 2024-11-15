@@ -1,19 +1,31 @@
 package com.cereal.script.monitoring.data
 
 import com.cereal.script.monitoring.data.item.nike.NikeApiItemRepository
+import com.cereal.script.monitoring.data.item.nike.ScrapeCategory
 import com.cereal.script.monitoring.domain.models.Item
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
-import kotlin.test.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class TestNikeApiItemRepository {
     @Tag("integration")
-    @Test
-    fun testSuccess() =
+    @ParameterizedTest
+    @MethodSource("data")
+    fun testSuccess(data: TestData) =
         runBlocking {
-            val repository = NikeApiItemRepository("https://www.nike.com/w/mens-shoes-nik1zy7ok")
+            val repository = NikeApiItemRepository(data.category)
 
             val collectedItems = mutableListOf<Item>()
             repository.getItems().collect { collectedItems.add(it) }
         }
+
+    data class TestData(
+        val category: ScrapeCategory,
+    )
+
+    companion object {
+        @JvmStatic
+        fun data(): List<TestData> = ScrapeCategory.entries.map { TestData(it) }
+    }
 }
