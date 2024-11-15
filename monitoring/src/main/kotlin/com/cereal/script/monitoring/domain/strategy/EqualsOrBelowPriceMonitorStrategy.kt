@@ -35,9 +35,11 @@ class EqualsOrBelowPriceMonitorStrategy(
 
         val isCheaper = itemPrice.value <= compareToPrice
 
-        // Update the price so that we don't keep notifying the user when the next run also evaluates to the same
-        // (lower) price.
-        compareToPrice = itemPrice.value
+        if (isCheaper) {
+            // Update the price so that we don't keep notifying the user when the next run also evaluates to the same
+            // (lower) price.
+            compareToPrice = itemPrice.value
+        }
 
         return isCheaper
     }
