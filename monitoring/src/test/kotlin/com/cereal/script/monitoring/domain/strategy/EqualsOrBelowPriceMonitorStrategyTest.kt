@@ -81,4 +81,46 @@ class EqualsOrBelowPriceMonitorStrategyTest {
 
             assertEquals("Test Item is available for 100.00", message)
         }
+
+    @Test
+    fun `shouldNotify returns false when item price is above provided price`() =
+        runBlocking {
+            val item =
+                Item(
+                    id = "id",
+                    url = "url",
+                    name = "name",
+                    values = listOf(ItemValue.Price(BigDecimal("200.00"), Currency.USD)),
+                )
+            val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
+
+            val result = strategy.shouldNotify(item)
+
+            assertTrue(!result)
+        }
+
+    @Test
+    fun `shouldNotify updates comparison price after first notification check`() =
+        runBlocking {
+            val item1 =
+                Item(
+                    id = "id",
+                    url = "url",
+                    name = "name",
+                    values = listOf(ItemValue.Price(BigDecimal("100.00"), Currency.USD)),
+                )
+            val item2 =
+                Item(
+                    id = "id",
+                    url = "url",
+                    name = "name2",
+                    values = listOf(ItemValue.Price(BigDecimal("75.00"), Currency.USD)),
+                )
+            val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
+
+            strategy.shouldNotify(item1)
+            val result = strategy.shouldNotify(item2)
+
+            assertTrue(result)
+        }
 }
