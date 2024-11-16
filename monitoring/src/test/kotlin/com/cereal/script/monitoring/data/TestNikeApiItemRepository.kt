@@ -14,7 +14,7 @@ class TestNikeApiItemRepository {
     @MethodSource("data")
     fun testSuccess(data: TestData) =
         runBlocking {
-            val repository = NikeApiItemRepository(data.category)
+            val repository = NikeApiItemRepository(data.category, null)
 
             val collectedItems = mutableListOf<Item>()
             repository.getItems().collect { collectedItems.add(it) }

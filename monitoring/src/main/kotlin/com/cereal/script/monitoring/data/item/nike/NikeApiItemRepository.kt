@@ -7,8 +7,11 @@ import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.repository.ItemRepository
+import com.cereal.sdk.models.proxy.RandomProxy
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
+import it.skrape.fetcher.ProxyBuilder
+import it.skrape.fetcher.basic
 import it.skrape.fetcher.extractIt
 import it.skrape.fetcher.skrape
 import it.skrape.selects.html5.script
@@ -30,6 +33,7 @@ import java.time.Instant
  */
 class NikeApiItemRepository(
     private val category: ScrapeCategory,
+    private val randomProxy: RandomProxy?,
 ) : ItemRepository {
     private val json =
         Json {
@@ -41,18 +45,35 @@ class NikeApiItemRepository(
     private val defaultCurrencyCode = Currency.USD
 
     override suspend fun getItems(): Flow<Item> =
-        flow { emitAll(parseFirstPage(category.url)) }
-            .onCompletion { cause ->
-                if (cause == null) {
-                    firstRun = false
-                }
-            }
-
-    private fun parseFirstPage(scrapeUrl: String): Flow<Item> =
         flow {
+            emitAll(parseFirstPage(category.url, randomProxy))
+        }.onCompletion { cause ->
+            if (cause == null) {
+                firstRun = false
+            }
+        }
+
+    private fun parseFirstPage(
+        scrapeUrl: String,
+        randomProxy: RandomProxy?,
+    ): Flow<Item> =
+        flow {
+            val proxyInfo = randomProxy?.invoke()
+
             val nikeResponse =
                 skrape(HttpFetcher) {
-                    request { url = scrapeUrl }
+                    request {
+                        url = scrapeUrl
+                        sslRelaxed = true
+                        proxyInfo?.let {
+                            proxy = ProxyBuilder(host = it.address, port = it.port ?: DEFAULT_PROXY_PORT)
+                        }
+                        authentication =
+                            basic {
+                                username = proxyInfo?.username.orEmpty()
+                                password = proxyInfo?.password.orEmpty()
+                            }
+                    }
                     extractIt<NikeSkrapeResponse> { result ->
                         htmlDocument {
                             val jsonData =
@@ -77,19 +98,32 @@ class NikeApiItemRepository(
 
             val nextPageUrl = nikeResponse.wall.pageData.next
             if (nextPageUrl.isNotEmpty()) {
-                emitAll(createFeedApiRequest(nextPageUrl))
+                emitAll(createFeedApiRequest(nextPageUrl, randomProxy))
             }
         }
 
-    private fun createFeedApiRequest(nextPageLink: String): Flow<Item> =
+    private suspend fun createFeedApiRequest(
+        nextPageLink: String,
+        randomProxy: RandomProxy?,
+    ): Flow<Item> =
         flow {
             val scrapeUrl = "https://api.nike.com/$nextPageLink"
+            val proxyInfo = randomProxy?.invoke()
 
             val nikeResponse =
                 skrape(HttpFetcher) {
                     request {
                         url = scrapeUrl
+                        sslRelaxed = true
                         headers = mapOf("nike-api-caller-id" to "com.nike:commerce.idpdp.mobile")
+                        proxyInfo?.let {
+                            proxy = ProxyBuilder(host = it.address, port = it.port ?: DEFAULT_PROXY_PORT)
+                        }
+                        authentication =
+                            basic {
+                                username = proxyInfo?.username.orEmpty()
+                                password = proxyInfo?.password.orEmpty()
+                            }
                     }
                     extractIt<NikeSkrapeResponse> { result ->
                         result.wall = json.decodeFromString<Wall>(responseBody)
@@ -104,7 +138,7 @@ class NikeApiItemRepository(
 
             val nextPageUrl = nikeResponse.wall.pages.next
             if (nextPageUrl.isNotEmpty()) {
-                emitAll(createFeedApiRequest(nextPageUrl))
+                emitAll(createFeedApiRequest(nextPageUrl, randomProxy))
             }
         }
 
@@ -126,5 +160,9 @@ class NikeApiItemRepository(
     private fun getPublishDate(productId: String): Instant? {
         val publishDate = if (firstRun) null else Instant.now()
         return publishDates.getOrPut(productId) { publishDate }
+    }
+
+    companion object {
+        const val DEFAULT_PROXY_PORT = 8080
     }
 }

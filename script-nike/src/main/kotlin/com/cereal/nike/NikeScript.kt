@@ -32,7 +32,11 @@ class NikeScript : Script<NikeConfiguration> {
                 scriptId = "com.cereal-automation.monitor.nike",
                 scriptPublicKey = null,
                 strategies = strategies,
-                itemRepository = NikeApiItemRepository(configuration.category()),
+                itemRepository =
+                    NikeApiItemRepository(
+                        category = configuration.category(),
+                        randomProxy = configuration.proxy(),
+                    ),
                 sleep = configuration.monitorInterval()?.seconds,
             )
 

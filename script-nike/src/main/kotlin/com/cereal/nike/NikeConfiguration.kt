@@ -2,6 +2,7 @@ package com.cereal.nike
 
 import com.cereal.script.monitoring.data.item.nike.ScrapeCategory
 import com.cereal.sdk.ScriptConfigurationItem
+import com.cereal.sdk.models.proxy.RandomProxy
 import com.cereal.shared.BaseConfiguration
 
 interface NikeConfiguration : BaseConfiguration {
@@ -26,9 +27,19 @@ interface NikeConfiguration : BaseConfiguration {
     )
     fun monitorNewProduct(): Boolean
 
+    @ScriptConfigurationItem(
+        keyName = KEY_RANDOM_PROXY,
+        name = "Proxies",
+        description =
+            "The proxy to use when scraping the Nike website. If multiple proxies are available, they will" +
+                "be rotated after each run.",
+    )
+    fun proxy(): RandomProxy
+
     companion object {
         const val KEY_CATEGORY = "category"
         const val KEY_MONITOR_PRICE = "monitor_price"
         const val KEY_MONITOR_NEW_PRODUCTS = "monitor_new_products"
+        const val KEY_RANDOM_PROXY = "random_proxy"
     }
 }
