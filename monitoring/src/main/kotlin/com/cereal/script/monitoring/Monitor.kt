@@ -64,8 +64,7 @@ class Monitor(
             val interactor = createInteractor(provider, statusUpdate)
             interactor(MonitorInteractor.Config(strategies))
         } catch (e: Exception) {
-            statusUpdate("An error occurred with message: ${e.message}")
-            return ExecutionResult.Error("Error while monitoring")
+            return ExecutionResult.Error("Error while monitoring: ${e.message}")
         }
 
         val delay =

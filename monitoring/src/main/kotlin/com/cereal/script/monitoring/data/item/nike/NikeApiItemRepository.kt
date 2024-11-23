@@ -15,14 +15,11 @@ import it.skrape.fetcher.basic
 import it.skrape.fetcher.extractIt
 import it.skrape.fetcher.skrape
 import it.skrape.selects.html5.script
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.retry
 import kotlinx.serialization.json.Json
-import java.io.IOException
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -49,8 +46,6 @@ class NikeApiItemRepository(
     override suspend fun getItems(): Flow<Item> =
         flow {
             emitAll(parseFirstPage(category.url, randomProxy))
-        }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
-            (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
         }.onCompletion { cause ->
             if (cause == null) {
                 firstRun = false
@@ -145,7 +140,5 @@ class NikeApiItemRepository(
 
     companion object {
         const val HTTP_REQUEST_TIMEOUT = 5000
-        const val HTTP_REQUEST_RETRY_COUNT = 5L
-        const val HTTP_REQUEST_RETRY_DELAY = 5000L
     }
 }
