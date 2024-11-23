@@ -31,8 +31,7 @@ import java.time.Instant
  *
  * 1. Fetch the product list page HTML with nested JSON. Use it to extract some initial product data and the first
  * value for endpoint parameter to start API scraping.
- * 2. Scrape product feed API by traversing all pages. This gives product titles and pricing info.
- * 3. Augment data from step 2 by scraping product detail pages to add some more data on products.
+ * 2. Scrape product feed API by traversing all pages.
  */
 class NikeApiItemRepository(
     private val category: ScrapeCategory,
