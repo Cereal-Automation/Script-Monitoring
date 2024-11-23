@@ -2,6 +2,7 @@ package com.cereal.script.monitoring
 
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
+import com.cereal.script.monitoring.data.ScriptExecutionRepository
 import com.cereal.script.monitoring.data.ScriptLogRepository
 import com.cereal.script.monitoring.data.ScriptNotificationRepository
 import com.cereal.script.monitoring.domain.MonitorInteractor
@@ -13,6 +14,15 @@ import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * The Monitor class handles monitoring of items using specified strategies and repositories.
+ *
+ * @property scriptId Unique identifier of the script.
+ * @property scriptPublicKey Optional public key for license validation.
+ * @property strategies List of strategies for monitoring items.
+ * @property itemRepository Repository to fetch items from.
+ * @property sleep Optional duration for sleep interval between checks.
+ */
 class Monitor(
     private val scriptId: String,
     private val scriptPublicKey: String?,
@@ -78,11 +88,13 @@ class Monitor(
     ): MonitorInteractor {
         val notificationRepository = ScriptNotificationRepository(provider.preference(), provider.notification())
         val logRepository = ScriptLogRepository(provider.logger(), statusUpdate)
+        val statisticsRepository = ScriptExecutionRepository()
 
         return MonitorInteractor(
             itemRepository,
             notificationRepository,
             logRepository,
+            statisticsRepository,
         )
     }
 }

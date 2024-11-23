@@ -1,25 +1,44 @@
 package com.cereal.script.monitoring.domain
 
+import com.cereal.script.monitoring.domain.models.Execution
 import com.cereal.script.monitoring.domain.models.Item
+import com.cereal.script.monitoring.domain.models.duration
+import com.cereal.script.monitoring.domain.repository.ExecutionRepository
 import com.cereal.script.monitoring.domain.repository.ItemRepository
 import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
 import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import java.time.Instant
 
 class MonitorInteractor(
     private val itemRepository: ItemRepository,
     private val notificationRepository: NotificationRepository,
     private val logRepository: LogRepository,
+    private val executionRepository: ExecutionRepository,
 ) {
     suspend operator fun invoke(config: Config) {
         val strategies = config.strategies
 
-        logRepository.add("Start collecting data...")
+        val executions = executionRepository.getExecutions()
+        val execution = Execution(executions.last().sequenceNumber + 1, start = null, end = null)
 
         return itemRepository
             .getItems()
-            .catch { logRepository.add("Error retrieving data with message: ${it.message}") }
+            .onStart {
+                val updatedExecution = execution.copy(start = Instant.now())
+                executionRepository.updateExecution(updatedExecution)
+                logRepository.add("Start collecting data.", mapOf("seq_number" to execution.sequenceNumber))
+            }.onCompletion {
+                val updatedExecution = execution.copy(end = Instant.now())
+                executionRepository.updateExecution(updatedExecution)
+                logRepository.add(
+                    "Finished collecting data.",
+                    mapOf("seq_number" to execution.sequenceNumber, "duration" to execution.duration().toString()),
+                )
+            }.catch { logRepository.add("Error retrieving data with message: ${it.message}") }
             .collect { item ->
                 logRepository.add(item.getItemFoundText())
 

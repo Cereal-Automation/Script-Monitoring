@@ -3,6 +3,7 @@ package com.cereal.script.monitoring.domain
 import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
+import com.cereal.script.monitoring.domain.repository.ExecutionRepository
 import com.cereal.script.monitoring.domain.repository.ItemRepository
 import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
@@ -25,6 +26,7 @@ class TestMonitorInteractor {
     private lateinit var itemRepository: ItemRepository
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var logRepository: LogRepository
+    private lateinit var executionRepository: ExecutionRepository
 
     private lateinit var interactor: MonitorInteractor
 
@@ -33,8 +35,9 @@ class TestMonitorInteractor {
         itemRepository = mockk<ItemRepository>(relaxed = true)
         notificationRepository = mockk<NotificationRepository>(relaxed = true)
         logRepository = mockk<LogRepository>(relaxed = true)
+        executionRepository = mockk<ExecutionRepository>(relaxed = true)
 
-        interactor = MonitorInteractor(itemRepository, notificationRepository, logRepository)
+        interactor = MonitorInteractor(itemRepository, notificationRepository, logRepository, executionRepository)
     }
 
     @ParameterizedTest

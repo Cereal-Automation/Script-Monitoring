@@ -8,8 +8,18 @@ class ScriptLogRepository(
     private val statusUpdate:
         suspend (message: String) -> Unit,
 ) : LogRepository {
-    override suspend fun add(message: String) {
-        statusUpdate(message)
-        loggerComponent.info(message)
+    override suspend fun add(
+        message: String,
+        args: Map<String, Any>?,
+    ) {
+        val formattedMessage =
+            if (args.isNullOrEmpty()) {
+                message
+            } else {
+                "$message [${args.entries.joinToString(", ") { "${it.key}=${it.value}" }}]"
+            }
+
+        statusUpdate(formattedMessage)
+        loggerComponent.info(formattedMessage)
     }
 }
