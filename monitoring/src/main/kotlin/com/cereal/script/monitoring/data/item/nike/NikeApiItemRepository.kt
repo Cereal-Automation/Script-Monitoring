@@ -49,6 +49,8 @@ class NikeApiItemRepository(
     override suspend fun getItems(): Flow<Item> =
         flow {
             emitAll(parseFirstPage(category.url, randomProxy))
+        }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
+            (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
         }.onCompletion { cause ->
             if (cause == null) {
                 firstRun = false
@@ -119,8 +121,6 @@ class NikeApiItemRepository(
                     },
                 )
             }
-        }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
-            (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
         }
 
     private fun Product.toItem(): Item =
