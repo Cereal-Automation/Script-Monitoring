@@ -60,60 +60,26 @@ class NikeApiItemRepository(
         scrapeUrl: String,
         randomProxy: RandomProxy?,
     ): Flow<Item> =
-        flow {
-            val proxyInfo = randomProxy?.invoke()
-
-            val nikeResponse =
-                skrape(HttpFetcher) {
-                    request {
-                        url = scrapeUrl
-                        sslRelaxed = true
-                        timeout = HTTP_REQUEST_TIMEOUT
-                        proxyInfo?.let {
-                            proxy = ProxyBuilder(host = it.address, port = it.port)
-                        }
-                        authentication =
-                            basic {
-                                username = proxyInfo?.username.orEmpty()
-                                password = proxyInfo?.password.orEmpty()
-                            }
+        createFlow(scrapeUrl, randomProxy) {
+            it.htmlDocument {
+                val jsonData =
+                    script {
+                        withId = "__NEXT_DATA__"
+                        findFirst { html }
                     }
-                    extractIt<NikeSkrapeResponse> { result ->
-                        htmlDocument {
-                            val jsonData =
-                                script {
-                                    withId = "__NEXT_DATA__"
-                                    findFirst { html }
-                                }
 
-                            result.wall =
-                                json
-                                    .decodeFromString<NikeResponse>(jsonData)
-                                    .props.pageProps.initialState.wall
-                        }
-                    }
-                }
-
-            nikeResponse.wall.productGroupings.forEach { productGrouping ->
-                productGrouping.products?.forEach { product ->
-                    emit(product.toItem())
-                }
+                json
+                    .decodeFromString<NikeResponse>(jsonData)
+                    .props.pageProps.initialState.wall
             }
-
-            val nextPageUrl = nikeResponse.wall.pageData.next
-            if (nextPageUrl.isNotEmpty()) {
-                emitAll(createFeedApiRequest(nextPageUrl, randomProxy))
-            }
-        }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
-            (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
         }
 
-    private fun createFeedApiRequest(
-        nextPageLink: String,
+    private fun createFlow(
+        scrapeUrl: String,
         randomProxy: RandomProxy?,
+        extractWall: (it.skrape.fetcher.Result) -> Wall,
     ): Flow<Item> =
         flow {
-            val scrapeUrl = "https://api.nike.com/$nextPageLink"
             val proxyInfo = randomProxy?.invoke()
 
             val nikeResponse =
@@ -133,7 +99,7 @@ class NikeApiItemRepository(
                             }
                     }
                     extractIt<NikeSkrapeResponse> { result ->
-                        result.wall = json.decodeFromString<Wall>(responseBody)
+                        result.wall = extractWall(this)
                     }
                 }
 
@@ -143,9 +109,16 @@ class NikeApiItemRepository(
                 }
             }
 
-            val nextPageUrl = nikeResponse.wall.pages.next
-            if (nextPageUrl.isNotEmpty()) {
-                emitAll(createFeedApiRequest(nextPageUrl, randomProxy))
+            // The first page nikeResponse.wall.pageData.next is filled, all subsequent pages nikeResponse.wall.pages.next is filled.
+            val nextPagePath =
+                nikeResponse.wall.pages.next
+                    .ifEmpty { nikeResponse.wall.pageData.next }
+            if (nextPagePath.isNotEmpty()) {
+                emitAll(
+                    createFlow("https://api.nike.com/$nextPagePath", randomProxy) {
+                        json.decodeFromString<Wall>(it.responseBody)
+                    },
+                )
             }
         }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
             (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
