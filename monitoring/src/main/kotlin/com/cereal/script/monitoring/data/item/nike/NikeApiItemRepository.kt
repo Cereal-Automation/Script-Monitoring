@@ -70,7 +70,7 @@ class NikeApiItemRepository(
                         sslRelaxed = true
                         timeout = HTTP_REQUEST_TIMEOUT
                         proxyInfo?.let {
-                            proxy = ProxyBuilder(host = it.address, port = it.port ?: DEFAULT_PROXY_PORT)
+                            proxy = ProxyBuilder(host = it.address, port = it.port)
                         }
                         authentication =
                             basic {
@@ -124,7 +124,7 @@ class NikeApiItemRepository(
                         timeout = HTTP_REQUEST_TIMEOUT
                         headers = mapOf("nike-api-caller-id" to "com.nike:commerce.idpdp.mobile")
                         proxyInfo?.let {
-                            proxy = ProxyBuilder(host = it.address, port = it.port ?: DEFAULT_PROXY_PORT)
+                            proxy = ProxyBuilder(host = it.address, port = it.port)
                         }
                         authentication =
                             basic {
@@ -172,7 +172,6 @@ class NikeApiItemRepository(
     }
 
     companion object {
-        const val DEFAULT_PROXY_PORT = 8080
         const val HTTP_REQUEST_TIMEOUT = 5000
         const val HTTP_REQUEST_RETRY_COUNT = 5L
         const val HTTP_REQUEST_RETRY_DELAY = 5000L

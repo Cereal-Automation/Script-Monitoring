@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api("com.cereal-automation:cereal-sdk:1.4.0:all")
+    api("com.cereal-automation:cereal-sdk:1.5.0:all")
     api("com.cereal-automation:cereal-licensing:1.4.0")
 
     api("com.prof18.rssparser:rssparser:6.0.8")
