@@ -15,11 +15,14 @@ import it.skrape.fetcher.basic
 import it.skrape.fetcher.extractIt
 import it.skrape.fetcher.skrape
 import it.skrape.selects.html5.script
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.retry
 import kotlinx.serialization.json.Json
+import java.io.IOException
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -65,6 +68,7 @@ class NikeApiItemRepository(
                     request {
                         url = scrapeUrl
                         sslRelaxed = true
+                        timeout = HTTP_REQUEST_TIMEOUT
                         proxyInfo?.let {
                             proxy = ProxyBuilder(host = it.address, port = it.port ?: DEFAULT_PROXY_PORT)
                         }
@@ -100,9 +104,11 @@ class NikeApiItemRepository(
             if (nextPageUrl.isNotEmpty()) {
                 emitAll(createFeedApiRequest(nextPageUrl, randomProxy))
             }
+        }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
+            (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
         }
 
-    private suspend fun createFeedApiRequest(
+    private fun createFeedApiRequest(
         nextPageLink: String,
         randomProxy: RandomProxy?,
     ): Flow<Item> =
@@ -115,6 +121,7 @@ class NikeApiItemRepository(
                     request {
                         url = scrapeUrl
                         sslRelaxed = true
+                        timeout = HTTP_REQUEST_TIMEOUT
                         headers = mapOf("nike-api-caller-id" to "com.nike:commerce.idpdp.mobile")
                         proxyInfo?.let {
                             proxy = ProxyBuilder(host = it.address, port = it.port ?: DEFAULT_PROXY_PORT)
@@ -140,6 +147,8 @@ class NikeApiItemRepository(
             if (nextPageUrl.isNotEmpty()) {
                 emitAll(createFeedApiRequest(nextPageUrl, randomProxy))
             }
+        }.retry(HTTP_REQUEST_RETRY_COUNT) { e ->
+            (e is IOException).also { if (it) delay(HTTP_REQUEST_RETRY_DELAY) }
         }
 
     private fun Product.toItem(): Item =
@@ -164,5 +173,8 @@ class NikeApiItemRepository(
 
     companion object {
         const val DEFAULT_PROXY_PORT = 8080
+        const val HTTP_REQUEST_TIMEOUT = 5000
+        const val HTTP_REQUEST_RETRY_COUNT = 5L
+        const val HTTP_REQUEST_RETRY_DELAY = 5000L
     }
 }
