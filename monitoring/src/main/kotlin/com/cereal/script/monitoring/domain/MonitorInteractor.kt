@@ -44,6 +44,12 @@ class MonitorInteractor(
             }
     }
 
+    /**
+     * Extension function for Flow<T> that updates the execution start and end times in an execution repository.
+     *
+     * @param sequenceNumber The execution sequence number used for tracking and updating execution times.
+     * @return A Flow<T> that updates the execution start time at the beginning and end time upon completion.
+     */
     private fun <T> Flow<T>.applyUpdateExecution(sequenceNumber: Int): Flow<T> =
         this
             .onStart {
@@ -56,6 +62,12 @@ class MonitorInteractor(
                 executionRepository.update(updatedExecution)
             }
 
+    /**
+     * Extension function for Flow<T> that logs the start and completion of the data collection process.
+     *
+     * @param executionSequenceNumber The execution sequence number used for tracking and logging purposes.
+     * @return A Flow<T> that logs messages at the start and completion of the collection process.
+     */
     private fun <T> Flow<T>.applyLogging(executionSequenceNumber: Int): Flow<T> =
         this
             .onStart {
@@ -73,6 +85,12 @@ class MonitorInteractor(
                 )
             }
 
+    /**
+     * Extension function for Flow<T> that retries the data collection process based on a specified retry policy.
+     *
+     * @param executionSequenceNumber The execution sequence number used for logging purposes.
+     * @return A Flow<T> that retries the collection process based on the configured retry policy.
+     */
     private fun <T> Flow<T>.applyRetry(executionSequenceNumber: Int): Flow<T> =
         this.retryWhen { cause, attempt ->
             if (attempt < RETRY_ATTEMPTS_TOTAL) {
