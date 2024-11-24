@@ -87,7 +87,11 @@ class MonitorInteractor(
 
                 logRepository.add(
                     logMessage,
-                    execution.logInfo(true),
+                    execution.logInfo() +
+                        mapOf(
+                            "total_items" to execution.totalItems,
+                            "duration" to execution.duration().toString(),
+                        ),
                 )
             }
 
@@ -122,18 +126,10 @@ class MonitorInteractor(
             }
         }
 
-    private fun Execution.logInfo(extended: Boolean = false): Map<String, Any> =
+    private fun Execution.logInfo(): Map<String, Any> =
         mapOf(
             "seq_number" to sequenceNumber.toString(),
-        ) +
-            if (extended) {
-                mapOf(
-                    "total_items" to totalItems,
-                    "duration" to duration().toString(),
-                )
-            } else {
-                emptyMap()
-            }
+        )
 
     companion object {
         const val RETRY_ATTEMPTS_TOTAL = 15
