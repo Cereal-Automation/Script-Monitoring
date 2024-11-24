@@ -1,11 +1,15 @@
 package com.cereal.script.monitoring.domain.strategy
 
+import com.cereal.script.monitoring.domain.models.Execution
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.models.requireValue
 
 class StockAvailableMonitorStrategy : MonitorStrategy {
-    override suspend fun shouldNotify(item: Item): Boolean {
+    override suspend fun shouldNotify(
+        item: Item,
+        execution: Execution,
+    ): Boolean {
         val availableStock = item.requireValue<ItemValue.AvailableStock>().value
         return availableStock > 0
     }

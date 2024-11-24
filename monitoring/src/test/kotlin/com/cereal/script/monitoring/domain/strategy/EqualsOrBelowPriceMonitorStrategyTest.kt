@@ -2,6 +2,7 @@ package com.cereal.script.monitoring.domain.strategy
 
 import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.CurrencyMismatchException
+import com.cereal.script.monitoring.domain.models.Execution
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import kotlinx.coroutines.runBlocking
@@ -23,7 +24,8 @@ class EqualsOrBelowPriceMonitorStrategyTest {
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
-            val result = strategy.shouldNotify(item)
+            val execution = Execution(sequenceNumber = 1)
+            val result = strategy.shouldNotify(item, execution)
 
             assertTrue(result)
         }
@@ -40,7 +42,8 @@ class EqualsOrBelowPriceMonitorStrategyTest {
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("200.00"), Currency.USD)
 
-            val result = strategy.shouldNotify(item)
+            val execution = Execution(sequenceNumber = 1)
+            val result = strategy.shouldNotify(item, execution)
 
             assertTrue(result)
         }
@@ -58,7 +61,8 @@ class EqualsOrBelowPriceMonitorStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
             try {
-                strategy.shouldNotify(item)
+                val execution = Execution(sequenceNumber = 1)
+                strategy.shouldNotify(item, execution)
                 Unit
             } catch (ex: CurrencyMismatchException) {
                 assertEquals("Expected currency: USD, but got: EUR", ex.message)
@@ -94,7 +98,8 @@ class EqualsOrBelowPriceMonitorStrategyTest {
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
-            val result = strategy.shouldNotify(item)
+            val execution = Execution(sequenceNumber = 1)
+            val result = strategy.shouldNotify(item, execution)
 
             assertTrue(!result)
         }
@@ -118,8 +123,9 @@ class EqualsOrBelowPriceMonitorStrategyTest {
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
-            strategy.shouldNotify(item1)
-            val result = strategy.shouldNotify(item2)
+            val execution = Execution(sequenceNumber = 1)
+            strategy.shouldNotify(item1, execution)
+            val result = strategy.shouldNotify(item2, execution)
 
             assertTrue(result)
         }

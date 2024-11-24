@@ -18,10 +18,8 @@ import it.skrape.selects.html5.script
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.serialization.json.Json
 import java.math.BigDecimal
-import java.time.Instant
 
 /**
  * Taken from https://www.trickster.dev/post/scraping-product-data-from-nike/
@@ -39,17 +37,11 @@ class NikeApiItemRepository(
             ignoreUnknownKeys = true
             coerceInputValues = true
         }
-    private val publishDates = mutableMapOf<String, Instant?>()
-    private var firstRun = true
     private val defaultCurrencyCode = Currency.USD
 
     override suspend fun getItems(): Flow<Item> =
         flow {
             emitAll(parseFirstPage(category.url, randomProxy))
-        }.onCompletion { cause ->
-            if (cause == null) {
-                firstRun = false
-            }
         }
 
     private fun parseFirstPage(
@@ -129,14 +121,8 @@ class NikeApiItemRepository(
                         BigDecimal(this.prices.currentPrice),
                         Currency.fromCode(this.prices.currency) ?: defaultCurrencyCode,
                     ),
-                    ItemValue.PublishDate(getPublishDate(this.globalProductId) ?: Instant.now()),
                 ),
         )
-
-    private fun getPublishDate(productId: String): Instant? {
-        val publishDate = if (firstRun) null else Instant.now()
-        return publishDates.getOrPut(productId) { publishDate }
-    }
 
     companion object {
         const val HTTP_REQUEST_TIMEOUT = 5000

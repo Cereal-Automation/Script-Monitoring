@@ -1,5 +1,6 @@
 package com.cereal.script.monitoring.domain.strategy
 
+import com.cereal.script.monitoring.domain.models.Execution
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue.AvailableStock
 import com.cereal.script.monitoring.domain.models.MissingValueTypeException
@@ -20,8 +21,9 @@ class StockAvailableMonitorStrategyTest {
                 name = "Item 1",
                 values = listOf(AvailableStock(value = 10)),
             )
+        val execution = Execution(sequenceNumber = 1)
 
-        val result = runBlocking { monitorStrategy.shouldNotify(item) }
+        val result = runBlocking { monitorStrategy.shouldNotify(item, execution) }
 
         assertTrue(result)
     }
@@ -35,8 +37,9 @@ class StockAvailableMonitorStrategyTest {
                 name = "Item 2",
                 values = listOf(AvailableStock(value = 0)),
             )
+        val execution = Execution(sequenceNumber = 1)
 
-        val result = runBlocking { monitorStrategy.shouldNotify(item) }
+        val result = runBlocking { monitorStrategy.shouldNotify(item, execution) }
 
         assertFalse(result)
     }
@@ -50,9 +53,10 @@ class StockAvailableMonitorStrategyTest {
                 name = "Item 3",
                 values = emptyList(),
             )
+        val execution = Execution(sequenceNumber = 1)
 
         try {
-            runBlocking { monitorStrategy.shouldNotify(item) }
+            runBlocking { monitorStrategy.shouldNotify(item, execution) }
             assertFalse(true, "Expected MissingValueTypeException but no exception was thrown")
         } catch (e: MissingValueTypeException) {
             assertTrue(true)

@@ -2,6 +2,7 @@ package com.cereal.script.monitoring.domain.strategy
 
 import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.CurrencyMismatchException
+import com.cereal.script.monitoring.domain.models.Execution
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.models.requireValue
@@ -26,7 +27,10 @@ class EqualsOrBelowPriceMonitorStrategy(
      * @return True if the item's price is equal to or below the specified price and in the correct currency, false otherwise.
      * @throws CurrencyMismatchException if the item's currency does not match the predefined currency.
      */
-    override suspend fun shouldNotify(item: Item): Boolean {
+    override suspend fun shouldNotify(
+        item: Item,
+        execution: Execution,
+    ): Boolean {
         val itemPrice = item.requireValue<ItemValue.Price>()
 
         if (itemPrice.currency.code != currency.code) {

@@ -1,5 +1,6 @@
 package com.cereal.script.monitoring.domain.strategy
 
+import com.cereal.script.monitoring.domain.models.Execution
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.models.getValue
@@ -9,7 +10,10 @@ import java.math.BigDecimal
 class PriceDropMonitorStrategy : MonitorStrategy {
     private val itemToPrice: HashMap<String, BigDecimal> = HashMap()
 
-    override suspend fun shouldNotify(item: Item): Boolean {
+    override suspend fun shouldNotify(
+        item: Item,
+        execution: Execution,
+    ): Boolean {
         val price = item.getValue<ItemValue.Price>()?.value ?: return false
 
         val hasPriceDropped =

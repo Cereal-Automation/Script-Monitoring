@@ -26,15 +26,19 @@ class MonitorInteractor(
     suspend operator fun invoke(config: Config) {
         val strategies = config.strategies
 
-        val executions = executionRepository.getAll()
-        val execution = Execution((executions.lastOrNull()?.sequenceNumber ?: 0) + 1, start = null, end = null)
-        executionRepository.create(execution)
+        val execution =
+            if (executionRepository.exists()) {
+                Execution(executionRepository.get().sequenceNumber + 1)
+            } else {
+                Execution(1)
+            }
+        executionRepository.set(execution)
 
         return itemRepository
             .getItems()
-            .applyUpdateExecution(execution.sequenceNumber)
-            .applyLogging(execution.sequenceNumber)
-            .applyRetry(execution.sequenceNumber)
+            .applyUpdateExecution()
+            .applyLogging()
+            .applyRetry()
             .collect { item ->
                 logRepository.add("Found item ${item.name}", item.values.associateBy { it.commonName })
 
@@ -45,35 +49,34 @@ class MonitorInteractor(
     }
 
     /**
-     * Extension function for Flow<T> that updates the execution start and end times in an execution repository.
+     * Extension function for Flow<T> that updates the execution repository with start and end times.
      *
-     * @param sequenceNumber The execution sequence number used for tracking and updating execution times.
-     * @return A Flow<T> that updates the execution start time at the beginning and end time upon completion.
+     * @return A Flow<T> that updates the execution with start and end times during the data collection process.
      */
-    private fun <T> Flow<T>.applyUpdateExecution(sequenceNumber: Int): Flow<T> =
+    private fun <T> Flow<T>.applyUpdateExecution(): Flow<T> =
         this
             .onStart {
-                val execution = executionRepository.get(sequenceNumber)
+                val execution = executionRepository.get()
                 val updatedExecution = execution.copy(start = Clock.System.now())
-                executionRepository.update(updatedExecution)
+                executionRepository.set(updatedExecution)
             }.onCompletion { _ ->
-                val execution = executionRepository.get(sequenceNumber)
+                val execution = executionRepository.get()
                 val updatedExecution = execution.copy(end = Clock.System.now())
-                executionRepository.update(updatedExecution)
+                executionRepository.set(updatedExecution)
             }
 
     /**
-     * Extension function for Flow<T> that logs the start and completion of the data collection process.
+     * Extension function for Flow<T> that logs the start and end of data collection, including any errors that occur.
      *
-     * @param executionSequenceNumber The execution sequence number used for tracking and logging purposes.
-     * @return A Flow<T> that logs messages at the start and completion of the collection process.
+     * @return A Flow<T> that logs messages to the log repository at the start and upon completion of the data collection process.
      */
-    private fun <T> Flow<T>.applyLogging(executionSequenceNumber: Int): Flow<T> =
+    private fun <T> Flow<T>.applyLogging(): Flow<T> =
         this
             .onStart {
-                logRepository.add("Start collecting data.", mapOf("seq_number" to executionSequenceNumber))
+                val execution = executionRepository.get()
+                logRepository.add("Start collecting data.", mapOf("seq_number" to execution.sequenceNumber))
             }.onCompletion { error ->
-                val execution = executionRepository.get(executionSequenceNumber)
+                val execution = executionRepository.get()
                 val logMessage =
                     error?.let {
                         "Error collecting data: ${it.message}"
@@ -81,17 +84,22 @@ class MonitorInteractor(
 
                 logRepository.add(
                     logMessage,
-                    mapOf("seq_number" to execution.sequenceNumber, "duration" to execution.duration().toString()),
+                    mapOf(
+                        "seq_number" to execution.sequenceNumber,
+                        "duration" to execution.duration().toString(),
+                    ),
                 )
             }
 
     /**
-     * Extension function for Flow<T> that retries the data collection process based on a specified retry policy.
+     * Extension function for Flow<T> that applies a retry mechanism with exponential backoff strategy.
      *
-     * @param executionSequenceNumber The execution sequence number used for logging purposes.
-     * @return A Flow<T> that retries the collection process based on the configured retry policy.
+     * The function retries the collection up to a specified number of attempts. The delay between retries increases
+     * exponentially after a certain number of linear retry attempts.
+     *
+     * @return A Flow<T> that applies the retry mechanism during the data collection process.
      */
-    private fun <T> Flow<T>.applyRetry(executionSequenceNumber: Int): Flow<T> =
+    private fun <T> Flow<T>.applyRetry(): Flow<T> =
         this.retryWhen { cause, attempt ->
             if (attempt < RETRY_ATTEMPTS_TOTAL) {
                 val delayTime =
@@ -102,9 +110,10 @@ class MonitorInteractor(
                         RETRY_DELAY * 2.0.pow(backoffAttempt.toDouble()).toLong()
                     }
 
+                val execution = executionRepository.get()
                 logRepository.add(
                     "Retrying in ${delayTime.milliseconds} due to ${cause.message}",
-                    mapOf("seq_number" to executionSequenceNumber),
+                    mapOf("seq_number" to execution.sequenceNumber.toString()),
                 )
                 delay(delayTime)
                 true
@@ -119,7 +128,8 @@ class MonitorInteractor(
     ) {
         val notify =
             try {
-                strategy.shouldNotify(item)
+                val execution = executionRepository.get()
+                strategy.shouldNotify(item, execution)
             } catch (e: Exception) {
                 logRepository.add(
                     "Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}",
