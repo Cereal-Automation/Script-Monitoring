@@ -26,8 +26,6 @@ class ExecuteStrategyCommandTest {
         logRepository = mockk()
         executionRepository = mockk()
         strategy = mockk()
-        executeStrategyCommand =
-            ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy)
     }
 
     @Test
@@ -38,8 +36,9 @@ class ExecuteStrategyCommandTest {
 
             coEvery { executionRepository.get() } throws RuntimeException(exceptionMessage)
             coJustRun { logRepository.add(any()) }
-
-            executeStrategyCommand.execute(item)
+            executeStrategyCommand =
+                ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy, item)
+            executeStrategyCommand.execute()
 
             coVerify {
                 logRepository.add(
@@ -62,7 +61,9 @@ class ExecuteStrategyCommandTest {
             coJustRun { logRepository.add(any()) }
             coJustRun { notificationRepository.setItemNotified(item) }
 
-            executeStrategyCommand.execute(item)
+            executeStrategyCommand =
+                ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy, item)
+            executeStrategyCommand.execute()
 
             coVerify { notificationRepository.notify(message) }
             coVerify { notificationRepository.setItemNotified(item) }
@@ -82,7 +83,9 @@ class ExecuteStrategyCommandTest {
             coJustRun { logRepository.add(any()) }
             coJustRun { notificationRepository.setItemNotified(item) }
 
-            executeStrategyCommand.execute(item)
+            executeStrategyCommand =
+                ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy, item)
+            executeStrategyCommand.execute()
 
             coVerify { logRepository.add("Unable to create a notification for 'TestItem' because: $exceptionMessage") }
         }
@@ -95,7 +98,9 @@ class ExecuteStrategyCommandTest {
             coEvery { executionRepository.get() } returns mockk()
             coEvery { strategy.shouldNotify(item, any()) } returns false
 
-            executeStrategyCommand.execute(item)
+            executeStrategyCommand =
+                ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy, item)
+            executeStrategyCommand.execute()
 
             coVerify(exactly = 0) { notificationRepository.notify(any()) }
             coVerify(exactly = 0) { logRepository.add("Sending notification for 'TestItem'.") }

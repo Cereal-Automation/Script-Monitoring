@@ -21,8 +21,9 @@ class ExecuteStrategyCommand(
     private val logRepository: LogRepository,
     private val executionRepository: ExecutionRepository,
     private val strategy: MonitorStrategy,
+    private val item: Item,
 ) {
-    suspend fun execute(item: Item) {
+    suspend fun execute() {
         val notify =
             try {
                 val execution = executionRepository.get()

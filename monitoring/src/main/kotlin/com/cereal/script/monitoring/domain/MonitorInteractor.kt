@@ -41,8 +41,14 @@ class MonitorInteractor(
             .collect { item ->
                 strategies.forEach { strategy ->
                     val command =
-                        ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy)
-                    command.execute(item)
+                        ExecuteStrategyCommand(
+                            notificationRepository,
+                            logRepository,
+                            executionRepository,
+                            strategy,
+                            item,
+                        )
+                    command.execute()
                 }
             }
     }
