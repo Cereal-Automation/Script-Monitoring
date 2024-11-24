@@ -29,7 +29,7 @@ class MonitorInteractor(
             if (executionRepository.exists()) {
                 Execution(executionRepository.get().sequenceNumber + 1)
             } else {
-                Execution(1)
+                Execution(START_SEQUENCE_NUMBER)
             }
         executionRepository.set(execution)
 
@@ -139,5 +139,6 @@ class MonitorInteractor(
         const val RETRY_ATTEMPTS_TOTAL = 15
         const val RETRY_ATTEMPTS_LINEAR = 5
         const val RETRY_DELAY = 500L
+        const val START_SEQUENCE_NUMBER = 1
     }
 }
