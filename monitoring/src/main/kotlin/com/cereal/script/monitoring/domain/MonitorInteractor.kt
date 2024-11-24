@@ -11,6 +11,7 @@ import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.datetime.Clock
@@ -24,8 +25,6 @@ class MonitorInteractor(
     private val executionRepository: ExecutionRepository,
 ) {
     suspend operator fun invoke(config: Config) {
-        val strategies = config.strategies
-
         val execution =
             if (executionRepository.exists()) {
                 Execution(executionRepository.get().sequenceNumber + 1)
@@ -40,9 +39,7 @@ class MonitorInteractor(
             .applyLogging()
             .applyRetry()
             .collect { item ->
-                logRepository.add("Found item ${item.name}", item.values.associateBy { it.commonName })
-
-                strategies.forEach { strategy ->
+                config.strategies.forEach { strategy ->
                     val command =
                         ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy)
                     command.execute(item)
@@ -60,6 +57,10 @@ class MonitorInteractor(
             .onStart {
                 val execution = executionRepository.get()
                 val updatedExecution = execution.copy(start = Clock.System.now())
+                executionRepository.set(updatedExecution)
+            }.onEach {
+                val execution = executionRepository.get()
+                val updatedExecution = execution.copy(totalItems = execution.totalItems + 1)
                 executionRepository.set(updatedExecution)
             }.onCompletion { _ ->
                 val execution = executionRepository.get()
@@ -82,12 +83,13 @@ class MonitorInteractor(
                 val logMessage =
                     error?.let {
                         "Error collecting data: ${it.message}"
-                    } ?: "Finished collecting data."
+                    } ?: "Finished processing data."
 
                 logRepository.add(
                     logMessage,
                     mapOf(
                         "seq_number" to execution.sequenceNumber,
+                        "total_items" to execution.totalItems,
                         "duration" to execution.duration().toString(),
                     ),
                 )

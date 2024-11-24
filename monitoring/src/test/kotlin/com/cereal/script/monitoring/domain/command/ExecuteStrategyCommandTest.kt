@@ -65,7 +65,6 @@ class ExecuteStrategyCommandTest {
             executeStrategyCommand.execute(item)
 
             coVerify { notificationRepository.notify(message) }
-            coVerify { logRepository.add("Sending notification for 'TestItem'.") }
             coVerify { notificationRepository.setItemNotified(item) }
         }
 
@@ -85,7 +84,6 @@ class ExecuteStrategyCommandTest {
 
             executeStrategyCommand.execute(item)
 
-            coVerify { logRepository.add("Sending notification for 'TestItem'.") }
             coVerify { logRepository.add("Unable to create a notification for 'TestItem' because: $exceptionMessage") }
         }
 

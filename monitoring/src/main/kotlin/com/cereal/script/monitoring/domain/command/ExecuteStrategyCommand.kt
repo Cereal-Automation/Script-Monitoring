@@ -35,10 +35,9 @@ class ExecuteStrategyCommand(
             }
 
         if (notify) {
-            logRepository.add("Sending notification for '${item.name}'.")
-
             try {
                 val message = strategy.getNotificationMessage(item)
+                logRepository.add(message)
 
                 notificationRepository.notify(message)
                 notificationRepository.setItemNotified(item)

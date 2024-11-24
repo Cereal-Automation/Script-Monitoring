@@ -10,6 +10,7 @@ data class Execution(
     val sequenceNumber: Int,
     val start: Instant? = null,
     val end: Instant? = null,
+    val totalItems: Int = 0,
 )
 
 fun Execution.duration(): Duration? =
