@@ -1,16 +1,17 @@
 package com.cereal.script.monitoring.domain
 
+import com.cereal.script.monitoring.data.ScriptExecutionRepository
 import com.cereal.script.monitoring.domain.models.Currency
 import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.ItemValue
 import com.cereal.script.monitoring.domain.repository.ExecutionRepository
 import com.cereal.script.monitoring.domain.repository.ItemRepository
-import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
 import com.cereal.script.monitoring.domain.strategy.EqualsOrBelowPriceMonitorStrategy
 import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import com.cereal.script.monitoring.domain.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.monitoring.domain.strategy.StockAvailableMonitorStrategy
+import com.cereal.script.monitoring.fixtures.FakeLogRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -25,7 +26,7 @@ import java.time.Instant
 class TestMonitorInteractor {
     private lateinit var itemRepository: ItemRepository
     private lateinit var notificationRepository: NotificationRepository
-    private lateinit var logRepository: LogRepository
+    private lateinit var logRepository: FakeLogRepository
     private lateinit var executionRepository: ExecutionRepository
 
     private lateinit var interactor: MonitorInteractor
@@ -34,8 +35,8 @@ class TestMonitorInteractor {
     fun init() {
         itemRepository = mockk<ItemRepository>(relaxed = true)
         notificationRepository = mockk<NotificationRepository>(relaxed = true)
-        logRepository = mockk<LogRepository>(relaxed = true)
-        executionRepository = mockk<ExecutionRepository>(relaxed = true)
+        logRepository = FakeLogRepository()
+        executionRepository = ScriptExecutionRepository()
 
         interactor = MonitorInteractor(itemRepository, notificationRepository, logRepository, executionRepository)
     }
@@ -117,7 +118,7 @@ class TestMonitorInteractor {
                 ),
                 TestData(
                     NewItemAvailableMonitorStrategy(
-                        Instant.now().plusSeconds(1),
+                        Instant.now().plusSeconds(60),
                     ),
                     0,
                 ),

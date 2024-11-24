@@ -9,10 +9,11 @@ import com.cereal.script.monitoring.domain.repository.LogRepository
 import com.cereal.script.monitoring.domain.repository.NotificationRepository
 import com.cereal.script.monitoring.domain.strategy.MonitorStrategy
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
-import java.time.Instant
+import kotlinx.datetime.Clock
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -25,18 +26,42 @@ class MonitorInteractor(
     suspend operator fun invoke(config: Config) {
         val strategies = config.strategies
 
-        val executions = executionRepository.getExecutions()
-        val execution = Execution(executions.last().sequenceNumber + 1, start = null, end = null)
+        val executions = executionRepository.getAll()
+        val execution = Execution((executions.lastOrNull()?.sequenceNumber ?: 0) + 1, start = null, end = null)
+        executionRepository.create(execution)
+
         return itemRepository
             .getItems()
-            .onStart {
-                val updatedExecution = execution.copy(start = Instant.now())
-                executionRepository.updateExecution(updatedExecution)
-                logRepository.add("Start collecting data.", mapOf("seq_number" to execution.sequenceNumber))
-            }.onCompletion { error ->
-                val updatedExecution = execution.copy(end = Instant.now())
-                executionRepository.updateExecution(updatedExecution)
+            .applyUpdateExecution(execution.sequenceNumber)
+            .applyLogging(execution.sequenceNumber)
+            .applyRetry(execution.sequenceNumber)
+            .collect { item ->
+                logRepository.add("Found item ${item.name}", item.values.associateBy { it.commonName })
 
+                strategies.forEach { strategy ->
+                    executeStrategy(strategy, item)
+                }
+            }
+    }
+
+    private fun <T> Flow<T>.applyUpdateExecution(sequenceNumber: Int): Flow<T> =
+        this
+            .onStart {
+                val execution = executionRepository.get(sequenceNumber)
+                val updatedExecution = execution.copy(start = Clock.System.now())
+                executionRepository.update(updatedExecution)
+            }.onCompletion { _ ->
+                val execution = executionRepository.get(sequenceNumber)
+                val updatedExecution = execution.copy(end = Clock.System.now())
+                executionRepository.update(updatedExecution)
+            }
+
+    private fun <T> Flow<T>.applyLogging(executionSequenceNumber: Int): Flow<T> =
+        this
+            .onStart {
+                logRepository.add("Start collecting data.", mapOf("seq_number" to executionSequenceNumber))
+            }.onCompletion { error ->
+                val execution = executionRepository.get(executionSequenceNumber)
                 val logMessage =
                     error?.let {
                         "Error collecting data: ${it.message}"
@@ -46,29 +71,31 @@ class MonitorInteractor(
                     logMessage,
                     mapOf("seq_number" to execution.sequenceNumber, "duration" to execution.duration().toString()),
                 )
-            }.retryWhen { cause, attempt ->
-                if (attempt < RETRY_ATTEMPTS) {
-                    val delayTime = RETRY_DELAY * 2.0.pow(attempt.toDouble()).toLong()
-
-                    logRepository.add(
-                        "Retrying in ${delayTime.milliseconds} due to ${cause.message}",
-                        mapOf("seq_number" to execution.sequenceNumber),
-                    )
-                    delay(delayTime)
-                    true
-                } else {
-                    false
-                }
-            }.collect { item ->
-                logRepository.add(item.getItemFoundText())
-
-                strategies.forEach { strategy ->
-                    applyStrategy(strategy, item)
-                }
             }
-    }
 
-    private suspend fun applyStrategy(
+    private fun <T> Flow<T>.applyRetry(executionSequenceNumber: Int): Flow<T> =
+        this.retryWhen { cause, attempt ->
+            if (attempt < RETRY_ATTEMPTS_TOTAL) {
+                val delayTime =
+                    if (attempt < RETRY_ATTEMPTS_LINEAR) {
+                        RETRY_DELAY
+                    } else {
+                        val backoffAttempt = attempt - RETRY_ATTEMPTS_LINEAR
+                        RETRY_DELAY * 2.0.pow(backoffAttempt.toDouble()).toLong()
+                    }
+
+                logRepository.add(
+                    "Retrying in ${delayTime.milliseconds} due to ${cause.message}",
+                    mapOf("seq_number" to executionSequenceNumber),
+                )
+                delay(delayTime)
+                true
+            } else {
+                false
+            }
+        }
+
+    private suspend fun executeStrategy(
         strategy: MonitorStrategy,
         item: Item,
     ) {
@@ -96,27 +123,13 @@ class MonitorInteractor(
         }
     }
 
-    private fun Item.getItemFoundText(): String =
-        buildString {
-            append("Found item $name")
-
-            if (values.isNotEmpty()) {
-                append(" [")
-                append(
-                    values.joinToString(", ") {
-                        "${it.commonName}: $it"
-                    },
-                )
-                append("]")
-            }
-        }
-
     data class Config(
         val strategies: List<MonitorStrategy>,
     )
 
     companion object {
-        const val RETRY_ATTEMPTS = 25
-        const val RETRY_DELAY = 1000L
+        const val RETRY_ATTEMPTS_TOTAL = 15
+        const val RETRY_ATTEMPTS_LINEAR = 5
+        const val RETRY_DELAY = 500L
     }
 }

@@ -1,6 +1,8 @@
 package com.cereal.script.monitoring.domain.models
 
-import java.time.Instant
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.until
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -12,7 +14,7 @@ data class Execution(
 
 fun Execution.duration(): Duration? =
     if (start != null && end != null) {
-        start.until(end, java.time.temporal.ChronoUnit.SECONDS).seconds
+        start.until(end, DateTimeUnit.SECOND).seconds
     } else {
         null
     }

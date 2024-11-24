@@ -3,9 +3,11 @@ package com.cereal.script.monitoring.domain.repository
 import com.cereal.script.monitoring.domain.models.Execution
 
 interface ExecutionRepository {
-    fun getExecutions(): List<Execution>
+    fun getAll(): List<Execution>
 
-    fun addExecution(execution: Execution)
+    fun get(sequenceNumber: Int): Execution
 
-    fun updateExecution(execution: Execution)
+    fun create(execution: Execution)
+
+    fun update(execution: Execution)
 }

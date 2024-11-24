@@ -1,9 +1,9 @@
 package com.cereal.script.monitoring.domain.models
 
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 class TestExecution {
