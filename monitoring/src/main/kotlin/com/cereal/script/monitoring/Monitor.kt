@@ -62,7 +62,7 @@ class Monitor(
 
         try {
             val interactor = createInteractor(provider, statusUpdate)
-            interactor(MonitorInteractor.Config(strategies))
+            interactor(strategies)
         } catch (e: Exception) {
             return ExecutionResult.Error("Error while monitoring: ${e.message}")
         }

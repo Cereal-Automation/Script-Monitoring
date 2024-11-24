@@ -24,7 +24,7 @@ class MonitorInteractor(
     private val logRepository: LogRepository,
     private val executionRepository: ExecutionRepository,
 ) {
-    suspend operator fun invoke(config: Config) {
+    suspend operator fun invoke(strategies: List<MonitorStrategy>) {
         val execution =
             if (executionRepository.exists()) {
                 Execution(executionRepository.get().sequenceNumber + 1)
@@ -39,7 +39,7 @@ class MonitorInteractor(
             .applyLogging()
             .applyRetry()
             .collect { item ->
-                config.strategies.forEach { strategy ->
+                strategies.forEach { strategy ->
                     val command =
                         ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy)
                     command.execute(item)
@@ -77,7 +77,7 @@ class MonitorInteractor(
         this
             .onStart {
                 val execution = executionRepository.get()
-                logRepository.add("Start collecting data.", mapOf("seq_number" to execution.sequenceNumber))
+                logRepository.add("Start collecting data.", execution.logInfo())
             }.onCompletion { error ->
                 val execution = executionRepository.get()
                 val logMessage =
@@ -87,11 +87,7 @@ class MonitorInteractor(
 
                 logRepository.add(
                     logMessage,
-                    mapOf(
-                        "seq_number" to execution.sequenceNumber,
-                        "total_items" to execution.totalItems,
-                        "duration" to execution.duration().toString(),
-                    ),
+                    execution.logInfo(true),
                 )
             }
 
@@ -117,7 +113,7 @@ class MonitorInteractor(
                 val execution = executionRepository.get()
                 logRepository.add(
                     "Retrying in ${delayTime.milliseconds} due to ${cause.message}",
-                    mapOf("seq_number" to execution.sequenceNumber.toString()),
+                    execution.logInfo(),
                 )
                 delay(delayTime)
                 true
@@ -126,9 +122,18 @@ class MonitorInteractor(
             }
         }
 
-    data class Config(
-        val strategies: List<MonitorStrategy>,
-    )
+    private fun Execution.logInfo(extended: Boolean = false): Map<String, Any> =
+        mapOf(
+            "seq_number" to sequenceNumber.toString(),
+        ) +
+            if (extended) {
+                mapOf(
+                    "total_items" to totalItems,
+                    "duration" to duration().toString(),
+                )
+            } else {
+                emptyMap()
+            }
 
     companion object {
         const val RETRY_ATTEMPTS_TOTAL = 15

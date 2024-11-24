@@ -93,9 +93,7 @@ class TestMonitorInteractor {
                     ),
                 )
 
-            interactor.invoke(
-                config = MonitorInteractor.Config(listOf(data.strategy)),
-            )
+            interactor.invoke(listOf(data.strategy))
 
             coVerify(exactly = data.numberOfNotifications) { notificationRepository.notify(any()) }
         }
