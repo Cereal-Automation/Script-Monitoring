@@ -1,7 +1,7 @@
 package com.cereal.script.monitoring.domain
 
+import com.cereal.script.monitoring.domain.command.ExecuteStrategyCommand
 import com.cereal.script.monitoring.domain.models.Execution
-import com.cereal.script.monitoring.domain.models.Item
 import com.cereal.script.monitoring.domain.models.duration
 import com.cereal.script.monitoring.domain.repository.ExecutionRepository
 import com.cereal.script.monitoring.domain.repository.ItemRepository
@@ -43,7 +43,9 @@ class MonitorInteractor(
                 logRepository.add("Found item ${item.name}", item.values.associateBy { it.commonName })
 
                 strategies.forEach { strategy ->
-                    executeStrategy(strategy, item)
+                    val command =
+                        ExecuteStrategyCommand(notificationRepository, logRepository, executionRepository, strategy)
+                    command.execute(item)
                 }
             }
     }
@@ -121,35 +123,6 @@ class MonitorInteractor(
                 false
             }
         }
-
-    private suspend fun executeStrategy(
-        strategy: MonitorStrategy,
-        item: Item,
-    ) {
-        val notify =
-            try {
-                val execution = executionRepository.get()
-                strategy.shouldNotify(item, execution)
-            } catch (e: Exception) {
-                logRepository.add(
-                    "Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}",
-                )
-                false
-            }
-
-        if (notify) {
-            logRepository.add("Sending notification for '${item.name}'.")
-
-            try {
-                val message = strategy.getNotificationMessage(item)
-
-                notificationRepository.notify(message)
-                notificationRepository.setItemNotified(item)
-            } catch (e: Exception) {
-                logRepository.add("Unable to create a notification for '${item.name}' because: ${e.message}")
-            }
-        }
-    }
 
     data class Config(
         val strategies: List<MonitorStrategy>,
