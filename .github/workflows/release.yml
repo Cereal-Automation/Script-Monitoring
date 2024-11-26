@@ -8,7 +8,10 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        module: [ script-nike ]
 
     steps:
       - uses: actions/checkout@v2
@@ -20,18 +23,15 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - name: Build
         run:
-          ./gradlew jar
-      - name: Obfuscate
-        run:
-          ./gradlew obfuscateArtifact
-      - name: Store obfuscated jar
+          ./gradlew ${{ matrix.module }}:scriptJar
+      - name: Store jar
         uses: actions/upload-artifact@v3
         with:
-          name: script-${{ github.ref_name }}-release
-          path: build/obfuscated/release.jar
+          name: ${{ matrix.module }}-${{ github.ref_name }}-release
+          path: ${{ matrix.module }}/build/obfuscated/release.jar
