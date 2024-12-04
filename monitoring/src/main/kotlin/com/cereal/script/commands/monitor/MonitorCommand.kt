@@ -20,8 +20,7 @@ class MonitorCommand(
 ) : Command {
     private var nextPageToken: String? = null
     private var runSequenceNumber = 1
-
-    // TODO: Log total number of items?
+    private var totalNumberOfItems = 0
 
     override suspend fun shouldRun(): Boolean {
         // Always run the monitor, there's no "end state".
@@ -31,6 +30,7 @@ class MonitorCommand(
     override suspend fun execute(): CommandResult {
         val page = itemRepository.getItems(nextPageToken)
         processItems(page.items)
+        totalNumberOfItems += page.items.size
         nextPageToken = page.nextPageToken
 
         if (maxLoopCount != LOOP_INFINITE && maxLoopCount == runSequenceNumber) {
@@ -39,7 +39,12 @@ class MonitorCommand(
 
         // When there's no next page delay for a while before starting over.
         if (nextPageToken == null) {
+            logRepository.add(
+                "Found and processed a total of $totalNumberOfItems items, waiting $delayBetweenScrapes before starting over.",
+            )
+            totalNumberOfItems = 0
             runSequenceNumber++
+
             delay(delayBetweenScrapes.inWholeMilliseconds)
         }
 
