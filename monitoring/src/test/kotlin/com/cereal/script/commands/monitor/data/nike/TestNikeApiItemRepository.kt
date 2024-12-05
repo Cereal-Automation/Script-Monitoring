@@ -9,7 +9,7 @@ class TestNikeApiItemRepository {
     @Tag("integration")
     @ParameterizedTest
     @MethodSource("data")
-    fun testSuccess(data: TestData) =
+    fun testReadApi(data: TestData) =
         runBlocking {
             val repository =
                 NikeApiItemRepository(
@@ -17,7 +17,8 @@ class TestNikeApiItemRepository {
                     null,
                 )
 
-            repository.getItems(null)
+            val result = repository.getItems(null)
+            assert(result.items.isNotEmpty())
         }
 
     data class TestData(
