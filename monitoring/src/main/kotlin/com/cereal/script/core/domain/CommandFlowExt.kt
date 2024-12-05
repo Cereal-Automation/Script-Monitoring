@@ -28,7 +28,11 @@ fun <T> Flow<T>.withRetry(
     logRepository: LogRepository,
 ): Flow<T> =
     this.retryWhen { cause, attempt ->
-        if (attempt < RETRY_ATTEMPTS_TOTAL) {
+        if (cause is RuntimeException) {
+            // Runtime exceptions are unrecoverable.
+            logRepository.info("Skip retrying '$action' due to unrecoverable exception '${cause.message}'")
+            false
+        } else if (attempt < RETRY_ATTEMPTS_TOTAL) {
             val delayTime =
                 if (attempt < RETRY_ATTEMPTS_LINEAR) {
                     RETRY_DELAY
@@ -37,8 +41,8 @@ fun <T> Flow<T>.withRetry(
                     RETRY_DELAY * 2.0.pow(backoffAttempt.toDouble()).toLong()
                 }
 
-            logRepository.add(
-                "Retrying '$action' in ${delayTime.milliseconds} due to ${cause.message}",
+            logRepository.info(
+                "Retrying '$action' in ${delayTime.milliseconds} due to '${cause.message}'",
             )
             delay(delayTime)
             true
@@ -61,7 +65,7 @@ fun Flow<CommandResult>.withLogging(
 ): Flow<CommandResult> =
     this
         .onStart {
-            logRepository.add("$action.")
+            logRepository.info("$action.")
         }.onEach {
             when (it) {
                 // No need to log something here because when repeating the "start" log makes sure the user knows what's going on.
@@ -69,10 +73,10 @@ fun Flow<CommandResult>.withLogging(
                 CommandResult.Completed -> "Finished '$action'."
                 CommandResult.Skip -> "Skipping '$action'."
             }?.let {
-                logRepository.add(it)
+                logRepository.info(it)
             }
         }.onCompletion { error ->
             error?.let {
-                logRepository.add("Error while '$action': ${it.message}")
+                logRepository.info("Error while '$action': ${it.message}")
             }
         }

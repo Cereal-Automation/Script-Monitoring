@@ -41,7 +41,7 @@ class TestMonitorCommand {
             val result = monitorCommand.execute()
 
             coVerify {
-                logRepository.add(
+                logRepository.info(
                     "Found and processed a total of 2 items, waiting 1s before starting over.",
                     any(),
                 )
@@ -68,7 +68,7 @@ class TestMonitorCommand {
 
             val result = monitorCommand.execute()
 
-            coVerify(exactly = 0) { logRepository.add(any(), any()) }
+            coVerify(exactly = 0) { logRepository.info(any(), any()) }
             assert(result == CommandResult.Repeat)
         }
 

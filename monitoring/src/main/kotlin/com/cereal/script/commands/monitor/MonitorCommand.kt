@@ -48,7 +48,7 @@ class MonitorCommand(
 
         // When there's no next page delay for a while before starting over.
         if (nextPageToken == null) {
-            logRepository.add(
+            logRepository.info(
                 "Found and processed a total of $totalNumberOfItems items, waiting $delayBetweenScrapes before starting over.",
             )
             totalNumberOfItems = 0

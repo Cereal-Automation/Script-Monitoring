@@ -25,7 +25,7 @@ class ExecuteStrategyCommand(
             try {
                 strategy.shouldNotify(item, sequenceNumber)
             } catch (e: Exception) {
-                logRepository.add(
+                logRepository.info(
                     "Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}",
                 )
                 false
@@ -34,12 +34,12 @@ class ExecuteStrategyCommand(
         if (notify) {
             try {
                 val message = strategy.getNotificationMessage(item)
-                logRepository.add(message)
+                logRepository.info(message)
 
                 notificationRepository.notify(message)
                 notificationRepository.setItemNotified(item)
             } catch (e: Exception) {
-                logRepository.add("Unable to create a notification for '${item.name}' because: ${e.message}")
+                logRepository.info("Unable to create a notification for '${item.name}' because: ${e.message}")
             }
         }
     }
