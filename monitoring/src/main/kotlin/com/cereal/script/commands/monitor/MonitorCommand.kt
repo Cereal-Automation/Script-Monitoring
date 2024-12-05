@@ -27,6 +27,15 @@ class MonitorCommand(
         return true
     }
 
+    /**
+     * Executes the command to retrieve and process a page of items from the item repository.
+     * The items are processed using a set of predefined strategies.
+     *
+     * If there is no next page token available, it logs the total number of items processed, waits for a specified delay,
+     * and then restarts the execution if the maximum loop count is not reached.
+     *
+     * @return [CommandResult] indicating whether the command execution is completed or should be repeated.
+     */
     override suspend fun execute(): CommandResult {
         val page = itemRepository.getItems(nextPageToken)
         processItems(page.items)

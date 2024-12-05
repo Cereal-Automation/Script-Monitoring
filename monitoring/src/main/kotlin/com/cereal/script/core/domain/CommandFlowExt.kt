@@ -1,9 +1,11 @@
 package com.cereal.script.core.domain
 
+import com.cereal.script.commands.CommandResult
 import com.cereal.script.core.domain.repository.LogRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
 import kotlin.math.pow
@@ -53,18 +55,24 @@ fun <T> Flow<T>.withRetry(
  * @param action The action being performed.
  * @return A Flow<T> that logs messages during the data collection process.
  */
-fun <T> Flow<T>.withLogging(
+fun Flow<CommandResult>.withLogging(
     action: String,
     logRepository: LogRepository,
-): Flow<T> =
+): Flow<CommandResult> =
     this
         .onStart {
             logRepository.add("$action.")
+        }.onEach {
+            when (it) {
+                // No need to log something here because when repeating the "start" log makes sure the user knows what's going on.
+                CommandResult.Repeat -> null
+                CommandResult.Completed -> "Finished '$action'."
+                CommandResult.Skip -> "Skipping '$action'."
+            }?.let {
+                logRepository.add(it)
+            }
         }.onCompletion { error ->
-            val logMessage =
-                error?.let {
-                    "Error while '$action': ${it.message}"
-                } ?: "Finished '$action'."
-
-            logRepository.add(logMessage)
+            error?.let {
+                logRepository.add("Error while '$action': ${it.message}")
+            }
         }
