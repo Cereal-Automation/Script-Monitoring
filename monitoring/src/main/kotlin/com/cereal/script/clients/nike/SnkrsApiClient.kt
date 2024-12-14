@@ -1,5 +1,7 @@
 package com.cereal.script.clients.nike
 
+import com.cereal.script.clients.nike.models.Object
+import com.cereal.script.clients.nike.models.ProductInfo
 import com.cereal.script.clients.nike.models.SnkrsResponse
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.Item
@@ -114,61 +116,72 @@ class SnkrsApiClient(
             item.productInfo
                 ?.mapNotNull { product ->
                     if (product.availability.available && product.merchProduct.status == "ACTIVE") {
-                        val sizes = mutableListOf<SizeStock>()
-
-                        product.availableGtins.forEach { availableGtin ->
-                            val gtin = availableGtin.gtin
-
-                            if (availableGtin.available) {
-                                product.skus.forEach { sku ->
-                                    if (sku.gtin == gtin) {
-                                        sizes.add(SizeStock(sku.nikeSize, availableGtin.level))
-                                        return@forEach
-                                    }
-                                }
-                            }
-                        }
-
-                        if (sizes.isNotEmpty()) {
-                            val id = product.productContent.globalPid
-                            val title = product.productContent.fullTitle
-                            val description = product.productContent.colorDescription
-                            val url = "https://www.nike.com/${locale.country}/launch/t/${product.productContent.slug}"
-                            val thumbnail =
-                                item.publishedContent.nodes
-                                    .firstOrNull()
-                                    ?.nodes
-                                    ?.firstOrNull()
-                                    ?.properties
-                                    ?.squarishURL
-                            val price = BigDecimal(product.merchPrice.currentPrice)
-                            val currency =
-                                Currency
-                                    .fromCode(product.merchPrice.currency)
-                                    ?: defaultCurrencyCode
-                            val styleCode = product.merchProduct.styleColor
-
-                            Item(
-                                id,
-                                url,
-                                title,
-                                description,
-                                thumbnail,
-                                properties =
-                                    listOf(
-                                        ItemProperty.Sizes(sizes),
-                                        ItemProperty.Price(price, currency),
-                                        ItemProperty.Custom("Style code", styleCode),
-                                    ),
-                            )
-                        }
+                        createItem(locale, item, product)
+                    } else {
+                        null
                     }
-                    null
                 }?.also {
                     allProducts.addAll(it)
                 }
         }
 
         return allProducts
+    }
+
+    private fun createItem(
+        locale: Locale,
+        item: Object,
+        product: ProductInfo,
+    ): Item? {
+        val sizes = mutableListOf<SizeStock>()
+
+        product.availableGtins.forEach { availableGtin ->
+            val gtin = availableGtin.gtin
+
+            if (availableGtin.available) {
+                product.skus.forEach { sku ->
+                    if (sku.gtin == gtin) {
+                        sizes.add(SizeStock(sku.nikeSize, availableGtin.level))
+                        return@forEach
+                    }
+                }
+            }
+        }
+
+        return if (sizes.isNotEmpty()) {
+            val id = product.productContent.globalPid
+            val title = product.productContent.fullTitle
+            val description = product.productContent.colorDescription
+            val url = "https://www.nike.com/${locale.country}/launch/t/${product.productContent.slug}"
+            val thumbnail =
+                item.publishedContent.nodes
+                    .firstOrNull()
+                    ?.nodes
+                    ?.firstOrNull()
+                    ?.properties
+                    ?.squarishURL
+            val price = BigDecimal(product.merchPrice.currentPrice)
+            val currency =
+                Currency
+                    .fromCode(product.merchPrice.currency)
+                    ?: defaultCurrencyCode
+            val styleCode = product.merchProduct.styleColor
+
+            Item(
+                id,
+                url,
+                title,
+                description,
+                thumbnail,
+                properties =
+                    listOf(
+                        ItemProperty.Sizes(sizes),
+                        ItemProperty.Price(price, currency),
+                        ItemProperty.Custom("Style code", styleCode),
+                    ),
+            )
+        } else {
+            null
+        }
     }
 }
