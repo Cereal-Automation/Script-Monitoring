@@ -6,7 +6,7 @@ import com.cereal.script.commands.monitor.data.nike.models.Wall
 import com.cereal.script.commands.monitor.domain.ItemRepository
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.Page
 import com.cereal.sdk.models.proxy.RandomProxy
 import it.skrape.core.htmlDocument
@@ -114,9 +114,11 @@ class NikeApiItemRepository(
             id = this.globalProductId,
             url = this.pdpUrl.url,
             name = this.copy.title,
-            values =
+            description = null,
+            imageUrl = null,
+            properties =
                 listOf(
-                    ItemValue.Price(
+                    ItemProperty.Price(
                         BigDecimal(this.prices.currentPrice),
                         Currency
                             .fromCode(this.prices.currency)

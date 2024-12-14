@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.getValue
 import com.cereal.script.commands.monitor.domain.models.requireValue
 import java.math.BigDecimal
@@ -13,7 +13,7 @@ class PriceDropMonitorStrategy : MonitorStrategy {
         item: Item,
         runSequenceNumber: Int,
     ): Boolean {
-        val price = item.getValue<ItemValue.Price>()?.value ?: return false
+        val price = item.getValue<ItemProperty.Price>()?.value ?: return false
 
         val hasPriceDropped =
             itemToPrice[item.id]?.let {
@@ -25,7 +25,7 @@ class PriceDropMonitorStrategy : MonitorStrategy {
     }
 
     override fun getNotificationMessage(item: Item): String {
-        val price = item.requireValue<ItemValue.Price>()
+        val price = item.requireValue<ItemProperty.Price>()
 
         return "Price for ${item.name} dropped to $price."
     }

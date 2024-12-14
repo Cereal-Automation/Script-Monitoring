@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.data.rss
 
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.Page
 import com.cereal.sdk.component.logger.LoggerComponent
 import com.prof18.rssparser.RssParser
@@ -32,9 +32,9 @@ class TestRssFeedItemRepository {
                                 "foo",
                                 url = "http://bar.baz",
                                 name = "bar",
-                                values =
+                                properties =
                                     listOf(
-                                        ItemValue.PublishDate(
+                                        ItemProperty.PublishDate(
                                             Instant.ofEpochSecond(1726558620L),
                                         ),
                                     ),

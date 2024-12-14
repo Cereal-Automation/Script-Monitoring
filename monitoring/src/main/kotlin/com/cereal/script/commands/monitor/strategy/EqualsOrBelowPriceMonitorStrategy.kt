@@ -3,7 +3,7 @@ package com.cereal.script.commands.monitor.strategy
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.CurrencyMismatchException
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.requireValue
 import java.math.BigDecimal
 
@@ -30,7 +30,7 @@ class EqualsOrBelowPriceMonitorStrategy(
         item: Item,
         runSequenceNumber: Int,
     ): Boolean {
-        val itemPrice = item.requireValue<ItemValue.Price>()
+        val itemPrice = item.requireValue<ItemProperty.Price>()
 
         if (itemPrice.currency.code != currency.code) {
             throw CurrencyMismatchException(itemPrice.currency, currency)
@@ -54,7 +54,7 @@ class EqualsOrBelowPriceMonitorStrategy(
      * @return A notification message in the format: "<item name> is available for <item price>".
      */
     override fun getNotificationMessage(item: Item): String {
-        val itemPrice = item.requireValue<ItemValue.Price>().value
+        val itemPrice = item.requireValue<ItemProperty.Price>().value
         return "${item.name} is available for $itemPrice"
     }
 }

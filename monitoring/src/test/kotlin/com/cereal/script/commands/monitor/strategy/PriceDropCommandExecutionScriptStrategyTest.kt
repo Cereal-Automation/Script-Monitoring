@@ -2,7 +2,7 @@ package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import kotlin.test.Test
@@ -15,7 +15,7 @@ class PriceDropCommandExecutionScriptStrategyTest {
     @Test
     fun `shouldNotify returns false if price was not changed`() =
         runBlocking {
-            val initialPrice = ItemValue.Price(BigDecimal(100), Currency.USD)
+            val initialPrice = ItemProperty.Price(BigDecimal(100), Currency.USD)
             val item = Item("1", "url", "item", listOf(initialPrice))
 
             // First call to shouldNotify should return false as there is no previous price to check against
@@ -27,13 +27,13 @@ class PriceDropCommandExecutionScriptStrategyTest {
     @Test
     fun `shouldNotify returns true if price was decreased`() =
         runBlocking {
-            val initialPrice = ItemValue.Price(BigDecimal(100), Currency.USD)
+            val initialPrice = ItemProperty.Price(BigDecimal(100), Currency.USD)
             val item1 = Item("1", "url", "item", listOf(initialPrice))
 
             // initialize item with original price
             assertFalse(subject.shouldNotify(item1, 1))
 
-            val decreasedPrice = ItemValue.Price(BigDecimal(50), Currency.USD)
+            val decreasedPrice = ItemProperty.Price(BigDecimal(50), Currency.USD)
             val item2 = Item("1", "url", "item", listOf(decreasedPrice))
 
             // after price decrease shouldNotify should return true
@@ -43,13 +43,13 @@ class PriceDropCommandExecutionScriptStrategyTest {
     @Test
     fun `shouldNotify returns false if price was increased`() =
         runBlocking {
-            val initialPrice = ItemValue.Price(BigDecimal(100), Currency.USD)
+            val initialPrice = ItemProperty.Price(BigDecimal(100), Currency.USD)
             val item1 = Item("1", "url", "item", listOf(initialPrice))
 
             // initialize item with original price
             assertFalse(subject.shouldNotify(item1, 1))
 
-            val increasedPrice = ItemValue.Price(BigDecimal(150), Currency.USD)
+            val increasedPrice = ItemProperty.Price(BigDecimal(150), Currency.USD)
             val item2 = Item("1", "url", "item", listOf(increasedPrice))
 
             // after price increase shouldNotify should return false

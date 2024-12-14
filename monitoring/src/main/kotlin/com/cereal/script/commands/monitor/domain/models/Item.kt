@@ -4,5 +4,7 @@ data class Item(
     val id: String,
     val url: String,
     val name: String,
-    val values: List<ItemValue> = listOf(),
+    val description: String?,
+    var imageUrl: String?,
+    val properties: List<ItemProperty> = listOf(),
 )

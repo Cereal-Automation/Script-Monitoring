@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.getValue
 import java.time.Instant
 
@@ -14,7 +14,7 @@ class NewItemAvailableMonitorStrategy(
         item: Item,
         runSequenceNumber: Int,
     ): Boolean =
-        item.getValue<ItemValue.PublishDate>()?.value?.let {
+        item.getValue<ItemProperty.PublishDate>()?.value?.let {
             it > since
         } ?: isNewItemDetected(item, runSequenceNumber)
 

@@ -3,7 +3,7 @@ package com.cereal.script.commands.monitor.strategy
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.CurrencyMismatchException
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,7 +19,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "name",
-                    values = listOf(ItemValue.Price(BigDecimal("100.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
             val result = strategy.shouldNotify(item, 1)
@@ -35,7 +35,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "name",
-                    values = listOf(ItemValue.Price(BigDecimal("200.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("200.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("200.00"), Currency.USD)
             val result = strategy.shouldNotify(item, 1)
@@ -51,7 +51,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "name",
-                    values = listOf(ItemValue.Price(BigDecimal("100.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
@@ -71,7 +71,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "Test Item",
-                    listOf(ItemValue.Price(BigDecimal("100.00"), Currency.USD)),
+                    listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
@@ -88,7 +88,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "name",
-                    values = listOf(ItemValue.Price(BigDecimal("200.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("200.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
             val result = strategy.shouldNotify(item, 1)
@@ -104,14 +104,14 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "name",
-                    values = listOf(ItemValue.Price(BigDecimal("100.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
                 )
             val item2 =
                 Item(
                     id = "id",
                     url = "url",
                     name = "name2",
-                    values = listOf(ItemValue.Price(BigDecimal("75.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("75.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 

@@ -5,7 +5,7 @@ import com.cereal.script.commands.monitor.domain.ItemRepository
 import com.cereal.script.commands.monitor.domain.NotificationRepository
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.Page
 import com.cereal.script.commands.monitor.strategy.EqualsOrBelowPriceMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
@@ -52,44 +52,44 @@ class TestExecuteCommandsInteractor {
                                 id = "foo",
                                 url = "http://cereal-automation.com",
                                 name = "Foo",
-                                values =
+                                properties =
                                     listOf(
-                                        ItemValue.PublishDate(Instant.now()),
-                                        ItemValue.AvailableStock(1),
-                                        ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
+                                        ItemProperty.PublishDate(Instant.now()),
+                                        ItemProperty.AvailableStock(1),
+                                        ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
                             ),
                             Item(
                                 id = "bar",
                                 url = "http://cereal-automation.com",
                                 name = "Bar",
-                                values =
+                                properties =
                                     listOf(
-                                        ItemValue.PublishDate(Instant.now()),
-                                        ItemValue.AvailableStock(0),
-                                        ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
+                                        ItemProperty.PublishDate(Instant.now()),
+                                        ItemProperty.AvailableStock(0),
+                                        ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
                             ),
                             Item(
                                 id = "baz",
                                 url = "http://cereal-automation.com",
                                 name = "Baz",
-                                values =
+                                properties =
                                     listOf(
-                                        ItemValue.PublishDate(Instant.now().minusSeconds(60)),
-                                        ItemValue.AvailableStock(0),
-                                        ItemValue.Price(BigDecimal("10.00"), Currency.EUR),
+                                        ItemProperty.PublishDate(Instant.now().minusSeconds(60)),
+                                        ItemProperty.AvailableStock(0),
+                                        ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
                             ),
                             Item(
                                 id = "foo",
                                 url = "http://cereal-automation.com",
                                 name = "Foo",
-                                values =
+                                properties =
                                     listOf(
-                                        ItemValue.PublishDate(Instant.now()),
-                                        ItemValue.AvailableStock(1),
-                                        ItemValue.Price(BigDecimal("50.00"), Currency.EUR),
+                                        ItemProperty.PublishDate(Instant.now()),
+                                        ItemProperty.AvailableStock(1),
+                                        ItemProperty.Price(BigDecimal("50.00"), Currency.EUR),
                                     ),
                             ),
                         ),

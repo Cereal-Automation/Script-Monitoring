@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -19,7 +19,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 "item1",
                 "http://example.com/test",
                 "Test",
-                listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
+                listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
             )
 
         val result = runBlocking { strategy.shouldNotify(item, 1) }
@@ -36,7 +36,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 "item1",
                 "http://example.com/test",
                 "Test",
-                listOf(ItemValue.PublishDate(Instant.parse("2022-12-31T23:59:59Z"))),
+                listOf(ItemProperty.PublishDate(Instant.parse("2022-12-31T23:59:59Z"))),
             )
 
         val result = runBlocking { strategy.shouldNotify(item, 1) }
@@ -48,7 +48,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
     fun `shouldNotify returns false for item with null publish date`() {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
-        val item = Item("item1", "http://example.com/test", "Test", listOf(ItemValue.PublishDate(null)))
+        val item = Item("item1", "http://example.com/test", "Test", listOf(ItemProperty.PublishDate(null)))
 
         val result = runBlocking { strategy.shouldNotify(item, 1) }
 
@@ -64,7 +64,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 "item1",
                 "http://example.com/test",
                 "Test",
-                listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
+                listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
             )
 
         val message = strategy.getNotificationMessage(item)
@@ -100,14 +100,14 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 "item1",
                 "http://example.com/test",
                 "Test1",
-                listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
+                listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
             )
         val item2 =
             Item(
                 "item2",
                 "http://example.com/test2",
                 "Test2",
-                listOf(ItemValue.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
+                listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
             )
 
         val result1 = runBlocking { strategy.shouldNotify(item1, 1) }
@@ -138,7 +138,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
     fun `shouldNotify handles null publish date with non-first sequence`() {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
-        val item = Item("item1", "http://example.com/test", "Test", listOf(ItemValue.PublishDate(null)))
+        val item = Item("item1", "http://example.com/test", "Test", listOf(ItemProperty.PublishDate(null)))
 
         val result = runBlocking { strategy.shouldNotify(item, 2) }
 

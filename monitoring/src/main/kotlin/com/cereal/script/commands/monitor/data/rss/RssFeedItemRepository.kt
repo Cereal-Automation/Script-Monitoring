@@ -2,7 +2,7 @@ package com.cereal.script.commands.monitor.data.rss
 
 import com.cereal.script.commands.monitor.domain.ItemRepository
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.Page
 import com.cereal.sdk.component.logger.LoggerComponent
 import com.prof18.rssparser.RssParser
@@ -41,9 +41,9 @@ class RssFeedItemRepository(
         return Page(null, items)
     }
 
-    private fun getPublishDate(rssItem: RssItem): ItemValue.PublishDate? =
+    private fun getPublishDate(rssItem: RssItem): ItemProperty.PublishDate? =
         try {
-            ItemValue.PublishDate(dateFormat.parse(rssItem.pubDate).toInstant())
+            ItemProperty.PublishDate(dateFormat.parse(rssItem.pubDate).toInstant())
         } catch (e: Exception) {
             logger.warn(
                 "Expected to find a publish date for RSS item with guid ${rssItem.guid} but couldn't read the date because: ${e.message}",

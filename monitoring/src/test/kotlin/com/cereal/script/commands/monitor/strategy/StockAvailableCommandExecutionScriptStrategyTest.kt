@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemValue.AvailableStock
+import com.cereal.script.commands.monitor.domain.models.ItemProperty.AvailableStock
 import com.cereal.script.commands.monitor.domain.models.MissingValueTypeException
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -18,7 +18,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com/item/1",
                 name = "Item 1",
-                values = listOf(AvailableStock(value = 10)),
+                properties = listOf(AvailableStock(value = 10)),
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, 1) }
 
@@ -32,7 +32,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "2",
                 url = "http://example.com/item/2",
                 name = "Item 2",
-                values = listOf(AvailableStock(value = 0)),
+                properties = listOf(AvailableStock(value = 0)),
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, 1) }
 
@@ -46,7 +46,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "3",
                 url = "http://example.com/item/3",
                 name = "Item 3",
-                values = emptyList(),
+                properties = emptyList(),
             )
         try {
             runBlocking { monitorStrategy.shouldNotify(item, 1) }
@@ -63,7 +63,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com/item/1",
                 name = "Item 1",
-                values = listOf(AvailableStock(value = 10)),
+                properties = listOf(AvailableStock(value = 10)),
             )
 
         val message = monitorStrategy.getNotificationMessage(item)
@@ -78,7 +78,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "2",
                 url = "http://example.com/item/2",
                 name = "Item 2",
-                values = listOf(AvailableStock(value = 0)),
+                properties = listOf(AvailableStock(value = 0)),
             )
 
         val message = monitorStrategy.getNotificationMessage(item)
@@ -93,7 +93,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "3",
                 url = "http://example.com/item/3",
                 name = "Item 3",
-                values = emptyList(),
+                properties = emptyList(),
             )
 
         try {
