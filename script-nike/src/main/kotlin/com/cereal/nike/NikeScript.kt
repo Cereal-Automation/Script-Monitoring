@@ -2,7 +2,7 @@ package com.cereal.nike
 
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandFactory
-import com.cereal.script.commands.monitor.data.nikeold.NikeApiItemRepository
+import com.cereal.script.commands.monitor.data.nike.NikeApiItemRepository
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
