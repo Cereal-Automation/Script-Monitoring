@@ -22,7 +22,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 properties = listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
             )
 
-        val result = runBlocking { strategy.shouldNotify(item, 1) }
+        val result = runBlocking { strategy.shouldNotify(item, null) }
 
         assertTrue(result)
     }
@@ -39,7 +39,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 properties = listOf(ItemProperty.PublishDate(Instant.parse("2022-12-31T23:59:59Z"))),
             )
 
-        val result = runBlocking { strategy.shouldNotify(item, 1) }
+        val result = runBlocking { strategy.shouldNotify(item, null) }
 
         assertFalse(result)
     }
@@ -49,8 +49,9 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
         val item = Item("item1", "http://example.com/test", "Test", properties = listOf(ItemProperty.PublishDate(null)))
+        val previousItem = Item("item1", "http://example.com/test", "Test", properties = listOf())
 
-        val result = runBlocking { strategy.shouldNotify(item, 1) }
+        val result = runBlocking { strategy.shouldNotify(item, previousItem) }
 
         assertFalse(result)
     }
@@ -73,7 +74,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
     }
 
     @Test
-    fun `shouldNotify returns false for detected item`() {
+    fun `shouldNotify returns false when there's a previous item`() {
         val since = Instant.parse("2023-01-01T00:00:00Z")
         val strategy = NewItemAvailableMonitorStrategy(since)
         val item =
@@ -83,9 +84,16 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 "Test",
                 properties = listOf(),
             )
+        val previousItem =
+            Item(
+                "item2",
+                "http://example.com/test",
+                "Test",
+                properties = listOf(),
+            )
 
-        val result1 = runBlocking { strategy.shouldNotify(item, 2) }
-        val result2 = runBlocking { strategy.shouldNotify(item, 3) }
+        val result1 = runBlocking { strategy.shouldNotify(item, null) }
+        val result2 = runBlocking { strategy.shouldNotify(item, previousItem) }
 
         assertTrue(result1)
         assertFalse(result2)
@@ -110,28 +118,11 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
                 properties = listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
             )
 
-        val result1 = runBlocking { strategy.shouldNotify(item1, 1) }
-        val result2 = runBlocking { strategy.shouldNotify(item2, 2) }
+        val result1 = runBlocking { strategy.shouldNotify(item1, null) }
+        val result2 = runBlocking { strategy.shouldNotify(item2, null) }
 
         assertTrue(result1)
         assertTrue(result2)
-    }
-
-    @Test
-    fun `shouldNotify returns false for item in first sequence`() {
-        val since = Instant.parse("2023-01-01T00:00:00Z")
-        val strategy = NewItemAvailableMonitorStrategy(since)
-        val item =
-            Item(
-                "item1",
-                "http://example.com/test",
-                "Test",
-                properties = listOf(),
-            )
-
-        val result = runBlocking { strategy.shouldNotify(item, 1) }
-
-        assertFalse(result)
     }
 
     @Test
@@ -140,7 +131,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
         val strategy = NewItemAvailableMonitorStrategy(since)
         val item = Item("item1", "http://example.com/test", "Test", properties = listOf(ItemProperty.PublishDate(null)))
 
-        val result = runBlocking { strategy.shouldNotify(item, 2) }
+        val result = runBlocking { strategy.shouldNotify(item, null) }
 
         assertTrue(result)
     }

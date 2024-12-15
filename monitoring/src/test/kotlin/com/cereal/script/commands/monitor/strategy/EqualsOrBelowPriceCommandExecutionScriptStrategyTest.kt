@@ -22,7 +22,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     properties = listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
-            val result = strategy.shouldNotify(item, 1)
+            val result = strategy.shouldNotify(item, null)
 
             assertTrue(result)
         }
@@ -38,7 +38,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     properties = listOf(ItemProperty.Price(BigDecimal("200.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("200.00"), Currency.USD)
-            val result = strategy.shouldNotify(item, 1)
+            val result = strategy.shouldNotify(item, null)
 
             assertTrue(result)
         }
@@ -56,7 +56,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
             try {
-                strategy.shouldNotify(item, 1)
+                strategy.shouldNotify(item, null)
                 Unit
             } catch (ex: CurrencyMismatchException) {
                 assertEquals("Expected currency: USD, but got: EUR", ex.message)
@@ -91,7 +91,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     properties = listOf(ItemProperty.Price(BigDecimal("200.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
-            val result = strategy.shouldNotify(item, 1)
+            val result = strategy.shouldNotify(item, null)
 
             assertTrue(!result)
         }
@@ -115,8 +115,8 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 
-            strategy.shouldNotify(item1, 1)
-            val result = strategy.shouldNotify(item2, 2)
+            strategy.shouldNotify(item1, null)
+            val result = strategy.shouldNotify(item2, item1)
 
             assertTrue(result)
         }

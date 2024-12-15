@@ -82,7 +82,7 @@ class TestExecuteCommandsInteractor {
                                     ),
                             ),
                             Item(
-                                id = "foo",
+                                id = "cux",
                                 url = "http://cereal-automation.com",
                                 name = "Foo",
                                 properties =
@@ -103,7 +103,7 @@ class TestExecuteCommandsInteractor {
                     logRepository,
                     delayBetweenScrapes = Duration.ZERO,
                     strategies = listOf(data.strategy),
-                    maxLoopCount = 1,
+                    maxLoopCount = 2,
                 )
             interactor.invoke(listOf(monitorCommand)).collect()
 
@@ -141,7 +141,7 @@ class TestExecuteCommandsInteractor {
                 // Stock available
                 TestData(
                     StockAvailableMonitorStrategy(),
-                    2,
+                    0,
                 ),
                 // Price equals or below
                 TestData(

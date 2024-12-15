@@ -28,9 +28,13 @@ class EqualsOrBelowPriceMonitorStrategy(
      */
     override suspend fun shouldNotify(
         item: Item,
-        runSequenceNumber: Int,
+        previousItem: Item?,
     ): Boolean {
         val itemPrice = item.requireValue<ItemProperty.Price>()
+        val previousItemPrice = previousItem?.requireValue<ItemProperty.Price>()
+
+        // Do not notify when the price is the same as before.
+        if (itemPrice.value == previousItemPrice?.value) return false
 
         if (itemPrice.currency.code != currency.code) {
             throw CurrencyMismatchException(itemPrice.currency, currency)
@@ -46,6 +50,8 @@ class EqualsOrBelowPriceMonitorStrategy(
 
         return isCheaper
     }
+
+    override fun requiresBaseline(): Boolean = false
 
     /**
      * Generates a notification message for an item based on its price.

@@ -4,25 +4,21 @@ import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.getValue
 import com.cereal.script.commands.monitor.domain.models.requireValue
-import java.math.BigDecimal
 
 class PriceDropMonitorStrategy : MonitorStrategy {
-    private val itemToPrice: HashMap<String, BigDecimal> = HashMap()
-
     override suspend fun shouldNotify(
         item: Item,
-        runSequenceNumber: Int,
+        previousItem: Item?,
     ): Boolean {
+        if (previousItem == null) return false
+
         val price = item.getValue<ItemProperty.Price>()?.value ?: return false
+        val previousPrice = previousItem.getValue<ItemProperty.Price>()?.value ?: return false
 
-        val hasPriceDropped =
-            itemToPrice[item.id]?.let {
-                it.compareTo(price) == 1
-            } ?: false
-
-        itemToPrice[item.id] = price
-        return hasPriceDropped
+        return previousPrice.compareTo(price) == 1
     }
+
+    override fun requiresBaseline(): Boolean = true
 
     override fun getNotificationMessage(item: Item): String {
         val price = item.requireValue<ItemProperty.Price>()

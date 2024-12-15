@@ -20,7 +20,14 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 name = "Item 1",
                 properties = listOf(AvailableStock(value = 10)),
             )
-        val result = runBlocking { monitorStrategy.shouldNotify(item, 1) }
+        val previousItem =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Item 1",
+                properties = listOf(AvailableStock(value = 0)),
+            )
+        val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
         assertTrue(result)
     }
@@ -34,7 +41,14 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 name = "Item 2",
                 properties = listOf(AvailableStock(value = 0)),
             )
-        val result = runBlocking { monitorStrategy.shouldNotify(item, 1) }
+        val previousItem =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Item 1",
+                properties = listOf(AvailableStock(value = 10)),
+            )
+        val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
         assertFalse(result)
     }
@@ -48,8 +62,15 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 name = "Item 3",
                 properties = emptyList(),
             )
+        val previousItem =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Item 1",
+                properties = listOf(AvailableStock(value = 0)),
+            )
         try {
-            runBlocking { monitorStrategy.shouldNotify(item, 1) }
+            runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
             assertFalse(true, "Expected MissingValueTypeException but no exception was thrown")
         } catch (e: MissingValueTypeException) {
             assertTrue(true)

@@ -21,6 +21,8 @@ class MonitorCommand(
     private var nextPageToken: String? = null
     private var runSequenceNumber = 1
     private var totalNumberOfItems = 0
+    private val lastItems: HashMap<String, Item> = HashMap()
+    private var isBaselineSet = false
 
     override suspend fun shouldRun(): Boolean {
         // Always run the monitor, there's no "end state".
@@ -48,6 +50,7 @@ class MonitorCommand(
 
         // When there's no next page delay for a while before starting over.
         if (nextPageToken == null) {
+            isBaselineSet = true
             logRepository.info(
                 "Found and processed a total of $totalNumberOfItems items, waiting $delayBetweenScrapes before starting over.",
             )
@@ -68,13 +71,18 @@ class MonitorCommand(
     private suspend fun processItems(items: List<Item>) {
         items.forEach { item ->
             strategies.forEach { strategy ->
-                ExecuteStrategyCommand(
-                    notificationRepository,
-                    logRepository,
-                    strategy,
-                    item,
-                ).execute(runSequenceNumber)
+                if (!strategy.requiresBaseline() || isBaselineSet) {
+                    ExecuteStrategyCommand(
+                        notificationRepository,
+                        logRepository,
+                        strategy,
+                        item,
+                        lastItems[item.id],
+                    ).execute()
+                }
             }
+
+            lastItems[item.id] = item
         }
     }
 

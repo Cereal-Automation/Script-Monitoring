@@ -38,8 +38,8 @@ class ExecuteStrategyCommandTest {
             coJustRun { logRepository.info(any()) }
 
             executeStrategyCommand =
-                ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item)
-            executeStrategyCommand.execute(1)
+                ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
+            executeStrategyCommand.execute()
 
             coVerify { notificationRepository.notify(message, item) }
         }
@@ -57,8 +57,8 @@ class ExecuteStrategyCommandTest {
             coJustRun { logRepository.info(any()) }
 
             executeStrategyCommand =
-                ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item)
-            executeStrategyCommand.execute(1)
+                ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
+            executeStrategyCommand.execute()
 
             coVerify { logRepository.info("Unable to create a notification for 'TestItem' because: $exceptionMessage") }
         }
@@ -71,8 +71,8 @@ class ExecuteStrategyCommandTest {
             coEvery { strategy.shouldNotify(item, any()) } returns false
 
             executeStrategyCommand =
-                ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item)
-            executeStrategyCommand.execute(1)
+                ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
+            executeStrategyCommand.execute()
 
             coVerify(exactly = 0) { notificationRepository.notify(any(), any()) }
             coVerify(exactly = 0) { logRepository.info("Sending notification for 'TestItem'.") }

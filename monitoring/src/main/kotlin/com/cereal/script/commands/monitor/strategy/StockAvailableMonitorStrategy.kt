@@ -7,11 +7,16 @@ import com.cereal.script.commands.monitor.domain.models.requireValue
 class StockAvailableMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
-        runSequenceNumber: Int,
+        previousItem: Item?,
     ): Boolean {
+        if (previousItem == null) return false
+
         val availableStock = item.requireValue<ItemProperty.AvailableStock>().value
-        return availableStock > 0
+        val availableStockPrevious = previousItem.requireValue<ItemProperty.AvailableStock>().value
+        return availableStockPrevious == 0 && availableStock > 0
     }
+
+    override fun requiresBaseline(): Boolean = true
 
     override fun getNotificationMessage(item: Item): String {
         val availableStock = item.requireValue<ItemProperty.AvailableStock>().value
