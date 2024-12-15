@@ -12,7 +12,7 @@ class TestSnkrsApiClient {
         runTest {
             val client = SnkrsApiClient()
 
-            val response = client.getProducts(Locale.NL_NL)
+            val response = client.getProducts(Locale.NL_NL, 0, 50)
             assertNotNull(response)
         }
 }

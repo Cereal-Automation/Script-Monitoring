@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,5 +10,5 @@ data class ExternalReference(
     @SerialName("id")
     val id: String = "",
     @SerialName("resource")
-    val resource: String = ""
+    val resource: String = "",
 )

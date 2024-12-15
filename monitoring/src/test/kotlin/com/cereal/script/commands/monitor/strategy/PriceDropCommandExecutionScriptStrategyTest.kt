@@ -16,7 +16,7 @@ class PriceDropCommandExecutionScriptStrategyTest {
     fun `shouldNotify returns false if price was not changed`() =
         runBlocking {
             val initialPrice = ItemProperty.Price(BigDecimal(100), Currency.USD)
-            val item = Item("1", "url", "item", listOf(initialPrice))
+            val item = Item("1", "url", "item", properties = listOf(initialPrice))
 
             // First call to shouldNotify should return false as there is no previous price to check against
             assertFalse(subject.shouldNotify(item, 1))
@@ -28,13 +28,13 @@ class PriceDropCommandExecutionScriptStrategyTest {
     fun `shouldNotify returns true if price was decreased`() =
         runBlocking {
             val initialPrice = ItemProperty.Price(BigDecimal(100), Currency.USD)
-            val item1 = Item("1", "url", "item", listOf(initialPrice))
+            val item1 = Item("1", "url", "item", properties = listOf(initialPrice))
 
             // initialize item with original price
             assertFalse(subject.shouldNotify(item1, 1))
 
             val decreasedPrice = ItemProperty.Price(BigDecimal(50), Currency.USD)
-            val item2 = Item("1", "url", "item", listOf(decreasedPrice))
+            val item2 = Item("1", "url", "item", properties = listOf(decreasedPrice))
 
             // after price decrease shouldNotify should return true
             assertTrue(subject.shouldNotify(item2, 2))
@@ -44,13 +44,13 @@ class PriceDropCommandExecutionScriptStrategyTest {
     fun `shouldNotify returns false if price was increased`() =
         runBlocking {
             val initialPrice = ItemProperty.Price(BigDecimal(100), Currency.USD)
-            val item1 = Item("1", "url", "item", listOf(initialPrice))
+            val item1 = Item("1", "url", "item", properties = listOf(initialPrice))
 
             // initialize item with original price
             assertFalse(subject.shouldNotify(item1, 1))
 
             val increasedPrice = ItemProperty.Price(BigDecimal(150), Currency.USD)
-            val item2 = Item("1", "url", "item", listOf(increasedPrice))
+            val item2 = Item("1", "url", "item", properties = listOf(increasedPrice))
 
             // after price increase shouldNotify should return false
             assertFalse(subject.shouldNotify(item2, 2))

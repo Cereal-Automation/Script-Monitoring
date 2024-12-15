@@ -71,7 +71,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
                     id = "id",
                     url = "url",
                     name = "Test Item",
-                    listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
+                    properties = listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
                 )
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
 

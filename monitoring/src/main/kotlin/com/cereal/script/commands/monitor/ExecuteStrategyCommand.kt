@@ -36,8 +36,7 @@ class ExecuteStrategyCommand(
                 val message = strategy.getNotificationMessage(item)
                 logRepository.info(message)
 
-                notificationRepository.notify(message)
-                notificationRepository.setItemNotified(item)
+                notificationRepository.notify(message, item)
             } catch (e: Exception) {
                 logRepository.info("Unable to create a notification for '${item.name}' because: ${e.message}")
             }

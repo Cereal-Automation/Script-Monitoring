@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -21,5 +20,5 @@ data class ProductInfo(
     @SerialName("skus")
     val skus: List<Sku> = listOf(),
     @SerialName("socialInterest")
-    val socialInterest: SocialInterest = SocialInterest()
+    val socialInterest: SocialInterest = SocialInterest(),
 )

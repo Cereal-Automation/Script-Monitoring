@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,5 +10,5 @@ data class Social(
     @SerialName("likes")
     val likes: Boolean = false,
     @SerialName("share")
-    val share: Boolean = false
+    val share: Boolean = false,
 )

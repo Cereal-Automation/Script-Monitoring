@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,5 +12,5 @@ data class SubtitleX(
     @SerialName("fontStyle")
     val fontStyle: String? = null,
     @SerialName("textColor")
-    val textColor: String? = null
+    val textColor: String? = null,
 )

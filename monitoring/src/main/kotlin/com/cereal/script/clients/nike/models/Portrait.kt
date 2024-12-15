@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,5 +14,5 @@ data class Portrait(
     @SerialName("url")
     val url: String = "",
     @SerialName("view")
-    val view: String? = null
+    val view: String? = null,
 )

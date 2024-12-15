@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,5 +14,5 @@ data class StartImage(
     @SerialName("secondaryPortrait")
     val secondaryPortrait: SecondaryPortraitX = SecondaryPortraitX(),
     @SerialName("squarish")
-    val squarish: SquarishXX = SquarishXX()
+    val squarish: SquarishXX = SquarishXX(),
 )

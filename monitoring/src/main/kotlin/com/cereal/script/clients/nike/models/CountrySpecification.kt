@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,5 +12,5 @@ data class CountrySpecification(
     @SerialName("localizedSizePrefix")
     val localizedSizePrefix: String? = null,
     @SerialName("taxInfo")
-    val taxInfo: TaxInfo? = null
+    val taxInfo: TaxInfo? = null,
 )

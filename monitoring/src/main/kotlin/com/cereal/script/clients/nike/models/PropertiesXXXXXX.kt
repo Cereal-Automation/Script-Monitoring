@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,5 +14,5 @@ data class PropertiesXXXXXX(
     @SerialName("subtitle")
     val subtitle: SubtitleX? = SubtitleX(),
     @SerialName("title")
-    val title: TitleX? = TitleX()
+    val title: TitleX? = TitleX(),
 )

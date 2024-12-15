@@ -107,7 +107,7 @@ class TestExecuteCommandsInteractor {
                 )
             interactor.invoke(listOf(monitorCommand)).collect()
 
-            coVerify(exactly = data.numberOfNotifications) { notificationRepository.notify(any()) }
+            coVerify(exactly = data.numberOfNotifications) { notificationRepository.notify(any(), any()) }
         }
 
     data class TestData(

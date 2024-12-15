@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -21,5 +20,5 @@ data class Action(
     @SerialName("id")
     val id: String = "",
     @SerialName("product")
-    val product: ProductX? = ProductX()
+    val product: ProductX? = ProductX(),
 )

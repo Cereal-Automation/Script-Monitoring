@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -23,5 +22,5 @@ data class LaunchView(
     @SerialName("startEntryDate")
     val startEntryDate: String = "",
     @SerialName("stopEntryDate")
-    val stopEntryDate: String? = ""
+    val stopEntryDate: String? = "",
 )

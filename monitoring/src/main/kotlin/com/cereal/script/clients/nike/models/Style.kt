@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,5 +14,5 @@ data class Style(
     @SerialName("properties")
     val properties: PropertiesX = PropertiesX(),
     @SerialName("resourceType")
-    val resourceType: String = ""
+    val resourceType: String = "",
 )

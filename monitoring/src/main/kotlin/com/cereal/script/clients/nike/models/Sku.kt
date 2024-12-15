@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -37,5 +36,5 @@ data class Sku(
     @SerialName("stockKeepingUnitId")
     val stockKeepingUnitId: String = "",
     @SerialName("vatCode")
-    val vatCode: String = ""
+    val vatCode: String = "",
 )

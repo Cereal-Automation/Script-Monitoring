@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,5 +10,5 @@ data class MetadataDecoration(
     @SerialName("namespace")
     val namespace: String = "",
     @SerialName("payload")
-    val payload: Payload = Payload()
+    val payload: Payload = Payload(),
 )

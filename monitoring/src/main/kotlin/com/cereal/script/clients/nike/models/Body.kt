@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,5 +10,5 @@ data class Body(
     @SerialName("fontSize")
     val fontSize: String = "",
     @SerialName("fontStyle")
-    val fontStyle: String = ""
+    val fontStyle: String = "",
 )

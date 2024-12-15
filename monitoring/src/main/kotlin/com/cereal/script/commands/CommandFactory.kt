@@ -18,10 +18,11 @@ class CommandFactory(
         strategies: List<MonitorStrategy>,
         scrapeInterval: Duration? = null,
         statusUpdate: suspend (message: String) -> Unit,
+        discordUsername: String,
     ): MonitorCommand =
         MonitorCommand(
             itemRepository = itemRepository,
-            notificationRepository = createNotificationRepository(),
+            notificationRepository = createNotificationRepository(discordUsername),
             logRepository = createLogRepository(statusUpdate),
             delayBetweenScrapes = scrapeInterval ?: Duration.ZERO,
             strategies = strategies,
@@ -30,9 +31,9 @@ class CommandFactory(
     private fun createLogRepository(statusUpdate: suspend (message: String) -> Unit): LogRepository =
         ScriptLogRepository(provider.logger(), statusUpdate)
 
-    private fun createNotificationRepository(): NotificationRepository =
+    private fun createNotificationRepository(discordUsername: String): NotificationRepository =
         ScriptNotificationRepository(
-            provider.preference(),
             provider.notification(),
+            discordUsername = discordUsername,
         )
 }

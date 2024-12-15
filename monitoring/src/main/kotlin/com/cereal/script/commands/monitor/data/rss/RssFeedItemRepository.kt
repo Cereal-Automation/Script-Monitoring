@@ -31,7 +31,7 @@ class RssFeedItemRepository(
                         listOfNotNull(
                             getPublishDate(it),
                         )
-                    Item(id, url, name, values)
+                    Item(id, url, name, description = it.description, imageUrl = it.image, properties = values)
                 } else {
                     logger.warn("Skipping RSS feed item because empty values were found: [id=$id, url=$url, name=$name]")
                     null

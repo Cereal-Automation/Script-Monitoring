@@ -69,6 +69,7 @@ class NikeScript : Script<NikeConfiguration> {
                 monitorStrategies,
                 configuration.monitorInterval()?.seconds,
                 statusUpdate,
+                "Nike SNKRS",
             ),
         )
     }

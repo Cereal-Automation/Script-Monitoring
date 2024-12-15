@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,5 +14,5 @@ data class Seo(
     @SerialName("slug")
     val slug: String = "",
     @SerialName("title")
-    val title: String = ""
+    val title: String = "",
 )

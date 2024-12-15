@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,5 +18,5 @@ data class AvailableGtin(
     @SerialName("styleColor")
     val styleColor: String = "",
     @SerialName("styleType")
-    val styleType: String? = null
+    val styleType: String? = null,
 )

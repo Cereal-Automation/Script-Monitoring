@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,5 +16,5 @@ data class PreviewImageOverride(
     @SerialName("url")
     val url: String = "",
     @SerialName("width")
-    val width: Int = 0
+    val width: Int = 0,
 )

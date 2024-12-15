@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,5 +18,5 @@ data class Node(
     @SerialName("type")
     val type: String = "",
     @SerialName("version")
-    val version: String = ""
+    val version: String = "",
 )

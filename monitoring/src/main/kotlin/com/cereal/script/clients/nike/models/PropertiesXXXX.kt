@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -25,5 +24,5 @@ data class PropertiesXXXX(
     @SerialName("threadType")
     val threadType: String = "",
     @SerialName("title")
-    val title: String = ""
+    val title: String = "",
 )

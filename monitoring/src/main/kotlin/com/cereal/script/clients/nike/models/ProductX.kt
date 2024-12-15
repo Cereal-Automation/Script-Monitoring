@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,5 +8,5 @@ data class ProductX(
     @SerialName("productId")
     val productId: String = "",
     @SerialName("styleColor")
-    val styleColor: String = ""
+    val styleColor: String = "",
 )

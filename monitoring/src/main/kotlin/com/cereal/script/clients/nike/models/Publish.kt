@@ -1,6 +1,5 @@
 package com.cereal.script.clients.nike.models
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,5 +12,5 @@ data class Publish(
     @SerialName("countries")
     val countries: List<String> = listOf(),
     @SerialName("pageId")
-    val pageId: String = ""
+    val pageId: String = "",
 )
