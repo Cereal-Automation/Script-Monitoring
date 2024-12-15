@@ -1,8 +1,9 @@
-package com.cereal.nike
+package com.cereal.snkrs
 
+import com.cereal.script.clients.snkrs.SnkrsApiClient
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandFactory
-import com.cereal.script.commands.monitor.data.nike.NikeItemRepository
+import com.cereal.script.commands.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
@@ -13,20 +14,20 @@ import com.cereal.sdk.component.ComponentProvider
 import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
-class NikeScript : Script<NikeConfiguration> {
+class SnkrsScript : Script<SnkrsConfiguration> {
     private val commandExecutionScript =
         CommandExecutionScript(
-            scriptId = "com.cereal-automation.monitor.nike",
+            scriptId = "com.cereal-automation.monitor.snkrs",
             scriptPublicKey = null,
         )
 
     override suspend fun onStart(
-        configuration: NikeConfiguration,
+        configuration: SnkrsConfiguration,
         provider: ComponentProvider,
     ): Boolean = commandExecutionScript.onStart(provider)
 
     override suspend fun execute(
-        configuration: NikeConfiguration,
+        configuration: SnkrsConfiguration,
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
     ): ExecutionResult {
@@ -35,7 +36,7 @@ class NikeScript : Script<NikeConfiguration> {
     }
 
     override suspend fun onFinish(
-        configuration: NikeConfiguration,
+        configuration: SnkrsConfiguration,
         provider: ComponentProvider,
     ) {
         commandExecutionScript.onFinish()
@@ -50,7 +51,7 @@ class NikeScript : Script<NikeConfiguration> {
      * @return A list of commands generated based on the provided configuration and component provider.
      */
     private fun buildCommands(
-        configuration: NikeConfiguration,
+        configuration: SnkrsConfiguration,
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
     ): List<Command> {
@@ -58,9 +59,9 @@ class NikeScript : Script<NikeConfiguration> {
         val monitorStrategies = buildMonitorStrategies(configuration)
 
         val nikeRepository =
-            NikeItemRepository(
-                category = configuration.category(),
-                randomProxy = configuration.proxy(),
+            SnkrsItemRepository(
+                snkrsApiClient = SnkrsApiClient(),
+                locale = configuration.locale(),
             )
 
         return listOf(
@@ -69,12 +70,12 @@ class NikeScript : Script<NikeConfiguration> {
                 monitorStrategies,
                 configuration.monitorInterval()?.seconds,
                 statusUpdate,
-                "Nike",
+                "Nike SNKRS",
             ),
         )
     }
 
-    private fun buildMonitorStrategies(configuration: NikeConfiguration): List<MonitorStrategy> =
+    private fun buildMonitorStrategies(configuration: SnkrsConfiguration): List<MonitorStrategy> =
         buildList {
             if (configuration.monitorNewProduct()) {
                 add(NewItemAvailableMonitorStrategy(Instant.now()))
@@ -82,5 +83,8 @@ class NikeScript : Script<NikeConfiguration> {
             if (configuration.monitorPriceDrops()) {
                 add(PriceDropMonitorStrategy())
             }
+//            if (configuration.monitorStockChanges()) {
+//                add(StockChangeMonitorStrategy())
+//            }
         }
 }
