@@ -4,6 +4,17 @@ import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.getValue
 
+/**
+ * A monitoring strategy to notify when an item becomes available in stock or when there are changes to its variants.
+ *
+ * This strategy checks the stock status and variant details of the current item against its previous state:
+ * - If the item had no stock previously and now has stock, a notification is triggered.
+ * - If the item's variants have new additions that are in stock, or previously out-of-stock variants are restocked,
+ *   a corresponding message is generated.
+ *
+ * Implements the [MonitorStrategy] interface, defining the logic for generating notifications and indicating
+ * a requirement for a baseline (a previous state) to function properly.
+ */
 class StockAvailableMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
