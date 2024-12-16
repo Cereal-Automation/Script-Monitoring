@@ -4,10 +4,10 @@ import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertNull
 import java.math.BigDecimal
 import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 
 class PriceDropCommandExecutionScriptStrategyTest {
     private val subject = PriceDropMonitorStrategy()
@@ -21,9 +21,9 @@ class PriceDropCommandExecutionScriptStrategyTest {
             val previousItem = Item("1", "url", "item", properties = listOf(previousPrice))
 
             // First call to shouldNotify should return false as there is no previous price to check against
-            assertFalse(subject.shouldNotify(item, null))
+            assertNull(subject.shouldNotify(item, null))
             // Second call with the same price should return false as price has not dropped
-            assertFalse(subject.shouldNotify(item, previousItem))
+            assertNull(subject.shouldNotify(item, previousItem))
         }
 
     @Test
@@ -34,13 +34,14 @@ class PriceDropCommandExecutionScriptStrategyTest {
             val previousItem = Item("1", "url", "item", properties = listOf(initialPrice))
 
             // initialize item with original price
-            assertFalse(subject.shouldNotify(item1, previousItem))
+            assertNull(subject.shouldNotify(item1, previousItem))
 
             val previousPrice = ItemProperty.Price(BigDecimal(150), Currency.USD)
             val item2 = Item("1", "url", "item", properties = listOf(previousPrice))
 
             // after price decrease shouldNotify should return true
-            assertTrue(subject.shouldNotify(item1, item2))
+            assertNotNull(subject.shouldNotify(item1, item2))
+            Unit
         }
 
     @Test
@@ -51,12 +52,12 @@ class PriceDropCommandExecutionScriptStrategyTest {
             val previousItem = Item("1", "url", "item", properties = listOf(initialPrice))
 
             // initialize item with original price
-            assertFalse(subject.shouldNotify(item1, previousItem))
+            assertNull(subject.shouldNotify(item1, previousItem))
 
             val increasedPrice = ItemProperty.Price(BigDecimal(150), Currency.USD)
             val item2 = Item("1", "url", "item", properties = listOf(increasedPrice))
 
             // after price increase shouldNotify should return false
-            assertFalse(subject.shouldNotify(item2, item1))
+            assertNull(subject.shouldNotify(item2, item1))
         }
 }

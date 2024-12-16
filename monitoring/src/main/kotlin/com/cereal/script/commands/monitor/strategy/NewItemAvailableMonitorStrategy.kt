@@ -11,12 +11,18 @@ class NewItemAvailableMonitorStrategy(
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): Boolean =
-        item.getValue<ItemProperty.PublishDate>()?.value?.let {
-            it > since
-        } ?: (previousItem == null)
+    ): String? {
+        val isNewItem =
+            item.getValue<ItemProperty.PublishDate>()?.value?.let {
+                it > since
+            } ?: (previousItem == null)
+
+        return if (isNewItem) {
+            "Found new item: ${item.name}."
+        } else {
+            null
+        }
+    }
 
     override fun requiresBaseline(): Boolean = true
-
-    override fun getNotificationMessage(item: Item): String = "Found new item: ${item.name}."
 }

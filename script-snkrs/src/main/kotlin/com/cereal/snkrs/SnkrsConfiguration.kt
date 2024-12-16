@@ -21,16 +21,10 @@ interface SnkrsConfiguration : BaseConfiguration {
     fun monitorPriceDrops(): Boolean
 
     @ScriptConfigurationItem(
-        keyName = KEY_MONITOR_NEW_PRODUCTS,
-        name = "Monitor new products",
-        description = "If enabled, send a notification when there is a new product.",
-    )
-    fun monitorNewProduct(): Boolean
-
-    @ScriptConfigurationItem(
-        keyName = KEY_MONITOR_STOCK_CHANGES,
+        keyName = KEY_MONITOR_IN_STOCK,
         name = "Monitor stock changes",
-        description = "If enabled, send a notification when the stock of a product (size) changes.",
+        description =
+            "If enabled, a notification will be sent whenever a product (size) gets in stock.",
     )
     fun monitorStockChanges(): Boolean
 
@@ -46,8 +40,7 @@ interface SnkrsConfiguration : BaseConfiguration {
     companion object {
         const val KEY_LOCATION = "location"
         const val KEY_MONITOR_PRICE = "monitor_price"
-        const val KEY_MONITOR_NEW_PRODUCTS = "monitor_new_products"
-        const val KEY_MONITOR_STOCK_CHANGES = "monitor_stock_changes"
+        const val KEY_MONITOR_IN_STOCK = "monitor_in_stock"
         const val KEY_RANDOM_PROXY = "random_proxy"
     }
 }

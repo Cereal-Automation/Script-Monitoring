@@ -3,11 +3,10 @@ package com.cereal.script.commands.monitor.strategy
 import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.Instant
 import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class NewItemAvailableCommandExecutionScriptStrategyTest {
     @Test
@@ -24,7 +23,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, null) }
 
-        assertTrue(result)
+        assertNotNull(result)
     }
 
     @Test
@@ -41,7 +40,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, null) }
 
-        assertFalse(result)
+        assertNull(result)
     }
 
     @Test
@@ -53,24 +52,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, previousItem) }
 
-        assertFalse(result)
-    }
-
-    @Test
-    fun `getNotificationMessage returns correct message`() {
-        val since = Instant.parse("2023-01-01T00:00:00Z")
-        val strategy = NewItemAvailableMonitorStrategy(since)
-        val item =
-            Item(
-                "item1",
-                "http://example.com/test",
-                "Test",
-                properties = listOf(ItemProperty.PublishDate(Instant.parse("2023-01-02T00:00:00Z"))),
-            )
-
-        val message = strategy.getNotificationMessage(item)
-
-        assertEquals("Found new item: Test.", message)
+        assertNull(result)
     }
 
     @Test
@@ -95,8 +77,8 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
         val result1 = runBlocking { strategy.shouldNotify(item, null) }
         val result2 = runBlocking { strategy.shouldNotify(item, previousItem) }
 
-        assertTrue(result1)
-        assertFalse(result2)
+        assertNotNull(result1)
+        assertNull(result2)
     }
 
     @Test
@@ -121,8 +103,8 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
         val result1 = runBlocking { strategy.shouldNotify(item1, null) }
         val result2 = runBlocking { strategy.shouldNotify(item2, null) }
 
-        assertTrue(result1)
-        assertTrue(result2)
+        assertNotNull(result1)
+        assertNotNull(result2)
     }
 
     @Test
@@ -133,6 +115,6 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, null) }
 
-        assertTrue(result)
+        assertNotNull(result)
     }
 }

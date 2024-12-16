@@ -22,19 +22,18 @@ class ExecuteStrategyCommand(
     private val previousItem: Item?,
 ) {
     suspend fun execute() {
-        val notify =
+        val message =
             try {
                 strategy.shouldNotify(item, previousItem)
             } catch (e: Exception) {
                 logRepository.info(
                     "Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}",
                 )
-                false
+                null
             }
 
-        if (notify) {
+        if (message != null) {
             try {
-                val message = strategy.getNotificationMessage(item)
                 logRepository.info(message)
 
                 notificationRepository.notify(message, item)

@@ -17,8 +17,6 @@ class EqualsOrBelowPriceMonitorStrategy(
     private val price: BigDecimal,
     private val currency: Currency,
 ) : MonitorStrategy {
-    private var compareToPrice = price
-
     /**
      * Determines if the user should be notified about the item based on its price.
      *
@@ -29,38 +27,25 @@ class EqualsOrBelowPriceMonitorStrategy(
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): Boolean {
+    ): String? {
         val itemPrice = item.requireValue<ItemProperty.Price>()
         val previousItemPrice = previousItem?.requireValue<ItemProperty.Price>()
 
         // Do not notify when the price is the same as before.
-        if (itemPrice.value == previousItemPrice?.value) return false
+        if (itemPrice.value == previousItemPrice?.value) return null
 
         if (itemPrice.currency.code != currency.code) {
             throw CurrencyMismatchException(itemPrice.currency, currency)
         }
 
-        val isCheaper = itemPrice.value <= compareToPrice
+        val isCheaper = itemPrice.value <= price.min(previousItemPrice?.value ?: price)
 
-        if (isCheaper) {
-            // Update the price so that we don't keep notifying the user when the next run also evaluates to the same
-            // (lower) price.
-            compareToPrice = itemPrice.value
+        return if (isCheaper) {
+            "${item.name} is available for $itemPrice"
+        } else {
+            null
         }
-
-        return isCheaper
     }
 
     override fun requiresBaseline(): Boolean = false
-
-    /**
-     * Generates a notification message for an item based on its price.
-     *
-     * @param item The item for which the notification message is generated. It must contain a price.
-     * @return A notification message in the format: "<item name> is available for <item price>".
-     */
-    override fun getNotificationMessage(item: Item): String {
-        val itemPrice = item.requireValue<ItemProperty.Price>().value
-        return "${item.name} is available for $itemPrice"
-    }
 }

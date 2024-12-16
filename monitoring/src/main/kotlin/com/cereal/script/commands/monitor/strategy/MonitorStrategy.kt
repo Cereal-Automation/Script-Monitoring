@@ -8,12 +8,12 @@ interface MonitorStrategy {
      *
      * @param item The current state of the item to evaluate.
      * @param previousItem The previous state of the item, or null if unavailable (on first run).
-     * @return True if a notification should be sent, false otherwise.
+     * @return the message if a notification should be sent, null otherwise.
      */
     suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): Boolean
+    ): String?
 
     /**
      * Indicates whether an initial baseline or previous item is required for the strategy to function correctly.
@@ -23,6 +23,4 @@ interface MonitorStrategy {
      * when items are scraped for the first time.
      */
     fun requiresBaseline(): Boolean
-
-    fun getNotificationMessage(item: Item): String
 }

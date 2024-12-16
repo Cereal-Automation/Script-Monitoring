@@ -51,10 +51,10 @@ sealed class ItemProperty(
         override fun toString(): String = if (value) "yes" else "no"
     }
 
-    data class Sizes(
-        val value: List<SizeStock>,
+    data class Variants(
+        val value: List<Variant>,
     ) : ItemProperty("sizes") {
-        override fun toString(): String = value.joinToString("\n") { "${it.size}: ${it.stock}" }
+        override fun toString(): String = value.joinToString("\n") { "${it.name}: ${it.stockLevel}" }
     }
 
     data class Custom(

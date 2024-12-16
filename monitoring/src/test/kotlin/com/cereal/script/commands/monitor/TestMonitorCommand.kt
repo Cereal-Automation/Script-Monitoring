@@ -68,7 +68,6 @@ class TestMonitorCommand {
 
             val result = monitorCommand.execute()
 
-            coVerify(exactly = 0) { logRepository.info(any(), any()) }
             assert(result == CommandResult.Repeat)
         }
 

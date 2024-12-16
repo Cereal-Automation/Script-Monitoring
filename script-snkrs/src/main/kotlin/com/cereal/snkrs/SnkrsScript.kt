@@ -5,13 +5,12 @@ import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandFactory
 import com.cereal.script.commands.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
-import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
+import com.cereal.script.commands.monitor.strategy.StockAvailableMonitorStrategy
 import com.cereal.script.core.CommandExecutionScript
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 class SnkrsScript : Script<SnkrsConfiguration> {
@@ -77,14 +76,11 @@ class SnkrsScript : Script<SnkrsConfiguration> {
 
     private fun buildMonitorStrategies(configuration: SnkrsConfiguration): List<MonitorStrategy> =
         buildList {
-            if (configuration.monitorNewProduct()) {
-                add(NewItemAvailableMonitorStrategy(Instant.now()))
-            }
             if (configuration.monitorPriceDrops()) {
                 add(PriceDropMonitorStrategy())
             }
-//            if (configuration.monitorStockChanges()) {
-//                add(StockChangeMonitorStrategy())
-//            }
+            if (configuration.monitorStockChanges()) {
+                add(StockAvailableMonitorStrategy())
+            }
         }
 }

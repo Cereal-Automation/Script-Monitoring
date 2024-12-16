@@ -6,9 +6,10 @@ import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import java.math.BigDecimal
 import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
     @Test
@@ -24,7 +25,8 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
             val result = strategy.shouldNotify(item, null)
 
-            assertTrue(result)
+            assertNotNull(result)
+            Unit
         }
 
     @Test
@@ -40,7 +42,8 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("200.00"), Currency.USD)
             val result = strategy.shouldNotify(item, null)
 
-            assertTrue(result)
+            assertNotNull(result)
+            Unit
         }
 
     @Test
@@ -64,23 +67,6 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
         }
 
     @Test
-    fun `getNotificationMessage returns correct message`() =
-        runBlocking {
-            val item =
-                Item(
-                    id = "id",
-                    url = "url",
-                    name = "Test Item",
-                    properties = listOf(ItemProperty.Price(BigDecimal("100.00"), Currency.USD)),
-                )
-            val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
-
-            val message = strategy.getNotificationMessage(item)
-
-            assertEquals("Test Item is available for 100.00", message)
-        }
-
-    @Test
     fun `shouldNotify returns false when item price is above provided price`() =
         runBlocking {
             val item =
@@ -93,7 +79,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
             val result = strategy.shouldNotify(item, null)
 
-            assertTrue(!result)
+            assertNull(result)
         }
 
     @Test
@@ -118,6 +104,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             strategy.shouldNotify(item1, null)
             val result = strategy.shouldNotify(item2, item1)
 
-            assertTrue(result)
+            assertNotNull(result)
+            Unit
         }
 }

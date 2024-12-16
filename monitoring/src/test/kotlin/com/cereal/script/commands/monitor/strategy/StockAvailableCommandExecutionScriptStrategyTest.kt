@@ -1,12 +1,15 @@
 package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.domain.models.Item
+import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.ItemProperty.AvailableStock
-import com.cereal.script.commands.monitor.domain.models.MissingValueTypeException
+import com.cereal.script.commands.monitor.domain.models.Variant
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class StockAvailableCommandExecutionScriptStrategyTest {
     private val monitorStrategy = StockAvailableMonitorStrategy()
@@ -29,7 +32,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
-        assertTrue(result)
+        assertNotNull(result)
     }
 
     @Test
@@ -50,78 +53,172 @@ class StockAvailableCommandExecutionScriptStrategyTest {
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
-        assertFalse(result)
+        assertNull(result)
     }
 
-    @Test
-    fun `should not notify when no available stock value is present`() {
-        val item =
-            Item(
-                id = "3",
-                url = "http://example.com/item/3",
-                name = "Item 3",
-                properties = emptyList(),
-            )
+    @org.junit.jupiter.api.Test
+    fun `should return null when previousItem is null`() {
+        val item = mockk<Item>()
+        val result = runBlocking { monitorStrategy.shouldNotify(item, null) }
+        assertNull(result)
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `should notify when stock becomes available for first time`() {
         val previousItem =
             Item(
                 id = "1",
-                url = "http://example.com/item/1",
-                name = "Item 1",
-                properties = listOf(AvailableStock(value = 0)),
+                url = "http://example.com",
+                name = "Test Item",
+                properties = listOf(AvailableStock(0)),
             )
-        try {
-            runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
-            assertFalse(true, "Expected MissingValueTypeException but no exception was thrown")
-        } catch (e: MissingValueTypeException) {
-            assertTrue(true)
-        }
-    }
-
-    @Test
-    fun `should return correct notification message`() {
-        val item =
+        val currentItem =
             Item(
                 id = "1",
-                url = "http://example.com/item/1",
-                name = "Item 1",
-                properties = listOf(AvailableStock(value = 10)),
+                url = "http://example.com",
+                name = "Test Item",
+                properties = listOf(AvailableStock(5)),
             )
 
-        val message = monitorStrategy.getNotificationMessage(item)
+        val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertTrue(message.contains("Item 1 is in stock (10)!"))
+        assertEquals("Test Item is in stock (5)!", result)
     }
 
-    @Test
-    fun `should return empty message when stock is not available`() {
-        val item =
+    @org.junit.jupiter.api.Test
+    fun `should return null when stock remains unavailable`() {
+        val previousItem =
             Item(
-                id = "2",
-                url = "http://example.com/item/2",
-                name = "Item 2",
-                properties = listOf(AvailableStock(value = 0)),
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties = listOf(AvailableStock(0)),
+            )
+        val currentItem =
+            Item(
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties = listOf(AvailableStock(0)),
             )
 
-        val message = monitorStrategy.getNotificationMessage(item)
+        val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertTrue(message.contains("Item 2 is in stock (0)!"))
+        assertNull(result)
     }
 
-    @Test
-    fun `should throw exception when no available stock value is present`() {
-        val item =
+    @org.junit.jupiter.api.Test
+    fun `should notify about new variants in stock`() {
+        val previousItem =
             Item(
-                id = "3",
-                url = "http://example.com/item/3",
-                name = "Item 3",
-                properties = emptyList(),
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties =
+                    listOf(
+                        ItemProperty.Variants(
+                            value =
+                                listOf(
+                                    Variant("variant1", inStock = false, stockLevel = "OOS"),
+                                ),
+                        ),
+                    ),
+            )
+        val currentItem =
+            Item(
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties =
+                    listOf(
+                        ItemProperty.Variants(
+                            value =
+                                listOf(
+                                    Variant("variant1", inStock = false, stockLevel = "OOS"),
+                                    Variant("variant2", inStock = true, stockLevel = "HIGH"),
+                                ),
+                        ),
+                    ),
             )
 
-        try {
-            monitorStrategy.getNotificationMessage(item)
-            assertFalse(true, "Expected MissingValueTypeException but no exception was thrown")
-        } catch (e: MissingValueTypeException) {
-            assertTrue(true)
-        }
+        val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
+
+        assertEquals("New variant variant2 is in stock: HIGH", result)
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `should notify when variants become in stock`() {
+        val previousItem =
+            Item(
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties =
+                    listOf(
+                        ItemProperty.Variants(
+                            value =
+                                listOf(
+                                    Variant("variant1", inStock = false, stockLevel = "OOS"),
+                                ),
+                        ),
+                    ),
+            )
+        val currentItem =
+            Item(
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties =
+                    listOf(
+                        ItemProperty.Variants(
+                            value =
+                                listOf(
+                                    Variant("variant1", inStock = true, stockLevel = "HIGH"),
+                                ),
+                        ),
+                    ),
+            )
+
+        val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
+
+        assertEquals("Variant variant1 is in stock: HIGH", result)
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `should return null when no relevant changes`() {
+        val previousItem =
+            Item(
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties =
+                    listOf(
+                        ItemProperty.Variants(
+                            value =
+                                listOf(
+                                    Variant("variant1", inStock = true, stockLevel = "HIGH"),
+                                ),
+                        ),
+                    ),
+            )
+        val currentItem =
+            Item(
+                id = "1",
+                url = "http://example.com",
+                name = "Test Item",
+                properties =
+                    listOf(
+                        ItemProperty.Variants(
+                            value =
+                                listOf(
+                                    Variant("variant1", inStock = true, stockLevel = "HIGH"),
+                                ),
+                        ),
+                    ),
+            )
+
+        val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
+
+        assertNull(result)
     }
 }

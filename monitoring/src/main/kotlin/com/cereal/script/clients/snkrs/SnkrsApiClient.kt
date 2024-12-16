@@ -6,7 +6,7 @@ import com.cereal.script.clients.snkrs.models.SnkrsResponse
 import com.cereal.script.commands.monitor.domain.models.Currency
 import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
-import com.cereal.script.commands.monitor.domain.models.SizeStock
+import com.cereal.script.commands.monitor.domain.models.Variant
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -134,7 +134,7 @@ class SnkrsApiClient(
         item: Object,
         product: ProductInfo,
     ): Item? {
-        val sizes = mutableListOf<SizeStock>()
+        val sizes = mutableListOf<Variant>()
 
         product.availableGtins.forEach { availableGtin ->
             val gtin = availableGtin.gtin
@@ -142,7 +142,7 @@ class SnkrsApiClient(
             if (availableGtin.available) {
                 product.skus.forEach { sku ->
                     if (sku.gtin == gtin) {
-                        sizes.add(SizeStock(sku.nikeSize, availableGtin.level))
+                        sizes.add(Variant(sku.nikeSize, availableGtin.level != "OOS", availableGtin.level))
                         return@forEach
                     }
                 }
@@ -176,7 +176,7 @@ class SnkrsApiClient(
                 thumbnail,
                 properties =
                     listOf(
-                        ItemProperty.Sizes(sizes),
+                        ItemProperty.Variants(sizes),
                         ItemProperty.Price(price, currency),
                         ItemProperty.Custom("Style code", styleCode),
                     ),
