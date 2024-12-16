@@ -4,6 +4,16 @@ import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.getValue
 
+/**
+ * Monitoring strategy that notifies when the price of an item decreases compared to its previous state.
+ *
+ * This strategy implements the [MonitorStrategy] interface to track price drops for a given item by:
+ * - Comparing the current and previous prices of the item.
+ * - Generating a notification message if the current price is lower than the previous price.
+ *
+ * Provides a [requiresBaseline] method to indicate that a baseline (previously observed item state) is required
+ * for the accurate functioning of the strategy.
+ */
 class PriceDropMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,

@@ -8,10 +8,17 @@ import com.cereal.script.commands.monitor.domain.models.requireValue
 import java.math.BigDecimal
 
 /**
- * A strategy that monitors if the price of an item is equal to or below a specified target price.
+ * Monitoring strategy that notifies when the price of an item is equal to or below a specified threshold.
  *
- * @property price The target price to compare against.
- * @property currency The currency in which the target price is specified.
+ * This strategy implements the [MonitorStrategy] interface to track items whose price:
+ * - Is equal to or below a predefined value in the specified currency.
+ * - Differs from the price in its previous state (to avoid duplicate notifications).
+ *
+ * If the item's currency does not match the predefined currency, the method throws a [CurrencyMismatchException].
+ *
+ * Provides a [requiresBaseline] method to indicate whether a baseline (previously observed item state) is required
+ * for the strategy to function. In this implementation, no baseline is required as the notification is based on
+ * the item's current price relative to the specified threshold.
  */
 class EqualsOrBelowPriceMonitorStrategy(
     private val price: BigDecimal,
