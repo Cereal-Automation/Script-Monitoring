@@ -4,7 +4,6 @@ import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.ItemProperty.AvailableStock
 import com.cereal.script.commands.monitor.domain.models.Variant
-import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -56,14 +55,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
         assertNull(result)
     }
 
-    @org.junit.jupiter.api.Test
-    fun `should return null when previousItem is null`() {
-        val item = mockk<Item>()
-        val result = runBlocking { monitorStrategy.shouldNotify(item, null) }
-        assertNull(result)
-    }
-
-    @org.junit.jupiter.api.Test
+    @Test
     fun `should notify when stock becomes available for first time`() {
         val previousItem =
             Item(
@@ -85,7 +77,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
         assertEquals("Test Item is in stock (5)!", result)
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun `should return null when stock remains unavailable`() {
         val previousItem =
             Item(
@@ -107,7 +99,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
         assertNull(result)
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun `should notify about new variants in stock`() {
         val previousItem =
             Item(
@@ -146,7 +138,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
         assertEquals("New variant variant2 is in stock: HIGH", result)
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun `should notify when variants become in stock`() {
         val previousItem =
             Item(
@@ -184,7 +176,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
         assertEquals("Variant variant1 is in stock: HIGH", result)
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun `should return null when no relevant changes`() {
         val previousItem =
             Item(

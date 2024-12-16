@@ -9,42 +9,47 @@ class StockAvailableMonitorStrategy : MonitorStrategy {
         item: Item,
         previousItem: Item?,
     ): String? {
-        if (previousItem == null) return null
+        val availableStockMessage = generateAvailableStockMessage(item, previousItem)
+        if (availableStockMessage != null) return availableStockMessage
 
-        val availableStock = item.getValue<ItemProperty.AvailableStock>()?.value
-        val availableStockPrevious = previousItem.getValue<ItemProperty.AvailableStock>()?.value
-        if (availableStock != null && availableStockPrevious != null) {
-            if (availableStockPrevious == 0 && availableStock > 0) {
-                return "${item.name} is in stock ($availableStock)!"
-            }
+        val variantChangesMessage = generateVariantChangesMessage(item, previousItem)
+        return variantChangesMessage
+    }
+
+    private fun generateAvailableStockMessage(
+        item: Item,
+        previousItem: Item?,
+    ): String? {
+        val currentStock = item.getValue<ItemProperty.AvailableStock>()?.value
+        val previousStock = previousItem?.getValue<ItemProperty.AvailableStock>()?.value
+        val hadNoStock = (previousStock == null || previousStock == 0)
+        return if (currentStock != null && hadNoStock && currentStock > 0) {
+            "${item.name} is in stock ($currentStock)!"
+        } else {
+            null
         }
+    }
 
-        val variants = item.getValue<ItemProperty.Variants>()?.value
-        val variantsPrevious = previousItem.getValue<ItemProperty.Variants>()?.value
-        if (variants != null && variantsPrevious != null) {
-            val newVariantsWithStock =
-                variants
-                    .filter { variant ->
-                        variant.inStock && variantsPrevious.none { it.name == variant.name }
-                    }.map {
-                        "New variant ${it.name} is in stock: ${it.stockLevel}"
-                    }
-            val variantsThatBecameInStock =
-                variants
-                    .filter { variant ->
-                        variant.inStock &&
-                            variantsPrevious.any { previousVariant -> previousVariant.name == variant.name && !previousVariant.inStock }
-                    }.map {
-                        "Variant ${it.name} is in stock: ${it.stockLevel}"
-                    }
+    private fun generateVariantChangesMessage(
+        item: Item,
+        previousItem: Item?,
+    ): String? {
+        val currentVariants = item.getValue<ItemProperty.Variants>()?.value
+        val previousVariants = previousItem?.getValue<ItemProperty.Variants>()?.value
+        if (currentVariants == null) return null
 
-            val messages = newVariantsWithStock + variantsThatBecameInStock
-            if (messages.isNotEmpty()) {
-                return messages.joinToString("\n")
-            }
-        }
+        val newVariantsMessages =
+            currentVariants
+                .filter { it.inStock && previousVariants?.none { prev -> prev.name == it.name } ?: true }
+                .map { "New variant ${it.name} is in stock: ${it.stockLevel}" }
 
-        return null
+        val restockedVariantsMessages =
+            currentVariants
+                .filter { it.inStock && previousVariants?.any { prev -> prev.name == it.name && !prev.inStock } ?: false }
+                .map { "Variant ${it.name} is in stock: ${it.stockLevel}" }
+
+        val combinedMessages = newVariantsMessages + restockedVariantsMessages
+        return if (combinedMessages.isNotEmpty()) combinedMessages.joinToString("\n") else null
     }
 
     override fun requiresBaseline(): Boolean = true
