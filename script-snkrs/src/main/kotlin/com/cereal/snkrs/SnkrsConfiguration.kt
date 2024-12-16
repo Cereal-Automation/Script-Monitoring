@@ -24,7 +24,7 @@ interface SnkrsConfiguration : BaseConfiguration {
         keyName = KEY_MONITOR_IN_STOCK,
         name = "Monitor stock changes",
         description =
-            "If enabled, a notification will be sent whenever a product (size) gets in stock.",
+            "If enabled, a notification will be sent whenever a product (or one of its sizes) gets in stock.",
     )
     fun monitorStockChanges(): Boolean
 
