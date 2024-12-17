@@ -29,8 +29,7 @@ object HttpClientFactory {
         HttpClient {
             engine {
                 httpProxy?.let {
-                    // TODO
-                    proxy = ProxyBuilder.http("http://TODO:TODO")
+                    proxy = ProxyBuilder.http("http://${it.address}:${it.port}")
                 }
             }
             install(ContentNegotiation) {
