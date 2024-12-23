@@ -1,10 +1,14 @@
-# Cereal script template
+# Cereal Public Scripts
+
+This repository contains the source code of the free scripts published on
+the [marketplace](https://marketplace.cereal-automation.com)
+of the [Cereal Automation](https://www.cereal-automation.com/) platform.
 
 ## Getting Started
 
 ### Prerequisites
 
-* Install Java SE Development Kit 11: https://www.oracle.com/java/technologies/downloads/#java11
+* Install Java SE Development Kit 17: https://www.oracle.com/java/technologies/downloads/#java17
 
 ### Installation
 
