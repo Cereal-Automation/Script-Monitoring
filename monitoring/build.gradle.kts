@@ -21,13 +21,13 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.13")
 
     // Ktor
-    implementation("io.ktor:ktor-client-core:3.0.1")
-    implementation("io.ktor:ktor-client-cio:3.0.1")
-    implementation("io.ktor:ktor-client-logging:3.0.1")
-    implementation("io.ktor:ktor-client-content-negotiation:3.0.1")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.1")
-    implementation("io.ktor:ktor-client-auth:3.0.1")
-    implementation("io.ktor:ktor-client-encoding:3.0.1")
+    implementation("io.ktor:ktor-client-core:3.0.2")
+    implementation("io.ktor:ktor-client-cio:3.0.3")
+    implementation("io.ktor:ktor-client-logging:3.0.2")
+    implementation("io.ktor:ktor-client-content-negotiation:3.0.2")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.2")
+    implementation("io.ktor:ktor-client-auth:3.0.2")
+    implementation("io.ktor:ktor-client-encoding:3.0.2")
 
     // Support tooling
     implementation("one.ifelse.tools:user-agents:0.1.2")
