@@ -1,6 +1,6 @@
 package com.cereal.snkrs
 
-import com.cereal.script.clients.snkrs.Locale
+import com.cereal.script.commands.monitor.data.snkrs.Locale
 import com.cereal.sdk.ScriptConfigurationItem
 import com.cereal.sdk.models.proxy.RandomProxy
 import com.cereal.shared.BaseConfiguration

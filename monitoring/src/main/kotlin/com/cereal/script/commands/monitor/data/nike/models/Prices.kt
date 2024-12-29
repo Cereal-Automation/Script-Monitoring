@@ -9,12 +9,4 @@ data class Prices(
     val currency: String = "",
     @SerialName("currentPrice")
     val currentPrice: Double = 0.0,
-    @SerialName("discountPercentage")
-    val discountPercentage: Int = 0,
-    @SerialName("employeeDiscountPercentage")
-    val employeeDiscountPercentage: Int = 0,
-    @SerialName("employeePrice")
-    val employeePrice: Double = 0.0,
-    @SerialName("initialPrice")
-    val initialPrice: Double = 0.0,
 )

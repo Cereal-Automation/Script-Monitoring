@@ -7,10 +7,4 @@ import kotlinx.serialization.Serializable
 data class PageData(
     @SerialName("next")
     val next: String = "",
-    @SerialName("prev")
-    val prev: String = "",
-    @SerialName("totalPages")
-    val totalPages: Int = 0,
-    @SerialName("totalResources")
-    val totalResources: Int = 0,
 )

@@ -5,8 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PageProps(
-    @SerialName("cloudUrlFragment")
-    val cloudUrlFragment: String = "",
     @SerialName("initialState")
     val initialState: InitialState =
         InitialState(),

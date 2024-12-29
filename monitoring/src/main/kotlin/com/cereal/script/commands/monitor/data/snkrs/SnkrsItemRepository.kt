@@ -1,7 +1,5 @@
 package com.cereal.script.commands.monitor.data.snkrs
 
-import com.cereal.script.clients.snkrs.Locale
-import com.cereal.script.clients.snkrs.SnkrsApiClient
 import com.cereal.script.commands.monitor.domain.ItemRepository
 import com.cereal.script.commands.monitor.domain.models.Page
 

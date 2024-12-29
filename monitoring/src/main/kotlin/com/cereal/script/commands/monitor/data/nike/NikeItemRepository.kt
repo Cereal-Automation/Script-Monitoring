@@ -1,5 +1,8 @@
 package com.cereal.script.commands.monitor.data.nike
 
+import com.cereal.script.commands.monitor.data.factories.HttpClientFactory
+import com.cereal.script.commands.monitor.data.factories.JsonFactory
+import com.cereal.script.commands.monitor.data.factories.WebClientFactory
 import com.cereal.script.commands.monitor.data.nike.models.NikeResponse
 import com.cereal.script.commands.monitor.data.nike.models.Product
 import com.cereal.script.commands.monitor.data.nike.models.Wall
@@ -9,15 +12,16 @@ import com.cereal.script.commands.monitor.domain.models.Item
 import com.cereal.script.commands.monitor.domain.models.ItemProperty
 import com.cereal.script.commands.monitor.domain.models.Page
 import com.cereal.sdk.models.proxy.RandomProxy
-import it.skrape.core.htmlDocument
-import it.skrape.fetcher.HttpFetcher
-import it.skrape.fetcher.ProxyBuilder
-import it.skrape.fetcher.basic
-import it.skrape.fetcher.extractIt
-import it.skrape.fetcher.skrape
-import it.skrape.selects.html5.script
-import kotlinx.serialization.json.Json
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import one.ifelse.tools.useragent.RandomUserAgent
+import org.htmlunit.html.HtmlPage
+import org.htmlunit.html.HtmlScript
 import java.math.BigDecimal
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Taken from https://www.trickster.dev/post/scraping-product-data-from-nike/
@@ -29,13 +33,27 @@ import java.math.BigDecimal
 class NikeItemRepository(
     private val category: ScrapeCategory,
     private val randomProxy: RandomProxy?,
+    private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-            coerceInputValues = true
-        }
+    private val json = JsonFactory.create()
     private val defaultCurrencyCode = Currency.USD
+    private val defaultHeaders =
+        mapOf(
+            HttpHeaders.ContentType to ContentType.Application.Json,
+            HttpHeaders.Accept to ContentType.Application.Json,
+            HttpHeaders.AcceptEncoding to "gzip, deflate, br",
+            HttpHeaders.AcceptLanguage to "en-GB,en;q=0.9",
+            HttpHeaders.Origin to "https://www.nike.com",
+            HttpHeaders.Referrer to "https://www.nike.com/",
+            "Sec-Fetch-Dest" to "empty",
+            "Sec-Fetch-Mode" to "cors",
+            "Sec-Fetch-Site" to "same-site",
+            HttpHeaders.UserAgent to
+                RandomUserAgent.random({ it.deviceCategory == "mobile" && it.userAgent.contains("Chrome") }),
+            HttpHeaders.CacheControl to "no-cache, no-store, must-revalidate",
+            HttpHeaders.Pragma to "no-cache",
+            HttpHeaders.Expires to "0",
+        )
 
     override suspend fun getItems(nextPageToken: String?): Page =
         nextPageToken?.let {
@@ -43,56 +61,41 @@ class NikeItemRepository(
         } ?: createFirstPageFlow(category.url)
 
     private suspend fun createFirstPageFlow(scrapeUrl: String): Page =
-        getPage(scrapeUrl) {
-            it.htmlDocument {
-                val jsonData =
-                    script {
-                        withId = "__NEXT_DATA__"
-                        findFirst { html }
-                    }
+        createPage {
+            val webClient = WebClientFactory.create(randomProxy?.invoke())
 
-                json
-                    .decodeFromString<NikeResponse>(
-                        jsonData,
-                    ).props.pageProps.initialState.wall
+            try {
+                val page: HtmlPage = webClient.getPage(scrapeUrl)
+                val scriptElement = page.getElementById("__NEXT_DATA__") as? HtmlScript
+
+                if (scriptElement != null) {
+                    val jsonData = scriptElement.textContent
+                    json
+                        .decodeFromString<NikeResponse>(
+                            jsonData,
+                        ).props.pageProps.initialState.wall
+                } else {
+                    throw Exception("Script element with ID '__NEXT_DATA__' not found.")
+                }
+            } catch (e: Exception) {
+                throw Exception("Error fetching data from $scrapeUrl: ${e.message}")
+            } finally {
+                webClient.close()
             }
         }
 
     private suspend fun createNextPageFlow(next: String): Page =
-        getPage(next) {
-            json.decodeFromString<Wall>(it.responseBody)
+        createPage {
+            val response =
+                HttpClientFactory.create(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(next)
+            response.body<Wall>()
         }
 
-    private suspend fun getPage(
-        scrapeUrl: String,
-        extractWall: (it.skrape.fetcher.Result) -> Wall,
-    ): Page {
-        val proxyInfo = randomProxy?.invoke()
-
-        val nikeResponse =
-            skrape(HttpFetcher) {
-                request {
-                    url = scrapeUrl
-                    sslRelaxed = true
-                    timeout =
-                        HTTP_REQUEST_TIMEOUT
-                    headers = mapOf("nike-api-caller-id" to "com.nike:commerce.idpdp.mobile")
-                    proxyInfo?.let {
-                        proxy = ProxyBuilder(host = it.address, port = it.port)
-                    }
-                    authentication =
-                        basic {
-                            username = proxyInfo?.username.orEmpty()
-                            password = proxyInfo?.password.orEmpty()
-                        }
-                }
-                extractIt<NikeSkrapeResponse> { result ->
-                    result.wall = extractWall(this)
-                }
-            }
+    private suspend fun createPage(extractWall: suspend () -> Wall): Page {
+        val wall = extractWall()
 
         val items = mutableListOf<Item>()
-        nikeResponse.wall.productGroupings.forEach { productGrouping ->
+        wall.productGroupings.forEach { productGrouping ->
             productGrouping.products?.forEach { product ->
                 items.add(product.toItem())
             }
@@ -100,8 +103,8 @@ class NikeItemRepository(
 
         // The first page nikeResponse.wall.pageData.next is filled, all subsequent pages nikeResponse.wall.pages.next is filled.
         val nextPagePath =
-            nikeResponse.wall.pages.next
-                .ifEmpty { nikeResponse.wall.pageData.next }
+            wall.pages.next
+                .ifEmpty { wall.pageData.next }
         if (nextPagePath.isNotEmpty()) {
             return Page("https://api.nike.com/$nextPagePath", items)
         } else {
@@ -109,13 +112,15 @@ class NikeItemRepository(
         }
     }
 
-    private fun Product.toItem(): Item =
-        Item(
+    private fun Product.toItem(): Item {
+        val description = "Product code: ${this.productCode}\nColor: ${this.displayColors.colorDescription}"
+
+        return Item(
             id = this.globalProductId,
             url = this.pdpUrl.url,
             name = this.copy.title,
-            description = null,
-            imageUrl = null,
+            description = description,
+            imageUrl = this.colorwayImages.squarishURL,
             properties =
                 listOf(
                     ItemProperty.Price(
@@ -126,8 +131,5 @@ class NikeItemRepository(
                     ),
                 ),
         )
-
-    companion object {
-        const val HTTP_REQUEST_TIMEOUT = 5000
     }
 }

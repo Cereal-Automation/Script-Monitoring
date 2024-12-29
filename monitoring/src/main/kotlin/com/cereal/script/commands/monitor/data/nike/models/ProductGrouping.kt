@@ -9,7 +9,4 @@ data class ProductGrouping(
     val cardType: String = "",
     @SerialName("products")
     val products: List<Product>? = listOf(),
-    @SerialName("properties")
-    val properties: Properties? =
-        Properties(),
 )

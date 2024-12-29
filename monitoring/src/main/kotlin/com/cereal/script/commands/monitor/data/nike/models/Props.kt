@@ -5,8 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Props(
-    @SerialName("__N_SSP")
-    val nSSP: Boolean = false,
     @SerialName("pageProps")
     val pageProps: PageProps =
         PageProps(),

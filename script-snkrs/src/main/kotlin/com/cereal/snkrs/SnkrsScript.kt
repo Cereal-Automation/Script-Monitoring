@@ -1,8 +1,8 @@
 package com.cereal.snkrs
 
-import com.cereal.script.clients.snkrs.SnkrsApiClient
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandFactory
+import com.cereal.script.commands.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.script.commands.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy

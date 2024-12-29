@@ -7,7 +7,4 @@ import kotlinx.serialization.Serializable
 data class DisplayColors(
     @SerialName("colorDescription")
     val colorDescription: String = "",
-    @SerialName("simpleColor")
-    val simpleColor: SimpleColor =
-        SimpleColor(),
 )

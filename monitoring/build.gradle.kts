@@ -10,7 +10,7 @@ dependencies {
     api("com.prof18.rssparser:rssparser:6.0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("it.skrape:skrapeit:1.2.2")
+    implementation("org.htmlunit:htmlunit:4.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
     testImplementation(kotlin("test"))
