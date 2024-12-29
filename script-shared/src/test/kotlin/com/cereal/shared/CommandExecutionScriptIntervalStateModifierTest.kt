@@ -1,8 +1,6 @@
 package com.cereal.shared
 
 import com.cereal.sdk.statemodifier.ScriptConfigValue
-import com.cereal.shared.BaseConfiguration
-import com.cereal.shared.MonitorIntervalStateModifier
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

@@ -1,10 +1,11 @@
 package com.cereal.script.commands.monitor.models
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.text.NumberFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -33,9 +34,9 @@ sealed class ItemProperty(
         val value: Instant?,
     ) : ItemProperty("publish date") {
         override fun toString(): String {
-            val localDateTime = LocalDateTime.ofInstant(value, ZoneId.systemDefault())
+            val localDateTime = value?.toLocalDateTime(TimeZone.currentSystemDefault())?.toJavaLocalDateTime()
             val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-            return localDateTime.format(formatter)
+            return localDateTime?.format(formatter) ?: "Unknown"
         }
     }
 

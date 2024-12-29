@@ -13,8 +13,8 @@ import com.cereal.test.components.TestComponentProviderFactory
 import io.mockk.coEvery
 import io.mockk.mockkConstructor
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Clock
 import org.junit.jupiter.api.Test
-import java.time.Instant
 import kotlin.time.Duration
 
 class TestCommandExecutionScript {
@@ -42,7 +42,7 @@ class TestCommandExecutionScript {
                         notificationRepository = FakeNotificationRepository(),
                         logRepository = FakeLogRepository(),
                         delayBetweenScrapes = Duration.ZERO,
-                        listOf(NewItemAvailableMonitorStrategy(Instant.now())),
+                        listOf(NewItemAvailableMonitorStrategy(Clock.System.now())),
                         maxLoopCount = 1,
                     ),
                 )

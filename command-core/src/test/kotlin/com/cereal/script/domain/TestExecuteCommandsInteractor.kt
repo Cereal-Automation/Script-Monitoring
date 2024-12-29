@@ -1,5 +1,6 @@
 package com.cereal.script.domain
 
+import com.cereal.script.ExecuteCommandsInteractor
 import com.cereal.script.commands.monitor.MonitorCommand
 import com.cereal.script.commands.monitor.models.Currency
 import com.cereal.script.commands.monitor.models.Item
@@ -11,19 +12,19 @@ import com.cereal.script.commands.monitor.strategy.EqualsOrBelowPriceMonitorStra
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.StockAvailableMonitorStrategy
-import com.cereal.script.ExecuteCommandsInteractor
 import com.cereal.script.fixtures.FakeLogRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Clock
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigDecimal
-import java.time.Instant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class TestExecuteCommandsInteractor {
     private lateinit var itemRepository: ItemRepository
@@ -55,7 +56,7 @@ class TestExecuteCommandsInteractor {
                                 name = "Foo",
                                 properties =
                                     listOf(
-                                        ItemProperty.PublishDate(Instant.now()),
+                                        ItemProperty.PublishDate(Clock.System.now()),
                                         ItemProperty.AvailableStock(1),
                                         ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
@@ -66,7 +67,7 @@ class TestExecuteCommandsInteractor {
                                 name = "Bar",
                                 properties =
                                     listOf(
-                                        ItemProperty.PublishDate(Instant.now()),
+                                        ItemProperty.PublishDate(Clock.System.now()),
                                         ItemProperty.AvailableStock(0),
                                         ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
@@ -77,7 +78,7 @@ class TestExecuteCommandsInteractor {
                                 name = "Baz",
                                 properties =
                                     listOf(
-                                        ItemProperty.PublishDate(Instant.now().minusSeconds(60)),
+                                        ItemProperty.PublishDate(Clock.System.now().minus(60.seconds)),
                                         ItemProperty.AvailableStock(0),
                                         ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
@@ -88,7 +89,7 @@ class TestExecuteCommandsInteractor {
                                 name = "Foo",
                                 properties =
                                     listOf(
-                                        ItemProperty.PublishDate(Instant.now()),
+                                        ItemProperty.PublishDate(Clock.System.now()),
                                         ItemProperty.AvailableStock(1),
                                         ItemProperty.Price(BigDecimal("50.00"), Currency.EUR),
                                     ),
@@ -123,19 +124,19 @@ class TestExecuteCommandsInteractor {
                 // New item available
                 TestData(
                     NewItemAvailableMonitorStrategy(
-                        Instant.now().minusSeconds(1),
+                        Clock.System.now().minus(1.seconds),
                     ),
                     3,
                 ),
                 TestData(
                     NewItemAvailableMonitorStrategy(
-                        Instant.now().plusSeconds(60),
+                        Clock.System.now().plus(60.seconds),
                     ),
                     0,
                 ),
                 TestData(
                     NewItemAvailableMonitorStrategy(
-                        Instant.now().minusSeconds(100),
+                        Clock.System.now().minus(100.seconds),
                     ),
                     4,
                 ),

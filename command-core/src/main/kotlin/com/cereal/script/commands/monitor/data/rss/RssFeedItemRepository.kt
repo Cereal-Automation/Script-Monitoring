@@ -7,6 +7,7 @@ import com.cereal.script.commands.monitor.repository.ItemRepository
 import com.cereal.sdk.component.logger.LoggerComponent
 import com.prof18.rssparser.RssParser
 import com.prof18.rssparser.model.RssItem
+import kotlinx.datetime.toKotlinInstant
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -43,7 +44,7 @@ class RssFeedItemRepository(
 
     private fun getPublishDate(rssItem: RssItem): ItemProperty.PublishDate? =
         try {
-            ItemProperty.PublishDate(dateFormat.parse(rssItem.pubDate).toInstant())
+            ItemProperty.PublishDate(dateFormat.parse(rssItem.pubDate).toInstant().toKotlinInstant())
         } catch (e: Exception) {
             logger.warn(
                 "Expected to find a publish date for RSS item with guid ${rssItem.guid} but couldn't read the date because: ${e.message}",

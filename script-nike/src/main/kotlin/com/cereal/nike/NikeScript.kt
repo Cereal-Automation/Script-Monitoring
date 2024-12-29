@@ -10,7 +10,7 @@ import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
 import com.cereal.shared.CommandExecutionScript
-import java.time.Instant
+import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
 
 class NikeScript : Script<NikeConfiguration> {
@@ -77,7 +77,7 @@ class NikeScript : Script<NikeConfiguration> {
     private fun buildMonitorStrategies(configuration: NikeConfiguration): List<MonitorStrategy> =
         buildList {
             if (configuration.monitorNewProduct()) {
-                add(NewItemAvailableMonitorStrategy(Instant.now()))
+                add(NewItemAvailableMonitorStrategy(Clock.System.now()))
             }
             if (configuration.monitorPriceDrops()) {
                 add(PriceDropMonitorStrategy())

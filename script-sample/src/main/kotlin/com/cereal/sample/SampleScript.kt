@@ -7,7 +7,7 @@ import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
 import com.cereal.shared.CommandExecutionScript
-import java.time.Instant
+import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
 
 class SampleScript : Script<SampleConfiguration> {
@@ -29,7 +29,7 @@ class SampleScript : Script<SampleConfiguration> {
     ): ExecutionResult {
         val factory = CommandFactory(provider)
 
-        val strategies = listOf(NewItemAvailableMonitorStrategy(Instant.now()))
+        val strategies = listOf(NewItemAvailableMonitorStrategy(Clock.System.now()))
         val commands =
             listOf(
                 factory.createMonitorCommand(

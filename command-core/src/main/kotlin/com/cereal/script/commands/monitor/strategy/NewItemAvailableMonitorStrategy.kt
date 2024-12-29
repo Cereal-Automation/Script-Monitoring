@@ -3,7 +3,8 @@ package com.cereal.script.commands.monitor.strategy
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
 import com.cereal.script.commands.monitor.models.getValue
-import java.time.Instant
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 /**
  * A monitoring strategy that notifies when a new item is detected since a specific point in time.
@@ -19,7 +20,7 @@ import java.time.Instant
  * or previous item for consistent notification behavior.
  */
 class NewItemAvailableMonitorStrategy(
-    private val since: Instant = Instant.now(),
+    private val since: Instant = Clock.System.now(),
 ) : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,

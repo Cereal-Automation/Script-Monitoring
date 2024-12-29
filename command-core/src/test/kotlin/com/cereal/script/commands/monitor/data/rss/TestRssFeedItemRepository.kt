@@ -10,9 +10,9 @@ import com.prof18.rssparser.model.RssItem
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.time.Instant
 
 class TestRssFeedItemRepository {
     @Test
@@ -35,7 +35,7 @@ class TestRssFeedItemRepository {
                                 properties =
                                     listOf(
                                         ItemProperty.PublishDate(
-                                            Instant.ofEpochSecond(1726558620L),
+                                            Instant.fromEpochSeconds(1726558620L),
                                         ),
                                     ),
                             ),

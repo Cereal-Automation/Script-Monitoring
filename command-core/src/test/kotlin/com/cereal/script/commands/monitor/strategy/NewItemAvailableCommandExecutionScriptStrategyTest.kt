@@ -3,7 +3,7 @@ package com.cereal.script.commands.monitor.strategy
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
 import kotlinx.coroutines.runBlocking
-import java.time.Instant
+import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull

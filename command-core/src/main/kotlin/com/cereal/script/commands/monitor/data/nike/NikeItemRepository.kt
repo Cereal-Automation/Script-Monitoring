@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class NikeItemRepository(
     private val category: ScrapeCategory,
-    private val randomProxy: RandomProxy?,
+    private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
     private val json = JsonFactory.create()
