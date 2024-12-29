@@ -1,8 +1,8 @@
 package com.cereal.script.core.domain
 
-import com.cereal.script.commands.monitor.ExecuteStrategyCommand
-import com.cereal.script.commands.monitor.domain.NotificationRepository
-import com.cereal.script.commands.monitor.domain.models.Item
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.repository.NotificationRepository
+import com.cereal.script.commands.monitor.strategy.ExecuteStrategyCommand
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.core.domain.repository.LogRepository
 import io.mockk.coEvery

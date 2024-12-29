@@ -2,8 +2,8 @@ package com.cereal.script.commands
 
 import com.cereal.script.commands.monitor.MonitorCommand
 import com.cereal.script.commands.monitor.data.ScriptNotificationRepository
-import com.cereal.script.commands.monitor.domain.ItemRepository
-import com.cereal.script.commands.monitor.domain.NotificationRepository
+import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.commands.monitor.repository.NotificationRepository
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.core.data.ScriptLogRepository
 import com.cereal.script.core.domain.repository.LogRepository

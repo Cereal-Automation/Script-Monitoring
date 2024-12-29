@@ -2,9 +2,10 @@ package com.cereal.script.commands.monitor
 
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandResult
-import com.cereal.script.commands.monitor.domain.ItemRepository
-import com.cereal.script.commands.monitor.domain.NotificationRepository
-import com.cereal.script.commands.monitor.domain.models.Item
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.commands.monitor.repository.NotificationRepository
+import com.cereal.script.commands.monitor.strategy.ExecuteStrategyCommand
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.core.domain.repository.LogRepository
 import kotlinx.coroutines.delay

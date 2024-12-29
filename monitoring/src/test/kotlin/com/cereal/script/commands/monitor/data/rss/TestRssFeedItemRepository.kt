@@ -1,8 +1,8 @@
 package com.cereal.script.commands.monitor.data.rss
 
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
-import com.cereal.script.commands.monitor.domain.models.Page
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
+import com.cereal.script.commands.monitor.models.Page
 import com.cereal.sdk.component.logger.LoggerComponent
 import com.prof18.rssparser.RssParser
 import com.prof18.rssparser.model.RssChannel

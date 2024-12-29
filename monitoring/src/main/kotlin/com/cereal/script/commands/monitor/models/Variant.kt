@@ -1,4 +1,4 @@
-package com.cereal.script.commands.monitor.domain.models
+package com.cereal.script.commands.monitor.models
 
 data class Variant(
     val name: String,

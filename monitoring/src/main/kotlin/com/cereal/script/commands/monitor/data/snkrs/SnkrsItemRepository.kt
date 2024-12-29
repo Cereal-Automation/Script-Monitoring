@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.data.snkrs
 
-import com.cereal.script.commands.monitor.domain.ItemRepository
-import com.cereal.script.commands.monitor.domain.models.Page
+import com.cereal.script.commands.monitor.models.Page
+import com.cereal.script.commands.monitor.repository.ItemRepository
 
 class SnkrsItemRepository(
     private val snkrsApiClient: SnkrsApiClient,

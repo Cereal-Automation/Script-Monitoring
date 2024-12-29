@@ -1,12 +1,12 @@
 package com.cereal.script.core.domain
 
 import com.cereal.script.commands.monitor.MonitorCommand
-import com.cereal.script.commands.monitor.domain.ItemRepository
-import com.cereal.script.commands.monitor.domain.NotificationRepository
-import com.cereal.script.commands.monitor.domain.models.Currency
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
-import com.cereal.script.commands.monitor.domain.models.Page
+import com.cereal.script.commands.monitor.models.Currency
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
+import com.cereal.script.commands.monitor.models.Page
+import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.commands.monitor.repository.NotificationRepository
 import com.cereal.script.commands.monitor.strategy.EqualsOrBelowPriceMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy

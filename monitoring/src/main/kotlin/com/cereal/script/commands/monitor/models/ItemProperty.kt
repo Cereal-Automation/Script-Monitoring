@@ -1,4 +1,4 @@
-package com.cereal.script.commands.monitor.domain.models
+package com.cereal.script.commands.monitor.models
 
 import java.math.BigDecimal
 import java.text.NumberFormat

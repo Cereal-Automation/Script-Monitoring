@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.strategy
 
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import kotlin.test.Test

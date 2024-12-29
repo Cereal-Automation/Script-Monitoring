@@ -4,10 +4,10 @@ import com.cereal.script.commands.monitor.data.factories.HttpClientFactory
 import com.cereal.script.commands.monitor.data.snkrs.models.Object
 import com.cereal.script.commands.monitor.data.snkrs.models.ProductInfo
 import com.cereal.script.commands.monitor.data.snkrs.models.SnkrsResponse
-import com.cereal.script.commands.monitor.domain.models.Currency
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
-import com.cereal.script.commands.monitor.domain.models.Variant
+import com.cereal.script.commands.monitor.models.Currency
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
+import com.cereal.script.commands.monitor.models.Variant
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.call.body
 import io.ktor.client.request.get

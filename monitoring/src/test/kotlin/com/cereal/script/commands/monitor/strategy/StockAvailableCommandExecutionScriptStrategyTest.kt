@@ -1,9 +1,9 @@
 package com.cereal.script.commands.monitor.strategy
 
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
-import com.cereal.script.commands.monitor.domain.models.ItemProperty.AvailableStock
-import com.cereal.script.commands.monitor.domain.models.Variant
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
+import com.cereal.script.commands.monitor.models.ItemProperty.AvailableStock
+import com.cereal.script.commands.monitor.models.Variant
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals

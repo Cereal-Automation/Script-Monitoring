@@ -6,11 +6,11 @@ import com.cereal.script.commands.monitor.data.factories.WebClientFactory
 import com.cereal.script.commands.monitor.data.nike.models.NikeResponse
 import com.cereal.script.commands.monitor.data.nike.models.Product
 import com.cereal.script.commands.monitor.data.nike.models.Wall
-import com.cereal.script.commands.monitor.domain.ItemRepository
-import com.cereal.script.commands.monitor.domain.models.Currency
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
-import com.cereal.script.commands.monitor.domain.models.Page
+import com.cereal.script.commands.monitor.models.Currency
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
+import com.cereal.script.commands.monitor.models.Page
+import com.cereal.script.commands.monitor.repository.ItemRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.call.body
 import io.ktor.client.request.get

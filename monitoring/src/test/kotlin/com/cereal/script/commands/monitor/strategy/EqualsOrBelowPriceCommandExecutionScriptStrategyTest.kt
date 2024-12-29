@@ -1,9 +1,9 @@
 package com.cereal.script.commands.monitor.strategy
 
-import com.cereal.script.commands.monitor.domain.models.Currency
-import com.cereal.script.commands.monitor.domain.models.CurrencyMismatchException
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.ItemProperty
+import com.cereal.script.commands.monitor.models.Currency
+import com.cereal.script.commands.monitor.models.CurrencyMismatchException
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal

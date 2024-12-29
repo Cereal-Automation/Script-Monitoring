@@ -1,8 +1,8 @@
 package com.cereal.script.commands.monitor.fixtures
 
-import com.cereal.script.commands.monitor.domain.ItemRepository
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.domain.models.Page
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.models.Page
+import com.cereal.script.commands.monitor.repository.ItemRepository
 
 class FakeItemRepository(
     private val items: List<Item>,

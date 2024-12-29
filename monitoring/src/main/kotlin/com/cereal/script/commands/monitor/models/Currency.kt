@@ -1,4 +1,4 @@
-package com.cereal.script.commands.monitor.domain.models
+package com.cereal.script.commands.monitor.models
 
 enum class Currency(
     val code: String,

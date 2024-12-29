@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor.data
 
-import com.cereal.script.commands.monitor.domain.NotificationRepository
-import com.cereal.script.commands.monitor.domain.models.Item
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.repository.NotificationRepository
 import com.cereal.sdk.component.notification.NotificationComponent
 import com.cereal.sdk.component.notification.notification
 import kotlinx.datetime.Clock

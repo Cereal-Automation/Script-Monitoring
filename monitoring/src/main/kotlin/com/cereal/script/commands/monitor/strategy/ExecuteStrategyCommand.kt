@@ -1,8 +1,7 @@
-package com.cereal.script.commands.monitor
+package com.cereal.script.commands.monitor.strategy
 
-import com.cereal.script.commands.monitor.domain.NotificationRepository
-import com.cereal.script.commands.monitor.domain.models.Item
-import com.cereal.script.commands.monitor.strategy.MonitorStrategy
+import com.cereal.script.commands.monitor.models.Item
+import com.cereal.script.commands.monitor.repository.NotificationRepository
 import com.cereal.script.core.domain.repository.LogRepository
 
 /**
