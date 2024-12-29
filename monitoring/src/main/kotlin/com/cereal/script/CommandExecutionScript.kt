@@ -1,10 +1,10 @@
-package com.cereal.script.core
+package com.cereal.script
 
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
 import com.cereal.script.commands.Command
-import com.cereal.script.core.data.ScriptLogRepository
-import com.cereal.script.core.domain.ExecuteCommandsInteractor
+import com.cereal.script.data.ScriptLogRepository
+import com.cereal.script.domain.ExecuteCommandsInteractor
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
 import kotlinx.coroutines.flow.collect

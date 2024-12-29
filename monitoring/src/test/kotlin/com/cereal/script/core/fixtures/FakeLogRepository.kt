@@ -1,6 +1,6 @@
 package com.cereal.script.core.fixtures
 
-import com.cereal.script.core.domain.repository.LogRepository
+import com.cereal.script.domain.repository.LogRepository
 
 class FakeLogRepository : LogRepository {
     private val infoMessages = mutableListOf<Pair<String, Map<String, Any>?>>()

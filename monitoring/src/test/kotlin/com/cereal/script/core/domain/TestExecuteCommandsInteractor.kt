@@ -12,6 +12,7 @@ import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.StockAvailableMonitorStrategy
 import com.cereal.script.core.fixtures.FakeLogRepository
+import com.cereal.script.domain.ExecuteCommandsInteractor
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

@@ -1,4 +1,4 @@
-package com.cereal.script.core.domain.repository
+package com.cereal.script.domain.repository
 
 interface LogRepository {
     suspend fun info(

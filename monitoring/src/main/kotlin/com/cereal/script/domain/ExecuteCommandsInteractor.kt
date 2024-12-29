@@ -1,8 +1,8 @@
-package com.cereal.script.core.domain
+package com.cereal.script.domain
 
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandResult
-import com.cereal.script.core.domain.repository.LogRepository
+import com.cereal.script.domain.repository.LogRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow

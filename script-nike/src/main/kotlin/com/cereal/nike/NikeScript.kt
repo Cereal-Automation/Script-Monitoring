@@ -1,12 +1,12 @@
 package com.cereal.nike
 
+import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandFactory
 import com.cereal.script.commands.monitor.data.nike.NikeItemRepository
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
-import com.cereal.script.core.CommandExecutionScript
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider

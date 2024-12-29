@@ -2,7 +2,7 @@ package com.cereal.script.commands.monitor.strategy
 
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.repository.NotificationRepository
-import com.cereal.script.core.domain.repository.LogRepository
+import com.cereal.script.domain.repository.LogRepository
 
 /**
  * The `ExecuteStrategyCommand` class is responsible for executing a monitoring strategy on a given item.

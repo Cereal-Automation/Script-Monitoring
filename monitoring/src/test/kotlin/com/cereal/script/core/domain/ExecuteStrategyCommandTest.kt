@@ -4,7 +4,7 @@ import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.repository.NotificationRepository
 import com.cereal.script.commands.monitor.strategy.ExecuteStrategyCommand
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
-import com.cereal.script.core.domain.repository.LogRepository
+import com.cereal.script.domain.repository.LogRepository
 import io.mockk.coEvery
 import io.mockk.coJustRun
 import io.mockk.coVerify

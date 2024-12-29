@@ -2,6 +2,7 @@ package com.cereal.script.core
 
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
+import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.monitor.MonitorCommand
 import com.cereal.script.commands.monitor.fixtures.FakeItemRepository
 import com.cereal.script.commands.monitor.fixtures.FakeNotificationRepository

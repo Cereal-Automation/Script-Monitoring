@@ -1,6 +1,6 @@
-package com.cereal.script.core.data
+package com.cereal.script.data
 
-import com.cereal.script.core.domain.repository.LogRepository
+import com.cereal.script.domain.repository.LogRepository
 import com.cereal.sdk.component.logger.LoggerComponent
 
 class ScriptLogRepository(
