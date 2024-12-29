@@ -1,12 +1,12 @@
 package com.cereal.sample
 
-import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.CommandFactory
 import com.cereal.script.commands.monitor.data.rss.RssFeedItemRepository
 import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
+import com.cereal.shared.CommandExecutionScript
 import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 

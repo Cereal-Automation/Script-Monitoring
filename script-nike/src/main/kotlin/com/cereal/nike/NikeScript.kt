@@ -1,6 +1,5 @@
 package com.cereal.nike
 
-import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.CommandFactory
 import com.cereal.script.commands.monitor.data.nike.NikeItemRepository
@@ -10,6 +9,7 @@ import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
+import com.cereal.shared.CommandExecutionScript
 import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
