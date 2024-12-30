@@ -6,10 +6,17 @@ import org.htmlunit.ProxyConfig
 import org.htmlunit.WebClient
 
 object WebClientFactory {
-    fun create(httpProxy: Proxy?): WebClient =
+    fun create(
+        httpProxy: Proxy?,
+        headers: Map<String, String> = emptyMap(),
+    ): WebClient =
         WebClient().apply {
-            options.isJavaScriptEnabled = false // Disable JavaScript for simplicity
+            options.isJavaScriptEnabled = false
             options.isCssEnabled = false // Disable CSS for faster loading
+
+            headers.forEach { (key, value) ->
+                addRequestHeader(key, value)
+            }
 
             httpProxy?.let { proxy ->
                 options.proxyConfig = ProxyConfig(proxy.address, proxy.port, "http")
