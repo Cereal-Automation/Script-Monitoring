@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: [ script-nike ]
+        module: [ script-nike, script-snkrs, script-bdga-store ]
 
     steps:
       - uses: actions/checkout@v2
