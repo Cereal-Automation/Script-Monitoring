@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 private const val PRODUCTS_JSON_PATH = "products.json"
 
 class ShopifyItemRepository(
-    private val website: ShopifyWebsiteCategory,
+    private val website: ShopifyWebsite,
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
