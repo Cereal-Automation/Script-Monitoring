@@ -9,6 +9,7 @@ import com.cereal.script.data.ScriptLogRepository
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.ComponentProvider
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class CommandFactory(
     private val provider: ComponentProvider,
@@ -24,7 +25,7 @@ class CommandFactory(
             itemRepository = itemRepository,
             notificationRepository = createNotificationRepository(discordUsername),
             logRepository = createLogRepository(statusUpdate),
-            delayBetweenScrapes = scrapeInterval ?: Duration.ZERO,
+            delayBetweenScrapes = scrapeInterval ?: 5.seconds,
             strategies = strategies,
         )
 
