@@ -1,8 +1,8 @@
 package com.cereal.script.commands.monitor.data.nike
 
-import com.cereal.script.commands.monitor.data.factories.HttpClientFactory
 import com.cereal.script.commands.monitor.data.factories.JsonFactory
 import com.cereal.script.commands.monitor.data.factories.WebClientFactory
+import com.cereal.script.commands.monitor.data.factories.defaultHttpClient
 import com.cereal.script.commands.monitor.data.nike.models.NikeResponse
 import com.cereal.script.commands.monitor.data.nike.models.Product
 import com.cereal.script.commands.monitor.data.nike.models.Wall
@@ -87,7 +87,7 @@ class NikeItemRepository(
     private suspend fun createNextPageFlow(next: String): Page =
         createPage {
             val response =
-                HttpClientFactory.create(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(next)
+                defaultHttpClient(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(next)
             response.body<Wall>()
         }
 

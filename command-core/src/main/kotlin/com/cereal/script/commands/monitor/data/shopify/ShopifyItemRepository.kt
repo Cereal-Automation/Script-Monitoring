@@ -1,6 +1,6 @@
 package com.cereal.script.commands.monitor.data.shopify
 
-import com.cereal.script.commands.monitor.data.factories.HttpClientFactory
+import com.cereal.script.commands.monitor.data.factories.defaultHttpClient
 import com.cereal.script.commands.monitor.data.shopify.models.ShopifyResponse
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
@@ -37,7 +37,7 @@ class ShopifyItemRepository(
         val url = website.url.append(PRODUCTS_JSON_PATH)
 
         val response =
-            HttpClientFactory.create(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(url) {
+            defaultHttpClient(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(url) {
                 parameter("limit", "250")
                 nextPageToken?.let {
                     parameter("page", it)

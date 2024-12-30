@@ -1,6 +1,6 @@
 package com.cereal.script.commands.monitor.data.snkrs
 
-import com.cereal.script.commands.monitor.data.factories.HttpClientFactory
+import com.cereal.script.commands.monitor.data.factories.defaultHttpClient
 import com.cereal.script.commands.monitor.data.snkrs.models.Object
 import com.cereal.script.commands.monitor.data.snkrs.models.ProductInfo
 import com.cereal.script.commands.monitor.data.snkrs.models.SnkrsResponse
@@ -52,8 +52,7 @@ class SnkrsApiClient(
         count: Int,
     ): List<Item> {
         val response =
-            HttpClientFactory
-                .create(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders)
+            defaultHttpClient(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders)
                 .get(url) {
                     parameter("anchor", anchor)
                     parameter("count", count)
