@@ -35,7 +35,7 @@ interface SnkrsConfiguration : BaseConfiguration {
             "The proxy to use when reading the SNKRS api. If multiple proxies are available, they will" +
                 "be rotated after each run.",
     )
-    fun proxy(): RandomProxy
+    fun proxy(): RandomProxy?
 
     companion object {
         const val KEY_LOCATION = "location"
