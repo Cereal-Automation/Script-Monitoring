@@ -1,5 +1,5 @@
 {
-  "package_name": "com.cereal-automation.monitor.snkrs",
-  "name": "SNKRS Product Monitor",
+  "package_name": "com.cereal.snkrs.monitor",
+  "name": "SNKRS Releases & Restocks",
   "version_code": 1
 }

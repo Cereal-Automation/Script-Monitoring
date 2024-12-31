@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.seconds
 class SnkrsScript : Script<SnkrsConfiguration> {
     private val commandExecutionScript =
         CommandExecutionScript(
-            scriptId = "com.cereal-automation.monitor.snkrs",
+            scriptId = "com.cereal.snkrs.monitor",
             scriptPublicKey = null,
         )
 
