@@ -1,5 +1,6 @@
-package com.cereal.script.commands.monitor.data.factories
+package com.cereal.script.data.httpclient
 
+import com.cereal.script.data.json.defaultJson
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
@@ -35,7 +36,7 @@ fun defaultHttpClient(
         }
         install(ContentNegotiation) {
             json(
-                JsonFactory.create(),
+                defaultJson(),
             )
         }
         install(Logging) {

@@ -1,19 +1,19 @@
 package com.cereal.script.commands.monitor.data.shopify
 
-import com.cereal.script.commands.monitor.data.factories.defaultHttpClient
 import com.cereal.script.commands.monitor.data.shopify.models.ShopifyResponse
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
 import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.models.Variant
 import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.data.httpclient.defaultHttpClient
+import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
-import one.ifelse.tools.useragent.RandomUserAgent
 import java.net.URL
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -28,8 +28,7 @@ class ShopifyItemRepository(
 ) : ItemRepository {
     private val defaultHeaders =
         mapOf(
-            HttpHeaders.UserAgent to
-                RandomUserAgent.random({ it.deviceCategory == "mobile" && it.userAgent.contains("Chrome") }),
+            HttpHeaders.UserAgent to MOBILE_USER_AGENTS.random(),
             HttpHeaders.CacheControl to "no-cache, no-store, must-revalidate",
             HttpHeaders.Pragma to "no-cache",
             HttpHeaders.Expires to "0",

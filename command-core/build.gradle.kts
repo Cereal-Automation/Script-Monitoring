@@ -26,9 +26,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
     implementation("io.ktor:ktor-client-auth:3.0.3")
     implementation("io.ktor:ktor-client-encoding:3.0.3")
-
-    // Support tooling
-    implementation("one.ifelse.tools:user-agents:0.1.2")
 }
 
 tasks.test {

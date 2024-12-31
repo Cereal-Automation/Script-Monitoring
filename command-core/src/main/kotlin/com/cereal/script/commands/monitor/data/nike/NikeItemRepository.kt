@@ -1,8 +1,5 @@
 package com.cereal.script.commands.monitor.data.nike
 
-import com.cereal.script.commands.monitor.data.factories.JsonFactory
-import com.cereal.script.commands.monitor.data.factories.WebClientFactory
-import com.cereal.script.commands.monitor.data.factories.defaultHttpClient
 import com.cereal.script.commands.monitor.data.nike.models.NikeResponse
 import com.cereal.script.commands.monitor.data.nike.models.Product
 import com.cereal.script.commands.monitor.data.nike.models.Wall
@@ -11,13 +8,16 @@ import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
 import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.data.httpclient.defaultHttpClient
+import com.cereal.script.data.json.defaultJson
+import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
+import com.cereal.script.data.webclient.defaultWebClient
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import one.ifelse.tools.useragent.RandomUserAgent
 import org.htmlunit.html.HtmlPage
 import org.htmlunit.html.HtmlScript
 import java.math.BigDecimal
@@ -37,7 +37,7 @@ class NikeItemRepository(
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
-    private val json = JsonFactory.create()
+    private val json = defaultJson()
     private val defaultCurrencyCode = Currency.USD
     private val defaultHeaders =
         mapOf(
@@ -50,8 +50,7 @@ class NikeItemRepository(
             "Sec-Fetch-Dest" to "empty",
             "Sec-Fetch-Mode" to "cors",
             "Sec-Fetch-Site" to "same-site",
-            HttpHeaders.UserAgent to
-                RandomUserAgent.random({ it.deviceCategory == "mobile" && it.userAgent.contains("Chrome") }),
+            HttpHeaders.UserAgent to MOBILE_USER_AGENTS.random(),
             HttpHeaders.CacheControl to "no-cache, no-store, must-revalidate",
             HttpHeaders.Pragma to "no-cache",
             HttpHeaders.Expires to "0",
@@ -64,7 +63,7 @@ class NikeItemRepository(
 
     private suspend fun createFirstPageFlow(scrapeUrl: String): Page =
         createPage {
-            val webClient = WebClientFactory.create(randomProxy?.invoke())
+            val webClient = defaultWebClient(randomProxy?.invoke())
 
             try {
                 val page: HtmlPage = webClient.getPage(scrapeUrl)
