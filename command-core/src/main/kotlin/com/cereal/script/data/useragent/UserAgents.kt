@@ -1,7 +1,5 @@
 package com.cereal.script.data.useragent
 
-const val USER_AGENTS_RESOURCE_FILE = "user-agents.json"
-
 /**
  * Taken from https://www.useragents.me/ Last Updated: 17 December, 2024
  */
