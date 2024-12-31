@@ -1,5 +1,6 @@
 package com.cereal.script.commands.monitor.data.nike
 
+import com.cereal.script.fixtures.FakeLogRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
@@ -13,6 +14,7 @@ class TestNikeItemRepository {
         runBlocking {
             val repository =
                 NikeItemRepository(
+                    FakeLogRepository(),
                     data.category,
                     null,
                 )

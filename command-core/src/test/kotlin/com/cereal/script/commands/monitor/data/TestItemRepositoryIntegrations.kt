@@ -8,6 +8,7 @@ import com.cereal.script.commands.monitor.data.snkrs.Locale
 import com.cereal.script.commands.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.script.commands.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.fixtures.FakeLogRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
@@ -38,13 +39,14 @@ class TestItemRepositoryIntegrations {
         fun data(): List<ItemRepository> =
             listOf(
                 NikeItemRepository(
+                    FakeLogRepository(),
                     ScrapeCategory.MEN_ALL_SHOES,
                 ),
                 SnkrsItemRepository(
-                    SnkrsApiClient(null),
+                    SnkrsApiClient(FakeLogRepository(), null),
                     Locale.BE_NL,
                 ),
-                ShopifyItemRepository(ShopifyWebsite("Test", "https://bdgastore.com/collections/newarrivals")),
+                ShopifyItemRepository(FakeLogRepository(), ShopifyWebsite("Test", "https://bdgastore.com/collections/newarrivals")),
             )
     }
 }

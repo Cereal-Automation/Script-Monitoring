@@ -29,19 +29,23 @@ class BDGAStoreScript : Script<BDGAStoreConfiguration> {
     ): ExecutionResult {
         val factory = CommandFactory(provider)
 
+        val logRepository = factory.logRepository(statusUpdate)
+        val notificationRepository = factory.notificationRepository("BDGAStore")
+
         val strategies = listOf(StockAvailableMonitorStrategy())
         val commands =
             listOf(
-                factory.createMonitorCommand(
+                factory.monitorCommand(
                     itemRepository =
                         ShopifyItemRepository(
+                            logRepository = logRepository,
                             website = ShopifyWebsite("New Arrivals", "https://bdgastore.com/collections/newarrivals"),
                             randomProxy = configuration.proxy(),
                         ),
+                    logRepository,
+                    notificationRepository,
                     strategies,
                     configuration.monitorInterval()?.seconds,
-                    statusUpdate,
-                    "BDGAStore Script",
                 ),
             )
         return commandExecutionScript.execute(provider, statusUpdate, commands)

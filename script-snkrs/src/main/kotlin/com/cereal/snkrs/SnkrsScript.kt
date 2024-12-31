@@ -57,19 +57,21 @@ class SnkrsScript : Script<SnkrsConfiguration> {
         val factory = CommandFactory(provider)
         val monitorStrategies = buildMonitorStrategies(configuration)
 
+        val logRepository = factory.logRepository(statusUpdate)
+        val notificationRepository = factory.notificationRepository("Nike SNKRS")
         val nikeRepository =
             SnkrsItemRepository(
-                snkrsApiClient = SnkrsApiClient(),
+                snkrsApiClient = SnkrsApiClient(logRepository),
                 locale = configuration.locale(),
             )
 
         return listOf(
-            factory.createMonitorCommand(
+            factory.monitorCommand(
                 nikeRepository,
+                logRepository,
+                notificationRepository,
                 monitorStrategies,
                 configuration.monitorInterval()?.seconds,
-                statusUpdate,
-                "Nike SNKRS",
             ),
         )
     }

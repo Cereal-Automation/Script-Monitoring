@@ -11,6 +11,7 @@ import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
 import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -31,6 +32,7 @@ import kotlin.time.Duration.Companion.seconds
  * 2. Scrape product feed API by traversing all pages.
  */
 class NikeItemRepository(
+    private val logRepository: LogRepository,
     private val category: ScrapeCategory,
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
@@ -87,7 +89,7 @@ class NikeItemRepository(
     private suspend fun createNextPageFlow(next: String): Page =
         createPage {
             val response =
-                defaultHttpClient(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(next)
+                defaultHttpClient(timeout, randomProxy?.invoke(), logRepository, defaultHeaders = defaultHeaders).get(next)
             response.body<Wall>()
         }
 

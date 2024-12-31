@@ -29,19 +29,22 @@ class SampleScript : Script<SampleConfiguration> {
     ): ExecutionResult {
         val factory = CommandFactory(provider)
 
+        val logRepository = factory.logRepository(statusUpdate)
+        val notificationRepository = factory.notificationRepository("Sample Script")
+
         val strategies = listOf(NewItemAvailableMonitorStrategy(Clock.System.now()))
         val commands =
             listOf(
-                factory.createMonitorCommand(
+                factory.monitorCommand(
                     itemRepository =
                         RssFeedItemRepository(
                             "https://feeds.rijksoverheid.nl/nieuws.rss",
                             provider.logger(),
                         ),
+                    logRepository,
+                    notificationRepository,
                     strategies,
                     configuration.monitorInterval()?.seconds,
-                    statusUpdate,
-                    "Sample Script",
                 ),
             )
         return commandExecutionScript.execute(provider, statusUpdate, commands)

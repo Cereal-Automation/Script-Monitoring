@@ -1,5 +1,6 @@
 package com.cereal.script.commands.monitor.data.factories
 
+import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
@@ -13,14 +14,17 @@ import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration
 
 fun defaultHttpClient(
     timeout: Duration,
     httpProxy: Proxy?,
+    logRepository: LogRepository,
     defaultHeaders: Map<String, Any> = emptyMap(),
 ): HttpClient =
     HttpClient(CIO) {
@@ -35,6 +39,14 @@ fun defaultHttpClient(
             )
         }
         install(Logging) {
+            logger =
+                object : Logger {
+                    override fun log(message: String) {
+                        runBlocking {
+                            logRepository.debug(message)
+                        }
+                    }
+                }
             level = LogLevel.HEADERS
         }
         install(HttpTimeout) {

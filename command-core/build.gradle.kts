@@ -29,7 +29,6 @@ dependencies {
 
     // Support tooling
     implementation("one.ifelse.tools:user-agents:0.1.2")
-    implementation("ch.qos.logback:logback-classic:1.5.12")
 }
 
 tasks.test {

@@ -14,25 +14,24 @@ import kotlin.time.Duration.Companion.seconds
 class CommandFactory(
     private val provider: ComponentProvider,
 ) {
-    fun createMonitorCommand(
+    fun monitorCommand(
         itemRepository: ItemRepository,
+        logRepository: LogRepository,
+        notificationRepository: NotificationRepository,
         strategies: List<MonitorStrategy>,
         scrapeInterval: Duration? = null,
-        statusUpdate: suspend (message: String) -> Unit,
-        discordUsername: String,
     ): MonitorCommand =
         MonitorCommand(
             itemRepository = itemRepository,
-            notificationRepository = createNotificationRepository(discordUsername),
-            logRepository = createLogRepository(statusUpdate),
+            notificationRepository = notificationRepository,
+            logRepository = logRepository,
             delayBetweenScrapes = scrapeInterval ?: 5.seconds,
             strategies = strategies,
         )
 
-    private fun createLogRepository(statusUpdate: suspend (message: String) -> Unit): LogRepository =
-        ScriptLogRepository(provider.logger(), statusUpdate)
+    fun logRepository(statusUpdate: suspend (message: String) -> Unit): LogRepository = ScriptLogRepository(provider.logger(), statusUpdate)
 
-    private fun createNotificationRepository(discordUsername: String): NotificationRepository =
+    fun notificationRepository(discordUsername: String): NotificationRepository =
         ScriptNotificationRepository(
             provider.notification(),
             discordUsername = discordUsername,

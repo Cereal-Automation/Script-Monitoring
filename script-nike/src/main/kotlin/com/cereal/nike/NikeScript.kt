@@ -57,19 +57,22 @@ class NikeScript : Script<NikeConfiguration> {
         val factory = CommandFactory(provider)
         val monitorStrategies = buildMonitorStrategies(configuration)
 
+        val logRepository = factory.logRepository(statusUpdate)
+        val notificationRepository = factory.notificationRepository("Nike")
         val nikeRepository =
             NikeItemRepository(
+                logRepository = logRepository,
                 category = configuration.category(),
                 randomProxy = configuration.proxy(),
             )
 
         return listOf(
-            factory.createMonitorCommand(
+            factory.monitorCommand(
                 nikeRepository,
+                logRepository,
+                notificationRepository,
                 monitorStrategies,
                 configuration.monitorInterval()?.seconds,
-                statusUpdate,
-                "Nike",
             ),
         )
     }

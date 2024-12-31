@@ -7,6 +7,7 @@ import com.cereal.script.commands.monitor.models.ItemProperty
 import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.models.Variant
 import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -20,6 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 private const val PRODUCTS_JSON_PATH = "products.json"
 
 class ShopifyItemRepository(
+    private val logRepository: LogRepository,
     private val website: ShopifyWebsite,
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
@@ -37,7 +39,7 @@ class ShopifyItemRepository(
         val url = website.url.append(PRODUCTS_JSON_PATH)
 
         val response =
-            defaultHttpClient(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(url) {
+            defaultHttpClient(timeout, randomProxy?.invoke(), logRepository, defaultHeaders = defaultHeaders).get(url) {
                 parameter("limit", "250")
                 nextPageToken?.let {
                     parameter("page", it)
