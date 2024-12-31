@@ -23,8 +23,7 @@ class StockAvailableMonitorStrategy : MonitorStrategy {
         val availableStockMessage = generateAvailableStockMessage(item, previousItem)
         if (availableStockMessage != null) return availableStockMessage
 
-        val variantChangesMessage = generateVariantChangesMessage(item, previousItem)
-        return variantChangesMessage
+        return generateVariantChangesMessage(item, previousItem)
     }
 
     private fun generateAvailableStockMessage(
@@ -41,6 +40,14 @@ class StockAvailableMonitorStrategy : MonitorStrategy {
         }
     }
 
+    /**
+     * Generates a notification message describing changes in item variants, such as new variants being
+     * added to stock or previously out-of-stock variants being restocked.
+     *
+     * @param item The current item state to evaluate.
+     * @param previousItem The previous item state, or null if unavailable (e.g., first-time evaluation).
+     * @return A string message detailing the changes in variants if any, or null if no changes are detected.
+     */
     private fun generateVariantChangesMessage(
         item: Item,
         previousItem: Item?,
