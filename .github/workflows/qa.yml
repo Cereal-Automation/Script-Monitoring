@@ -1,4 +1,4 @@
-name: Push on master
+name: QA on push to master
 
 on:
   push:
