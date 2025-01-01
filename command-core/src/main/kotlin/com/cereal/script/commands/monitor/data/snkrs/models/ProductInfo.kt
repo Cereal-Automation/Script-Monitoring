@@ -9,8 +9,6 @@ data class ProductInfo(
     val availability: Availability = Availability(),
     @SerialName("availableGtins")
     val availableGtins: List<AvailableGtin> = listOf(),
-    @SerialName("launchView")
-    val launchView: LaunchView? = LaunchView(),
     @SerialName("merchPrice")
     val merchPrice: MerchPrice = MerchPrice(),
     @SerialName("merchProduct")
@@ -19,6 +17,4 @@ data class ProductInfo(
     val productContent: ProductContent = ProductContent(),
     @SerialName("skus")
     val skus: List<Sku> = listOf(),
-    @SerialName("socialInterest")
-    val socialInterest: SocialInterest = SocialInterest(),
 )

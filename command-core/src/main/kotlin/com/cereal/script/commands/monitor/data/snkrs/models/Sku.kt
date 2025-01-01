@@ -7,14 +7,10 @@ import kotlinx.serialization.Serializable
 data class Sku(
     @SerialName("catalogSkuId")
     val catalogSkuId: String = "",
-    @SerialName("countrySpecifications")
-    val countrySpecifications: List<CountrySpecification> = listOf(),
     @SerialName("gtin")
     val gtin: String = "",
     @SerialName("id")
     val id: String = "",
-    @SerialName("links")
-    val links: Links = Links(),
     @SerialName("merchGroup")
     val merchGroup: String = "",
     @SerialName("modificationDate")

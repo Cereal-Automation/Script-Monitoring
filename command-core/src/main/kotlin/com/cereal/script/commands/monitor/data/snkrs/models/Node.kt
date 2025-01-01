@@ -5,18 +5,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Node(
-    @SerialName("analytics")
-    val analytics: Analytics = Analytics(),
     @SerialName("id")
     val id: String = "",
     @SerialName("nodes")
-    val nodes: List<NodeX>? = listOf(),
-    @SerialName("properties")
-    val properties: PropertiesXX = PropertiesXX(),
+    val nodes: List<Node>? = listOf(),
     @SerialName("subType")
     val subType: String = "",
     @SerialName("type")
     val type: String = "",
     @SerialName("version")
     val version: String = "",
+    @SerialName("properties")
+    val properties: Properties = Properties(),
 )

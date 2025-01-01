@@ -11,8 +11,6 @@ data class AvailableGtin(
     val gtin: String = "",
     @SerialName("level")
     val level: String = "",
-    @SerialName("locationId")
-    val locationId: LocationId = LocationId(),
     @SerialName("method")
     val method: String = "",
     @SerialName("styleColor")

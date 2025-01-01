@@ -23,8 +23,6 @@ data class MerchProduct(
     val commercePublishDate: String? = "",
     @SerialName("commerceStartDate")
     val commerceStartDate: String = "",
-    @SerialName("consumerChannels")
-    val consumerChannels: List<ConsumerChannel> = listOf(),
     @SerialName("exclusiveAccess")
     val exclusiveAccess: Boolean = false,
     @SerialName("genders")
@@ -57,10 +55,6 @@ data class MerchProduct(
     val isPromoExclusionMessage: Boolean = false,
     @SerialName("labelName")
     val labelName: String = "",
-    @SerialName("limitRetailExperience")
-    val limitRetailExperience: List<LimitRetailExperience> = listOf(),
-    @SerialName("links")
-    val links: Links = Links(),
     @SerialName("mainColor")
     val mainColor: Boolean = false,
     @SerialName("merchGroup")
@@ -75,8 +69,6 @@ data class MerchProduct(
     val preOrder: Boolean = false,
     @SerialName("productGroupId")
     val productGroupId: String = "",
-    @SerialName("productRollup")
-    val productRollup: ProductRollup = ProductRollup(),
     @SerialName("productType")
     val productType: String = "",
     @SerialName("publishType")
@@ -103,8 +95,4 @@ data class MerchProduct(
     val styleColor: String = "",
     @SerialName("styleType")
     val styleType: String = "",
-    @SerialName("taxonomyAttributes")
-    val taxonomyAttributes: List<TaxonomyAttribute> = listOf(),
-    @SerialName("valueAddedServices")
-    val valueAddedServices: List<ValueAddedService> = listOf(),
 )

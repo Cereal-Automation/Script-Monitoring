@@ -17,8 +17,6 @@ data class MerchPrice(
     val fullPrice: Double = 0.0,
     @SerialName("id")
     val id: String = "",
-    @SerialName("links")
-    val links: Links = Links(),
     @SerialName("modificationDate")
     val modificationDate: String = "",
     @SerialName("msrp")

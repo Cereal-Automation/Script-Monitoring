@@ -7,6 +7,4 @@ import kotlinx.serialization.Serializable
 data class SnkrsResponse(
     @SerialName("objects")
     val objects: List<Object> = listOf(),
-    @SerialName("pages")
-    val pages: Pages = Pages(),
 )

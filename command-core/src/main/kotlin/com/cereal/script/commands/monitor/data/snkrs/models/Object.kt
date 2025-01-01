@@ -9,16 +9,12 @@ data class Object(
     val channelId: String = "",
     @SerialName("channelName")
     val channelName: String = "",
-    @SerialName("collectionsv2")
-    val collectionsv2: Collectionsv2 = Collectionsv2(),
     @SerialName("id")
     val id: String = "",
     @SerialName("language")
     val language: String = "",
     @SerialName("lastFetchTime")
     val lastFetchTime: String = "",
-    @SerialName("links")
-    val links: Links = Links(),
     @SerialName("marketplace")
     val marketplace: String = "",
     @SerialName("productInfo")
@@ -27,6 +23,4 @@ data class Object(
     val publishedContent: PublishedContent = PublishedContent(),
     @SerialName("resourceType")
     val resourceType: String = "",
-    @SerialName("search")
-    val search: Search = Search(),
 )

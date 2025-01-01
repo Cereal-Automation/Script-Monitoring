@@ -5,12 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ProductContent(
-    @SerialName("athletes")
-    val athletes: List<Athlete> = listOf(),
     @SerialName("colorDescription")
     val colorDescription: String = "",
-    @SerialName("colors")
-    val colors: List<Color> = listOf(),
     @SerialName("description")
     val description: String = "",
     @SerialName("descriptionHeading")
@@ -29,6 +25,4 @@ data class ProductContent(
     val techSpec: String = "",
     @SerialName("title")
     val title: String = "",
-    @SerialName("widths")
-    val widths: List<Width> = listOf(),
 )
