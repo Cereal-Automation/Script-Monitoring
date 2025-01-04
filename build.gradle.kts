@@ -27,7 +27,8 @@ subprojects {
         archiveFileName.set("release.jar")
 
         dependencies {
-            // The below dependencies are included in the Cereal client by default. New (breaking) versions will have a different artifact id.
+            // The below dependencies are included in the Cereal client by default so they can be excluded here.
+            // New (breaking) versions will have a different artifact id so they will always stay compatible.
             exclude { dependency ->
                 dependency.moduleGroup == "com.cereal-automation" &&
                     (dependency.moduleName == "cereal-sdk" || dependency.moduleName == "cereal-chrome-driver")
