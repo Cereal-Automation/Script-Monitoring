@@ -1,21 +1,21 @@
 plugins {
     kotlin("jvm")
-    kotlin("plugin.serialization") version "2.0.20"
+    kotlin("plugin.serialization")
 }
 
 dependencies {
     api("com.cereal-automation:cereal-sdk:1.5.0:all")
     api("com.cereal-automation:cereal-licensing:1.4.0")
 
-    api("com.prof18.rssparser:rssparser:6.0.8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("com.prof18.rssparser:rssparser:6.0.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("org.htmlunit:htmlunit:4.7.0")
     api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     testImplementation("io.mockk:mockk:1.13.13")
 
     // Ktor
