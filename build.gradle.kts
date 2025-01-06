@@ -1,5 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
     id("com.gradleup.shadow") version "8.3.5"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
@@ -29,9 +30,14 @@ subprojects {
         dependencies {
             // The below dependencies are included in the Cereal client by default so they can be excluded here.
             // New (breaking) versions will have a different artifact id so they will always stay compatible.
+            // Be careful when adding something here because Proguard could need the code to determine that methods
+            // called by any of these libs are in still in use so that Proguard doesn't remove them. For example
+            // kotlinx-coroutines-core isn't excluded for that reason.
             exclude { dependency ->
-                dependency.moduleGroup == "com.cereal-automation" &&
-                    (dependency.moduleName == "cereal-sdk" || dependency.moduleName == "cereal-chrome-driver")
+                (
+                    dependency.moduleGroup == "com.cereal-automation" &&
+                        (dependency.moduleName == "cereal-sdk" || dependency.moduleName == "cereal-chrome-driver")
+                )
             }
 
             // Kotlin is included in the Cereal client by default so leave it out to make the script binary smaller and to
