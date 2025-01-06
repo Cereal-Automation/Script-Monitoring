@@ -28,6 +28,8 @@ fun <T> Flow<T>.withRetry(
     logRepository: LogRepository,
 ): Flow<T> =
     this.retryWhen { cause, attempt ->
+        logRepository.debug("Error executing command: \n${cause.stackTraceToString()}")
+
         if (cause is RuntimeException) {
             // Runtime exceptions are unrecoverable.
             logRepository.info("Skip retrying '$action' due to unrecoverable exception '${cause.message}'")
