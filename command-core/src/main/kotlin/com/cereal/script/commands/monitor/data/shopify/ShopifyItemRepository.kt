@@ -7,12 +7,13 @@ import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.models.Variant
 import com.cereal.script.commands.monitor.repository.ItemRepository
 import com.cereal.script.data.httpclient.defaultHttpClient
+import com.cereal.script.data.json.defaultJson
 import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import java.net.URL
 import kotlin.time.Duration
@@ -33,6 +34,7 @@ class ShopifyItemRepository(
             HttpHeaders.Pragma to "no-cache",
             HttpHeaders.Expires to "0",
         )
+    private val json = defaultJson()
 
     override suspend fun getItems(nextPageToken: String?): Page {
         val url = website.url.append(PRODUCTS_JSON_PATH)
@@ -45,7 +47,11 @@ class ShopifyItemRepository(
                 }
             }
 
-        val shopifyResponse = response.body<ShopifyResponse>()
+        // Use this method of reading json instead of `response.body<ShopifyResponse>()` because when proguard is applied
+        // that will raise a runtime error saying that the serializer couldn't be loaded. Most likely because proguard
+        // strips the reified information.
+        val bodyText = response.bodyAsText()
+        val shopifyResponse = json.decodeFromString(ShopifyResponse.serializer(), bodyText)
 
         val items =
             shopifyResponse.products.map { product ->

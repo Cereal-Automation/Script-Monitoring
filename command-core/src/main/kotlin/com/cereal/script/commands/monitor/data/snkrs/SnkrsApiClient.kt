@@ -8,12 +8,13 @@ import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.ItemProperty
 import com.cereal.script.commands.monitor.models.Variant
 import com.cereal.script.data.httpclient.defaultHttpClient
+import com.cereal.script.data.json.defaultJson
 import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import java.math.BigDecimal
@@ -27,6 +28,7 @@ class SnkrsApiClient(
 ) {
     private val url = "https://api.nike.com/product_feed/threads/v3/"
     private val defaultCurrencyCode = Currency.USD
+    private val json = defaultJson()
     private val defaultHeaders =
         mapOf(
             HttpHeaders.ContentType to ContentType.Application.Json,
@@ -63,7 +65,12 @@ class SnkrsApiClient(
                     parameter("filter", "exclusiveAccess(true,false)")
                 }
 
-        val snkrsResponse = response.body<SnkrsResponse>()
+        // Use this method of reading json instead of `response.body<SnkrsResponse>()` because when proguard is applied
+        // that will raise a runtime error saying that the serializer couldn't be loaded. Most likely because proguard
+        // strips the reified information.
+        val bodyText = response.bodyAsText()
+        val snkrsResponse = json.decodeFromString(SnkrsResponse.serializer(), bodyText)
+
         val allProducts = mutableListOf<Item>()
 
         snkrsResponse.objects.forEach { item ->

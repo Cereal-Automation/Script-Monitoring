@@ -14,8 +14,8 @@ import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
 import com.cereal.script.data.webclient.defaultWebClient
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
-import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import org.htmlunit.html.HtmlPage
@@ -89,7 +89,12 @@ class NikeItemRepository(
         createPage {
             val response =
                 defaultHttpClient(timeout, randomProxy?.invoke(), logRepository, defaultHeaders = defaultHeaders).get(next)
-            response.body<Wall>()
+
+            // Use this method of reading json instead of `response.body<Wall>()` because when proguard is applied
+            // that will raise a runtime error saying that the serializer couldn't be loaded. Most likely because proguard
+            // strips the reified information.
+            val bodyText = response.bodyAsText()
+            json.decodeFromString(Wall.serializer(), bodyText)
         }
 
     private suspend fun createPage(extractWall: suspend () -> Wall): Page {
