@@ -70,6 +70,7 @@ subprojects {
                 "${rootDir.absolutePath}/proguard-rules/cereal-licensing.pro",
                 "${rootDir.absolutePath}/proguard-rules/coroutines.pro",
                 "${rootDir.absolutePath}/proguard-rules/kotlinx-serialization.pro",
+                "${rootDir.absolutePath}/proguard-rules/ktor.pro",
             ),
         )
     }

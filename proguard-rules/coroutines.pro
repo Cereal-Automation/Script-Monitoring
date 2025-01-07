@@ -32,3 +32,8 @@
 
 # An annotation used for build tooling, won't be directly accessed.
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# Customized section
+# Prevent obfuscation of all classes in kotlinx.coroutines. Keep names so that cereal client can replace coroutines
+# with its own version.
+-keepnames class kotlinx.coroutines.** { *; }
