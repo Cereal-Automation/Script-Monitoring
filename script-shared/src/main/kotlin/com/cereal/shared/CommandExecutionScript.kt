@@ -7,6 +7,7 @@ import com.cereal.script.commands.Command
 import com.cereal.script.data.ScriptLogRepository
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -61,6 +62,7 @@ class CommandExecutionScript(
             val interactor = createInteractor(provider, statusUpdate)
             interactor(commands).collect()
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             return ExecutionResult.Error("Error after ${start.untilNow()} while running script: ${e.message}")
         }
 
