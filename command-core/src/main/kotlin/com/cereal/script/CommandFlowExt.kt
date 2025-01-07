@@ -2,6 +2,7 @@ package com.cereal.script
 
 import com.cereal.script.commands.CommandResult
 import com.cereal.script.repository.LogRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion
@@ -28,8 +29,6 @@ fun <T> Flow<T>.withRetry(
     logRepository: LogRepository,
 ): Flow<T> =
     this.retryWhen { cause, attempt ->
-        logRepository.debug("Error executing command: \n${cause.stackTraceToString()}")
-
         if (cause is RuntimeException) {
             // Runtime exceptions are unrecoverable.
             logRepository.info("Skip retrying '$action' due to unrecoverable exception '${cause.message}'")
@@ -79,6 +78,8 @@ fun Flow<CommandResult>.withLogging(
             }
         }.onCompletion { error ->
             error?.let {
-                logRepository.info("Error while '$action': ${it.message}")
+                if (error !is CancellationException) {
+                    logRepository.debug("Error executing '$action': \n${error.stackTraceToString()}")
+                }
             }
         }
