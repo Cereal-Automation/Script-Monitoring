@@ -9,7 +9,7 @@ interface BaseConfiguration : ScriptConfiguration {
         name = "Interval",
         description =
             "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 1" +
-                "second, defaults to 5 seconds.",
+                "second, defaults to a random value between 15 and 30 seconds.",
         stateModifier = MonitorIntervalStateModifier::class,
     )
     fun monitorInterval(): Int?

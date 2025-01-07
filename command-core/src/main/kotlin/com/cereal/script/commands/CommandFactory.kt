@@ -8,6 +8,7 @@ import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.data.ScriptLogRepository
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.ComponentProvider
+import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -25,7 +26,7 @@ class CommandFactory(
             itemRepository = itemRepository,
             notificationRepository = notificationRepository,
             logRepository = logRepository,
-            delayBetweenScrapes = scrapeInterval ?: 5.seconds,
+            delayBetweenScrapes = scrapeInterval ?: Random.nextInt(15, 31).seconds,
             strategies = strategies,
         )
 
