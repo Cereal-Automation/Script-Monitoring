@@ -1,7 +1,7 @@
 package com.cereal.script.commands.monitor
 
-import com.cereal.script.RunDecision
 import com.cereal.script.commands.ChainContext
+import com.cereal.script.commands.RunDecision
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.repository.ItemRepository

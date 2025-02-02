@@ -34,7 +34,7 @@ jobs:
           ./gradlew ${{ matrix.module }}:scriptJar
       - name: Store jar
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.module }}-${{ github.ref_name }}-release
           path: ${{ matrix.module }}/build/obfuscated/release.jar
