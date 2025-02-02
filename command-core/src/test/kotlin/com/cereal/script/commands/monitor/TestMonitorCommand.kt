@@ -1,6 +1,7 @@
 package com.cereal.script.commands.monitor
 
-import com.cereal.script.commands.CommandResult
+import com.cereal.script.RunDecision
+import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.models.Page
 import com.cereal.script.commands.monitor.repository.ItemRepository
@@ -13,6 +14,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.seconds
 
 class TestMonitorCommand {
@@ -38,15 +40,16 @@ class TestMonitorCommand {
                     maxLoopCount = 2,
                 )
 
-            val result = monitorCommand.execute()
+            val result = monitorCommand.execute(ChainContext())
 
             coVerify {
                 logRepository.info(
-                    "Found and processed a total of 2 items, waiting 1s before starting over.",
+                    "Found and processed a total of 2 items.",
                     any(),
                 )
             }
-            assert(result == CommandResult.Repeat)
+            assertNotNull(result.monitorItems)
+            assert(result.monitorItems?.size == 2)
         }
 
     @Test
@@ -55,6 +58,7 @@ class TestMonitorCommand {
             val items =
                 listOf(Item("1", url = "http://foo.bar", name = "Foo"), Item("2", url = "http://foo.bar", name = "Bar"))
             coEvery { itemRepository.getItems(null) } returns Page("nextToken", items)
+            coEvery { itemRepository.getItems("nextToken") } returns Page(null, items)
 
             val monitorCommand =
                 MonitorCommand(
@@ -66,9 +70,10 @@ class TestMonitorCommand {
                     maxLoopCount = MonitorCommand.LOOP_INFINITE,
                 )
 
-            val result = monitorCommand.execute()
+            val result = monitorCommand.execute(ChainContext())
 
-            assert(result == CommandResult.Repeat)
+            assertNotNull(result.monitorItems)
+            assert(result.monitorItems?.size == 2)
         }
 
     @Test
@@ -87,12 +92,13 @@ class TestMonitorCommand {
                     maxLoopCount = 1,
                 )
 
-            val result = monitorCommand.execute()
-            assert(result == CommandResult.Completed)
+            val result = monitorCommand.execute(ChainContext())
+            assertNotNull(result.monitorItems)
+            assert(result.monitorItems?.size == 1)
         }
 
     @Test
-    fun `test shouldRun always true`() =
+    fun `test shouldRun returns RunNow on first run`() =
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
@@ -101,8 +107,21 @@ class TestMonitorCommand {
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
                     strategies = listOf(),
-                    maxLoopCount = 0,
                 )
-            assert(monitorCommand.shouldRun())
+            assert(monitorCommand.shouldRun(ChainContext()) == RunDecision.RunNow)
+        }
+
+    @Test
+    fun `test shouldRun returns RunWithDelay on consecutive runs`() =
+        runBlocking {
+            val monitorCommand =
+                MonitorCommand(
+                    itemRepository = itemRepository,
+                    notificationRepository = notificationRepository,
+                    logRepository = logRepository,
+                    delayBetweenScrapes = 1.seconds,
+                    strategies = listOf(),
+                )
+            assert(monitorCommand.shouldRun(ChainContext(monitorItems = emptyMap())) == RunDecision.RunWithDelay(1.seconds))
         }
 }

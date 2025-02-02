@@ -31,7 +31,11 @@ class SnkrsScript : Script<SnkrsConfiguration> {
         statusUpdate: suspend (message: String) -> Unit,
     ): ExecutionResult {
         val commands = buildCommands(configuration, provider, statusUpdate)
-        return commandExecutionScript.execute(provider, statusUpdate, commands)
+        return commandExecutionScript.execute(
+            provider,
+            statusUpdate,
+            commands,
+        )
     }
 
     override suspend fun onFinish(

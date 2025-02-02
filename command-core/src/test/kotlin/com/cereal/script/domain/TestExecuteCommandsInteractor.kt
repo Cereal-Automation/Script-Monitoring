@@ -1,6 +1,7 @@
 package com.cereal.script.domain
 
 import com.cereal.script.ExecuteCommandsInteractor
+import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.monitor.MonitorCommand
 import com.cereal.script.commands.monitor.models.Currency
 import com.cereal.script.commands.monitor.models.Item
@@ -107,7 +108,7 @@ class TestExecuteCommandsInteractor {
                     strategies = listOf(data.strategy),
                     maxLoopCount = 2,
                 )
-            interactor.invoke(listOf(monitorCommand)).collect()
+            interactor.invoke(listOf(monitorCommand), startContext = ChainContext()).collect()
 
             coVerify(exactly = data.numberOfNotifications) { notificationRepository.notify(any(), any()) }
         }

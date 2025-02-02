@@ -1,6 +1,6 @@
 package com.cereal.script
 
-import com.cereal.script.commands.CommandResult
+import com.cereal.script.commands.ChainContext
 import com.cereal.script.repository.LogRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -60,22 +60,15 @@ fun <T> Flow<T>.withRetry(
  * @param action The action being performed.
  * @return A Flow<T> that logs messages during the data collection process.
  */
-fun Flow<CommandResult>.withLogging(
+fun Flow<ChainContext>.withLogging(
     action: String,
     logRepository: LogRepository,
-): Flow<CommandResult> =
+): Flow<ChainContext> =
     this
         .onStart {
-            logRepository.info("$action.")
+            logRepository.info("Starting $action.")
         }.onEach {
-            when (it) {
-                // No need to log something here because when repeating the "start" log makes sure the user knows what's going on.
-                CommandResult.Repeat -> null
-                CommandResult.Completed -> "Finished '$action'."
-                CommandResult.Skip -> "Skipping '$action'."
-            }?.let {
-                logRepository.info(it)
-            }
+            logRepository.info("Finished '$action'.")
         }.onCompletion { error ->
             error?.let {
                 if (error !is CancellationException) {

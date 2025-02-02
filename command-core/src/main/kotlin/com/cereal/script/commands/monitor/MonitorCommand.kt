@@ -1,14 +1,14 @@
 package com.cereal.script.commands.monitor
 
+import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
-import com.cereal.script.commands.CommandResult
+import com.cereal.script.commands.RunDecision
 import com.cereal.script.commands.monitor.models.Item
 import com.cereal.script.commands.monitor.repository.ItemRepository
 import com.cereal.script.commands.monitor.repository.NotificationRepository
 import com.cereal.script.commands.monitor.strategy.ExecuteStrategyCommand
 import com.cereal.script.commands.monitor.strategy.MonitorStrategy
 import com.cereal.script.repository.LogRepository
-import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
 class MonitorCommand(
@@ -19,71 +19,60 @@ class MonitorCommand(
     private val strategies: List<MonitorStrategy>,
     private val maxLoopCount: Int = LOOP_INFINITE,
 ) : Command {
-    private var nextPageToken: String? = null
-    private var runSequenceNumber = 1
-    private var totalNumberOfItems = 0
-    private val lastItems: HashMap<String, Item> = HashMap()
-    private var isBaselineSet = false
-
-    override suspend fun shouldRun(): Boolean {
-        // Always run the monitor, there's no "end state".
-        return true
-    }
-
-    /**
-     * Executes the command to retrieve and process a page of items from the item repository.
-     * The items are processed using a set of predefined strategies.
-     *
-     * If there is no next page token available, it logs the total number of items processed, waits for a specified delay,
-     * and then restarts the execution if the maximum loop count is not reached.
-     *
-     * @return [CommandResult] indicating whether the command execution is completed or should be repeated.
-     */
-    override suspend fun execute(): CommandResult {
-        val page = itemRepository.getItems(nextPageToken)
-        processItems(page.items)
-        totalNumberOfItems += page.items.size
-        nextPageToken = page.nextPageToken
-
-        if (maxLoopCount != LOOP_INFINITE && maxLoopCount == runSequenceNumber) {
-            return CommandResult.Completed
+    override suspend fun shouldRun(context: ChainContext): RunDecision =
+        if (maxLoopCount != LOOP_INFINITE && maxLoopCount == context.monitorRunSequenceNumber) {
+            RunDecision.Skip
+        } else if (context.monitorItems == null) {
+            // First time so run immediately.
+            RunDecision.RunNow
+        } else {
+            RunDecision.RunWithDelay(delayBetweenScrapes)
         }
 
-        // When there's no next page delay for a while before starting over.
-        if (nextPageToken == null) {
-            isBaselineSet = true
-            logRepository.info(
-                "Found and processed a total of $totalNumberOfItems items, waiting $delayBetweenScrapes before starting over.",
-            )
-            totalNumberOfItems = 0
-            runSequenceNumber++
+    override suspend fun execute(context: ChainContext): ChainContext {
+        var nextPageToken: String? = null
+        var totalNumberOfItems = 0
+        val items: MutableMap<String, Item> = context.monitorItems?.toMutableMap() ?: hashMapOf()
 
-            delay(delayBetweenScrapes.inWholeMilliseconds)
-        }
+        do {
+            val message =
+                nextPageToken?.let {
+                    "Retrieving items from $it"
+                } ?: "Retrieving items from first page"
+            logRepository.info(message)
 
-        return CommandResult.Repeat
+            val page = itemRepository.getItems(nextPageToken)
+            tryExecuteStrategies(page.items, context.monitorItems)
+            page.items.forEach { item -> items[item.id] = item }
+            totalNumberOfItems += page.items.size
+            nextPageToken = page.nextPageToken
+        } while (nextPageToken != null)
+
+        logRepository.info(
+            "Found and processed a total of $totalNumberOfItems items.",
+        )
+
+        return context.copy(monitorItems = items, monitorRunSequenceNumber = context.monitorRunSequenceNumber + 1)
     }
 
-    override fun getDescription(): String =
-        nextPageToken?.let {
-            "Retrieving items from $it"
-        } ?: "Retrieving items from first page"
+    override fun getDescription(): String = "Monitoring new products"
 
-    private suspend fun processItems(items: List<Item>) {
+    private suspend fun tryExecuteStrategies(
+        items: List<Item>,
+        existingItems: Map<String, Item>?,
+    ) {
         items.forEach { item ->
             strategies.forEach { strategy ->
-                if (!strategy.requiresBaseline() || isBaselineSet) {
+                if (!strategy.requiresBaseline() || existingItems != null) {
                     ExecuteStrategyCommand(
                         notificationRepository,
                         logRepository,
                         strategy,
                         item,
-                        lastItems[item.id],
+                        existingItems?.get(item.id),
                     ).execute()
                 }
             }
-
-            lastItems[item.id] = item
         }
     }
 

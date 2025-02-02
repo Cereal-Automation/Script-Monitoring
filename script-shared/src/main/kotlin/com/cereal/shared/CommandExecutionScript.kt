@@ -3,6 +3,7 @@ package com.cereal.shared
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
 import com.cereal.script.ExecuteCommandsInteractor
+import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.data.ScriptLogRepository
 import com.cereal.sdk.ExecutionResult
@@ -51,6 +52,7 @@ class CommandExecutionScript(
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
         commands: List<Command>,
+        context: ChainContext = ChainContext(),
     ): ExecutionResult {
         // Prevent execution when user is not licensed.
         if (!isLicensed) {
@@ -60,7 +62,7 @@ class CommandExecutionScript(
         val start = Clock.System.now()
         try {
             val interactor = createInteractor(provider, statusUpdate)
-            interactor(commands).collect()
+            interactor(commands, context).collect()
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             return ExecutionResult.Error("Error after ${start.untilNow()} while running script: ${e.message}")

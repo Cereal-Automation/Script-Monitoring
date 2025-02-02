@@ -47,6 +47,7 @@ class SampleScript : Script<SampleConfiguration> {
                     configuration.monitorInterval()?.seconds,
                 ),
             )
+
         return commandExecutionScript.execute(provider, statusUpdate, commands)
     }
 
