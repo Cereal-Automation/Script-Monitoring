@@ -19,20 +19,25 @@ class MonitorCommand(
     private val strategies: List<MonitorStrategy>,
     private val maxLoopCount: Int = LOOP_INFINITE,
 ) : Command {
-    override suspend fun shouldRun(context: ChainContext): RunDecision =
-        if (maxLoopCount != LOOP_INFINITE && maxLoopCount == context.monitorRunSequenceNumber) {
-            RunDecision.Skip
-        } else if (context.monitorItems == null) {
+    override suspend fun shouldRun(context: ChainContext): RunDecision {
+        val monitorStatus = context.get<MonitorStatus>()
+
+        return if (monitorStatus?.monitorItems == null) {
             // First time so run immediately.
             RunDecision.RunNow
+        } else if (maxLoopCount != LOOP_INFINITE && maxLoopCount == monitorStatus.monitorRunSequenceNumber) {
+            RunDecision.Skip
         } else {
             RunDecision.RunWithDelay(delayBetweenScrapes)
         }
+    }
 
-    override suspend fun execute(context: ChainContext): ChainContext {
+    override suspend fun execute(context: ChainContext) {
+        val monitorStatus = context.getOrCreate<MonitorStatus> { MonitorStatus() }
+
         var nextPageToken: String? = null
         var totalNumberOfItems = 0
-        val items: MutableMap<String, Item> = context.monitorItems?.toMutableMap() ?: hashMapOf()
+        val items: MutableMap<String, Item> = monitorStatus.monitorItems?.toMutableMap() ?: hashMapOf()
 
         do {
             val message =
@@ -42,7 +47,7 @@ class MonitorCommand(
             logRepository.info(message)
 
             val page = itemRepository.getItems(nextPageToken)
-            tryExecuteStrategies(page.items, context.monitorItems)
+            tryExecuteStrategies(page.items, monitorStatus.monitorItems)
             page.items.forEach { item -> items[item.id] = item }
             totalNumberOfItems += page.items.size
             nextPageToken = page.nextPageToken
@@ -52,7 +57,9 @@ class MonitorCommand(
             "Found and processed a total of $totalNumberOfItems items.",
         )
 
-        return context.copy(monitorItems = items, monitorRunSequenceNumber = context.monitorRunSequenceNumber + 1)
+        return context.put(
+            monitorStatus.copy(monitorItems = items, monitorRunSequenceNumber = monitorStatus.monitorRunSequenceNumber + 1),
+        )
     }
 
     override fun getDescription(): String = "Monitoring new products"

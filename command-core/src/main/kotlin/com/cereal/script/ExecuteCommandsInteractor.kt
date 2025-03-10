@@ -50,7 +50,8 @@ class ExecuteCommandsInteractor(
         context: ChainContext,
     ): Flow<ChainContext> =
         flow {
-            emit(command.execute(context))
+            command.execute(context)
+            emit(context)
         }.withRetry(command.getDescription(), logRepository)
             .withLogging(command.getDescription(), logRepository)
 }
