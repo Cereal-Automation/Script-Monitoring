@@ -70,7 +70,7 @@ class NikeItemRepository(
                 val scriptElement = page.getElementById("__NEXT_DATA__") as? HtmlScript
 
                 if (scriptElement != null) {
-                    // Rewrite to use Jsoup.
+                    // FIXME: Rewrite to use Jsoup for more robust HTML parsing and better performance.
                     val jsonData = scriptElement.textContent
                     json
                         .decodeFromString<NikeResponse>(
