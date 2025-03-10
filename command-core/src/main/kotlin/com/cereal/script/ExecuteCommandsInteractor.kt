@@ -37,13 +37,13 @@ class ExecuteCommandsInteractor(
         }
 
     /**
-     * Executes a given command, emitting the result of each execution. If the command
-     * returns a result of `CommandResult.Repeat`, it will be re-executed and re-emitted
-     * until a different result is obtained. The execution flow incorporates retry and logging
-     * mechanisms to handle errors and log the process.
+     * Executes a given command within a specific context.
+     *
+     * This function is responsible for running the command's execution logic,
+     * emitting the updated context, and handling retries and logging as needed.
      *
      * @param command The command to be executed, which encapsulates the specific logic of the action.
-     * @return A flow that emits `CommandResult` from executing the command, retrying if needed.
+     * @return A flow that emits `ChainContext` from executing the command, retrying if needed.
      */
     private fun executeCommand(
         command: Command,
