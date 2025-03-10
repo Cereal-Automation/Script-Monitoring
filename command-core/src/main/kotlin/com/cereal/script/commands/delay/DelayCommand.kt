@@ -10,9 +10,8 @@ class DelayCommand(
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision = RunDecision.RunNow
 
-    override suspend fun execute(context: ChainContext): ChainContext {
+    override suspend fun execute(context: ChainContext) {
         delay(delay)
-        return context
     }
 
     override fun getDescription(): String = "Delay for $delay milliseconds and completes."
