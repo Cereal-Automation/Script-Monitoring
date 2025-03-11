@@ -1,8 +1,8 @@
 package com.cereal.snkrs
 
+import com.cereal.command.monitor.data.snkrs.Locale
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
-import com.cereal.script.commands.monitor.data.snkrs.Locale
 import com.cereal.test.TestScriptRunner
 import com.cereal.test.components.TestComponentProviderFactory
 import io.mockk.coEvery

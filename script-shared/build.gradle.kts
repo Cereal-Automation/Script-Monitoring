@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     api(project(":command-core"))
+    api(project(":command-monitoring"))
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 

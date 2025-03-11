@@ -1,7 +1,7 @@
 package com.cereal.shared.fixtures
 
-import com.cereal.script.commands.monitor.models.Item
-import com.cereal.script.commands.monitor.repository.NotificationRepository
+import com.cereal.command.monitor.models.Item
+import com.cereal.command.monitor.repository.NotificationRepository
 
 class FakeNotificationRepository : NotificationRepository {
     override suspend fun notify(

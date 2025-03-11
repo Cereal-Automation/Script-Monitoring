@@ -2,20 +2,14 @@ package com.cereal.shared
 
 import com.cereal.licensechecker.LicenseChecker
 import com.cereal.licensechecker.LicenseState
-import com.cereal.script.commands.monitor.MonitorCommand
-import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
-import com.cereal.shared.fixtures.FakeItemRepository
-import com.cereal.shared.fixtures.FakeLogRepository
-import com.cereal.shared.fixtures.FakeNotificationRepository
+import com.cereal.shared.fixtures.FooCommand
 import com.cereal.test.components.TestComponentProviderFactory
 import io.mockk.coEvery
 import io.mockk.mockkConstructor
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
 import org.junit.jupiter.api.Test
-import kotlin.time.Duration
 
 class TestCommandExecutionScript {
     @Test
@@ -37,13 +31,8 @@ class TestCommandExecutionScript {
 
             val commands =
                 listOf(
-                    MonitorCommand(
-                        itemRepository = FakeItemRepository(emptyList()),
-                        notificationRepository = FakeNotificationRepository(),
-                        logRepository = FakeLogRepository(),
-                        delayBetweenScrapes = Duration.ZERO,
-                        listOf(NewItemAvailableMonitorStrategy(Clock.System.now())),
-                        maxLoopCount = 1,
+                    FooCommand(
+                        numberOfRuns = 1,
                     ),
                 )
             val result = commandExecutionScript.execute(componentProvider, {}, commands)

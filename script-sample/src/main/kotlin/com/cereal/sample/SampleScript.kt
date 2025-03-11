@@ -1,8 +1,8 @@
 package com.cereal.sample
 
-import com.cereal.script.commands.CommandFactory
-import com.cereal.script.commands.monitor.data.rss.RssFeedItemRepository
-import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
+import com.cereal.command.monitor.MonitorCommandFactory
+import com.cereal.command.monitor.data.rss.RssFeedItemRepository
+import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
@@ -27,7 +27,7 @@ class SampleScript : Script<SampleConfiguration> {
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
     ): ExecutionResult {
-        val factory = CommandFactory(provider)
+        val factory = MonitorCommandFactory(provider)
 
         val logRepository = factory.logRepository(statusUpdate)
         val notificationRepository = factory.notificationRepository("Sample Script")

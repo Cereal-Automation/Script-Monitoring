@@ -1,8 +1,8 @@
 package com.cereal.shared.fixtures
 
-import com.cereal.script.commands.monitor.models.Item
-import com.cereal.script.commands.monitor.models.Page
-import com.cereal.script.commands.monitor.repository.ItemRepository
+import com.cereal.command.monitor.models.Item
+import com.cereal.command.monitor.models.Page
+import com.cereal.command.monitor.repository.ItemRepository
 
 class FakeItemRepository(
     private val items: List<Item>,
