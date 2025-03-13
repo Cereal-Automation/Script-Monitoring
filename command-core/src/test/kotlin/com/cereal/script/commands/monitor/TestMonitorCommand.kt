@@ -40,7 +40,8 @@ class TestMonitorCommand {
                     maxLoopCount = 2,
                 )
 
-            val result = monitorCommand.execute(ChainContext())
+            val context = ChainContext()
+            monitorCommand.execute(context)
 
             coVerify {
                 logRepository.info(
@@ -48,8 +49,9 @@ class TestMonitorCommand {
                     any(),
                 )
             }
-            assertNotNull(result.monitorItems)
-            assert(result.monitorItems?.size == 2)
+            val monitorStatus = context.get<MonitorStatus>()
+            assertNotNull(monitorStatus?.monitorItems)
+            assert(monitorStatus?.monitorItems?.size == 2)
         }
 
     @Test
@@ -70,10 +72,12 @@ class TestMonitorCommand {
                     maxLoopCount = MonitorCommand.LOOP_INFINITE,
                 )
 
-            val result = monitorCommand.execute(ChainContext())
+            val context = ChainContext()
+            monitorCommand.execute(context)
 
-            assertNotNull(result.monitorItems)
-            assert(result.monitorItems?.size == 2)
+            val monitorStatus = context.get<MonitorStatus>()
+            assertNotNull(monitorStatus?.monitorItems)
+            assert(monitorStatus?.monitorItems?.size == 2)
         }
 
     @Test
@@ -92,9 +96,12 @@ class TestMonitorCommand {
                     maxLoopCount = 1,
                 )
 
-            val result = monitorCommand.execute(ChainContext())
-            assertNotNull(result.monitorItems)
-            assert(result.monitorItems?.size == 1)
+            val context = ChainContext()
+            monitorCommand.execute(context)
+
+            val monitorStatus = context.get<MonitorStatus>()
+            assertNotNull(monitorStatus?.monitorItems)
+            assert(monitorStatus?.monitorItems?.size == 1)
         }
 
     @Test
@@ -122,6 +129,8 @@ class TestMonitorCommand {
                     delayBetweenScrapes = 1.seconds,
                     strategies = listOf(),
                 )
-            assert(monitorCommand.shouldRun(ChainContext(monitorItems = emptyMap())) == RunDecision.RunWithDelay(1.seconds))
+            val monitorStatus = MonitorStatus(monitorItems = emptyMap())
+            val chainContext = ChainContext().apply { put(monitorStatus) }
+            assert(monitorCommand.shouldRun(chainContext) == RunDecision.RunWithDelay(1.seconds))
         }
 }
