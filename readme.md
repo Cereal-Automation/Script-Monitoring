@@ -59,16 +59,14 @@ A GitHub actions configuration is included in this repository. It contains the f
 * On each push to master tests will run.
 * When a tag is created an obfuscated release JAR is generated.
 
-## Architecture
+## Modules
 
-### Monitor strategies
-
-### Monitor datasources
-
-## Creating new monitor
-
-* Copy the `script-sample` module to a new module and adjust the manifest.json.
-* Add a new factory method to the `MonitoryFactory` class and add it to the `allMonitors` property.
+| Module             | Description                                                                                                                                  |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| command            | Contains the command definition and an entry point to easily execute one or more commands.                                                   |
+| command-monitoring | Implements the monitoring command used by scripts set up as monitors.                                                                       |
+| script-common      | Defines the common dependencies for scripts implemented in this repository and contains code useful for setting up a monitoring script.      |
+| script-*           | The actual scripts made available in the Cereal marketplace.                                                                                |
 
 ## Tips
 

@@ -1,5 +1,9 @@
 package com.cereal.command.monitor.data.nike
 
+import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
+import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.command.monitor.data.common.useragent.MOBILE_USER_AGENTS
+import com.cereal.command.monitor.data.common.webclient.defaultWebClient
 import com.cereal.command.monitor.data.nike.models.NikeResponse
 import com.cereal.command.monitor.data.nike.models.Product
 import com.cereal.command.monitor.data.nike.models.Wall
@@ -8,10 +12,6 @@ import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
-import com.cereal.script.data.httpclient.defaultHttpClient
-import com.cereal.script.data.json.defaultJson
-import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
-import com.cereal.script.data.webclient.defaultWebClient
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.request.get

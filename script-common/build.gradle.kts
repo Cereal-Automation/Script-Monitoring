@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":script-common"))
+    api(project(":command"))
+    api(project(":command-monitoring"))
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")

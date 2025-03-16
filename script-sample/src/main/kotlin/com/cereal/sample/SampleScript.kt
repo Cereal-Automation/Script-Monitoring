@@ -3,10 +3,10 @@ package com.cereal.sample
 import com.cereal.command.monitor.MonitorCommandFactory
 import com.cereal.command.monitor.data.rss.RssFeedItemRepository
 import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
+import com.cereal.script.CommandExecutionScript
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import com.cereal.shared.CommandExecutionScript
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
 

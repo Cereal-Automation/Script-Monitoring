@@ -1,8 +1,8 @@
 package com.cereal.bdgastore
 
+import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 import com.cereal.sdk.models.proxy.RandomProxy
-import com.cereal.shared.BaseConfiguration
 
 interface BDGAStoreConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(

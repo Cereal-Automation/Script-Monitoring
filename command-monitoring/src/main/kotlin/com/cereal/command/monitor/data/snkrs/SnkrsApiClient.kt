@@ -1,5 +1,8 @@
 package com.cereal.command.monitor.data.snkrs
 
+import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
+import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.command.monitor.data.common.useragent.MOBILE_USER_AGENTS
 import com.cereal.command.monitor.data.snkrs.models.Object
 import com.cereal.command.monitor.data.snkrs.models.ProductInfo
 import com.cereal.command.monitor.data.snkrs.models.SnkrsResponse
@@ -7,9 +10,6 @@ import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Variant
-import com.cereal.script.data.httpclient.defaultHttpClient
-import com.cereal.script.data.json.defaultJson
-import com.cereal.script.data.useragent.MOBILE_USER_AGENTS
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.request.get

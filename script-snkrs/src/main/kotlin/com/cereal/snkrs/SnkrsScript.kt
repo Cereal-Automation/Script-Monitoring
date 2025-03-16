@@ -6,11 +6,11 @@ import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.PriceDropMonitorStrategy
 import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
+import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import com.cereal.shared.CommandExecutionScript
 import kotlin.time.Duration.Companion.seconds
 
 class SnkrsScript : Script<SnkrsConfiguration> {
