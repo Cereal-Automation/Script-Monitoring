@@ -89,7 +89,7 @@ class TestMonitorCommand {
         }
 
     @Test
-    fun `test execute with max loop count reached`() =
+    fun `test execute with single item`() =
         runTest {
             val items = listOf(Item("1", url = "http://foo.bar", name = "Foo"))
             coEvery { itemRepository.getItems(null) } returns Page(null, items)
