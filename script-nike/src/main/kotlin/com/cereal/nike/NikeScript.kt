@@ -1,15 +1,15 @@
 package com.cereal.nike
 
+import com.cereal.command.monitor.MonitorCommandFactory
+import com.cereal.command.monitor.data.nike.NikeItemRepository
+import com.cereal.command.monitor.strategy.MonitorStrategy
+import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
+import com.cereal.command.monitor.strategy.PriceDropMonitorStrategy
+import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
-import com.cereal.script.commands.CommandFactory
-import com.cereal.script.commands.monitor.data.nike.NikeItemRepository
-import com.cereal.script.commands.monitor.strategy.MonitorStrategy
-import com.cereal.script.commands.monitor.strategy.NewItemAvailableMonitorStrategy
-import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import com.cereal.shared.CommandExecutionScript
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -54,7 +54,7 @@ class NikeScript : Script<NikeConfiguration> {
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
     ): List<Command> {
-        val factory = CommandFactory(provider)
+        val factory = MonitorCommandFactory(provider)
         val monitorStrategies = buildMonitorStrategies(configuration)
 
         val logRepository = factory.logRepository(statusUpdate)

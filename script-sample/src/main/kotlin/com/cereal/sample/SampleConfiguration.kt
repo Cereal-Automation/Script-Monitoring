@@ -1,5 +1,5 @@
 package com.cereal.sample
 
-import com.cereal.shared.BaseConfiguration
+import com.cereal.script.utils.configuration.BaseConfiguration
 
 interface SampleConfiguration : BaseConfiguration

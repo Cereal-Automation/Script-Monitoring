@@ -1,13 +1,13 @@
 package com.cereal.bdgastore
 
-import com.cereal.script.commands.CommandFactory
-import com.cereal.script.commands.monitor.data.shopify.ShopifyItemRepository
-import com.cereal.script.commands.monitor.data.shopify.ShopifyWebsite
-import com.cereal.script.commands.monitor.strategy.StockAvailableMonitorStrategy
+import com.cereal.command.monitor.MonitorCommandFactory
+import com.cereal.command.monitor.data.shopify.ShopifyItemRepository
+import com.cereal.command.monitor.data.shopify.ShopifyWebsite
+import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
+import com.cereal.script.CommandExecutionScript
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import com.cereal.shared.CommandExecutionScript
 import kotlin.time.Duration.Companion.seconds
 
 class BDGAStoreScript : Script<BDGAStoreConfiguration> {
@@ -27,7 +27,7 @@ class BDGAStoreScript : Script<BDGAStoreConfiguration> {
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
     ): ExecutionResult {
-        val factory = CommandFactory(provider)
+        val factory = MonitorCommandFactory(provider)
 
         val logRepository = factory.logRepository(statusUpdate)
         val notificationRepository = factory.notificationRepository("BDGAStore")

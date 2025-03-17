@@ -1,16 +1,16 @@
 package com.cereal.snkrs
 
+import com.cereal.command.monitor.MonitorCommandFactory
+import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
+import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
+import com.cereal.command.monitor.strategy.MonitorStrategy
+import com.cereal.command.monitor.strategy.PriceDropMonitorStrategy
+import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
+import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
-import com.cereal.script.commands.CommandFactory
-import com.cereal.script.commands.monitor.data.snkrs.SnkrsApiClient
-import com.cereal.script.commands.monitor.data.snkrs.SnkrsItemRepository
-import com.cereal.script.commands.monitor.strategy.MonitorStrategy
-import com.cereal.script.commands.monitor.strategy.PriceDropMonitorStrategy
-import com.cereal.script.commands.monitor.strategy.StockAvailableMonitorStrategy
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import com.cereal.shared.CommandExecutionScript
 import kotlin.time.Duration.Companion.seconds
 
 class SnkrsScript : Script<SnkrsConfiguration> {
@@ -58,7 +58,7 @@ class SnkrsScript : Script<SnkrsConfiguration> {
         provider: ComponentProvider,
         statusUpdate: suspend (message: String) -> Unit,
     ): List<Command> {
-        val factory = CommandFactory(provider)
+        val factory = MonitorCommandFactory(provider)
         val monitorStrategies = buildMonitorStrategies(configuration)
 
         val logRepository = factory.logRepository(statusUpdate)
