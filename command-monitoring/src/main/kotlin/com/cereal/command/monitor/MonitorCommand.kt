@@ -21,12 +21,8 @@ class MonitorCommand(
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         val monitorStatus = context.get<MonitorStatus>()
 
-        return if (monitorStatus?.monitorItems == null) {
-            // First time so run immediately.
-            RunDecision.RunNow
-        } else {
-            RunDecision.RunWithDelay(delayBetweenScrapes)
-        }
+        val startDelay = monitorStatus?.monitorItems?.let { delayBetweenScrapes } ?: Duration.ZERO
+        return RunDecision.RunRepeat(startDelay)
     }
 
     override suspend fun execute(context: ChainContext) {
@@ -78,9 +74,5 @@ class MonitorCommand(
                 }
             }
         }
-    }
-
-    companion object {
-        const val LOOP_INFINITE: Int = -1
     }
 }

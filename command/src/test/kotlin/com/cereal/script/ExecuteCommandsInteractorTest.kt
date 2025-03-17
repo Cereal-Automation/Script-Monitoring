@@ -35,7 +35,7 @@ class ExecuteCommandsInteractorTest {
         runTest {
             val command1 =
                 mockk<Command> {
-                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunNow, RunDecision.Skip)
+                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunOnce(), RunDecision.Skip)
                     coEvery { execute(any()) } coAnswers {
                         println("Executing command 1")
                     }
@@ -43,7 +43,7 @@ class ExecuteCommandsInteractorTest {
                 }
             val command2 =
                 mockk<Command> {
-                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunNow, RunDecision.Skip)
+                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunOnce(), RunDecision.Skip)
                     coEvery { execute(any()) } coAnswers {
                         println("Executing command 2")
                     }
@@ -72,7 +72,7 @@ class ExecuteCommandsInteractorTest {
                 }
             val command2 =
                 mockk<Command> {
-                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunNow, RunDecision.Skip)
+                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunOnce(), RunDecision.Skip)
                     coEvery { execute(any()) } coAnswers {
                         println("Executing command 2")
                     }
@@ -94,7 +94,7 @@ class ExecuteCommandsInteractorTest {
             val delayMillis = 100.milliseconds
             val command1 =
                 mockk<Command> {
-                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunWithDelay(delayMillis), RunDecision.Skip)
+                    coEvery { shouldRun(any()) } returnsMany listOf(RunDecision.RunOnce(delayMillis), RunDecision.Skip)
                     every { getDescription() } returns "Command 1"
                     coEvery { execute(any()) } coAnswers {
                         println("Executing command 1")
@@ -127,6 +127,7 @@ class ExecuteCommandsInteractorTest {
                 }
             val context = ChainContext()
 
+            @Suppress("UNCHECKED_CAST")
             val executedFlow: Flow<ChainContext> =
                 interactor.javaClass
                     .getDeclaredMethod("executeCommand", Command::class.java, ChainContext::class.java)
