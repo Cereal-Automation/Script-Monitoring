@@ -122,11 +122,11 @@ class TestMonitorCommand {
                     delayBetweenScrapes = 1.seconds,
                     strategies = listOf(),
                 )
-            assert(monitorCommand.shouldRun(ChainContext()) == RunDecision.RunNow)
+            assert(monitorCommand.shouldRun(ChainContext()) == RunDecision.RunRepeat())
         }
 
     @Test
-    fun `test shouldRun returns RunWithDelay on consecutive runs`() =
+    fun `test shouldRun returns RunRepeat on consecutive runs`() =
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
@@ -138,7 +138,7 @@ class TestMonitorCommand {
                 )
             val monitorStatus = MonitorStatus(monitorItems = emptyMap())
             val chainContext = ChainContext().apply { put(monitorStatus) }
-            assert(monitorCommand.shouldRun(chainContext) == RunDecision.RunWithDelay(1.seconds))
+            assert(monitorCommand.shouldRun(chainContext) == RunDecision.RunRepeat(1.seconds))
         }
 
     @ParameterizedTest

@@ -14,7 +14,7 @@ class FooCommand(
             return RunDecision.Skip
         } else {
             runCount++
-            return RunDecision.RunNow
+            return RunDecision.RunOnce()
         }
     }
 

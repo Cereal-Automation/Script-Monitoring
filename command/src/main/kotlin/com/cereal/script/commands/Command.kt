@@ -1,6 +1,7 @@
 package com.cereal.script.commands
 
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Command is the smallest amount of work possible
@@ -40,16 +41,20 @@ sealed class RunDecision {
     data object Skip : RunDecision()
 
     /**
-     * Indicates that the command should run immediately.
+     * Indicates that the command should run immediately, once.
+     *
+     * @param startDelay The duration to wait before executing the command.
      */
-    data object RunNow : RunDecision()
+    data class RunOnce(
+        val startDelay: Duration = 0.seconds,
+    ) : RunDecision()
 
     /**
-     * Indicates that the command should run after a specified delay.
+     * Indicates that the command should run immediately, and ask for another [RunDecision] when finished.
      *
-     * @param delay The duration to wait before executing the command.
+     * @param startDelay The duration to wait before executing the command.
      */
-    data class RunWithDelay(
-        val delay: Duration,
+    data class RunRepeat(
+        val startDelay: Duration = 0.seconds,
     ) : RunDecision()
 }

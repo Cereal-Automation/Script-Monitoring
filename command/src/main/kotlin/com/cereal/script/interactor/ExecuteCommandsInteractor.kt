@@ -21,11 +21,11 @@ class ExecuteCommandsInteractor(
             var context = startContext
 
             for (command in commands) {
-                // Repeat as long as this command wants to run.
-                while (true) {
+                do {
                     val shouldRun = command.shouldRun(context)
                     if (shouldRun is RunDecision.Skip) break
-                    if (shouldRun is RunDecision.RunWithDelay) delay(shouldRun.delay)
+                    if (shouldRun is RunDecision.RunOnce) delay(shouldRun.startDelay)
+                    if (shouldRun is RunDecision.RunRepeat) delay(shouldRun.startDelay)
 
                     emitAll(
                         executeCommand(command, context).onEach {
@@ -33,6 +33,7 @@ class ExecuteCommandsInteractor(
                         },
                     )
                 }
+                while (shouldRun is RunDecision.RunRepeat)
             }
         }
 
