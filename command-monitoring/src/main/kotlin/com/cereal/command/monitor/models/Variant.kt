@@ -1,7 +1,7 @@
 package com.cereal.command.monitor.models
 
 data class Variant(
+    val id: String,
     val name: String,
-    val inStock: Boolean,
-    val stockLevel: String? = null,
+    val properties: List<ItemProperty>,
 )

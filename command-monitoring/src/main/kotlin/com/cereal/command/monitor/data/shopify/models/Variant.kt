@@ -12,7 +12,7 @@ data class Variant(
     @SerialName("created_at")
     val createdAt: String? = null,
     @SerialName("featured_image")
-    val featuredImage: com.cereal.command.monitor.data.shopify.models.FeaturedImage? = null,
+    val featuredImage: FeaturedImage? = null,
     @SerialName("grams")
     val grams: Int? = null,
     @SerialName("id")

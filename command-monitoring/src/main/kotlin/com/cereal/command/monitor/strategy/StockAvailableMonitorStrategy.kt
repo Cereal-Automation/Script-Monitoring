@@ -3,6 +3,7 @@ package com.cereal.command.monitor.strategy
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.getValue
+import com.cereal.command.monitor.models.requireValue
 
 /**
  * A monitoring strategy to notify when an item becomes available in stock or when there are changes to its variants.
@@ -30,11 +31,11 @@ class StockAvailableMonitorStrategy : MonitorStrategy {
         item: Item,
         previousItem: Item?,
     ): String? {
-        val currentStock = item.getValue<ItemProperty.AvailableStock>()?.value
-        val previousStock = previousItem?.getValue<ItemProperty.AvailableStock>()?.value
-        val hadNoStock = (previousStock == null || previousStock == 0)
-        return if (currentStock != null && hadNoStock && currentStock > 0) {
-            "${item.name} is in stock ($currentStock)!"
+        val currentStock = item.getValue<ItemProperty.Stock>()
+        val previousStock = previousItem?.getValue<ItemProperty.Stock>()
+
+        return if (currentStock?.isInStock == true && previousStock?.isInStock != true) {
+            "${item.name} is in stock (${currentStock.stockValue()})!"
         } else {
             null
         }
@@ -52,19 +53,34 @@ class StockAvailableMonitorStrategy : MonitorStrategy {
         item: Item,
         previousItem: Item?,
     ): String? {
-        val currentVariants = item.getValue<ItemProperty.Variants>()?.value
-        val previousVariants = previousItem?.getValue<ItemProperty.Variants>()?.value
-        if (currentVariants == null) return null
+        val currentVariants = item.variants
+        val previousVariants = previousItem?.variants
 
         val newVariantsMessages =
             currentVariants
-                .filter { it.inStock && previousVariants?.none { prev -> prev.name == it.name } ?: true }
-                .map { "New variant ${it.name} is in stock: ${it.stockLevel}" }
+                .filter {
+                    it.requireValue<ItemProperty.Stock>().isInStock &&
+                        previousVariants?.none { prev ->
+                            prev.id == it.id
+                        } ?: true
+                }.map { variant ->
+                    val stockLevelString = variant.getValue<ItemProperty.Stock>()?.stockValue()
+                    listOfNotNull("New variant ${variant.name} is in stock", stockLevelString).joinToString(": ")
+                }
 
         val restockedVariantsMessages =
             currentVariants
-                .filter { it.inStock && previousVariants?.any { prev -> prev.name == it.name && !prev.inStock } ?: false }
-                .map { "Variant ${it.name} is in stock: ${it.stockLevel}" }
+                .filter {
+                    it.requireValue<ItemProperty.Stock>().isInStock &&
+                        previousVariants?.any { prev -> prev.id == it.id && !prev.requireValue<ItemProperty.Stock>().isInStock }
+                            ?: false
+                }.map { variant ->
+                    val stockLevelString =
+                        variant.getValue<ItemProperty.Stock>()?.let {
+                            "${it.stockValue()}"
+                        }
+                    listOfNotNull("Variant ${variant.name} is in stock", stockLevelString).joinToString(": ")
+                }
 
         val combinedMessages = newVariantsMessages + restockedVariantsMessages
         return if (combinedMessages.isNotEmpty()) combinedMessages.joinToString("\n") else null

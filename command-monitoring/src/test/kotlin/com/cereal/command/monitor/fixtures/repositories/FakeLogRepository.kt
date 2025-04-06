@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.fixtures
+package com.cereal.command.monitor.fixtures.repositories
 
 import com.cereal.script.repository.LogRepository
 
