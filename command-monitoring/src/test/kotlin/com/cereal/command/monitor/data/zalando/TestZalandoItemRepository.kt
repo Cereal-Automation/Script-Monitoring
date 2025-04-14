@@ -17,6 +17,7 @@ class TestZalandoItemRepository {
                     FakeLogRepository(),
                     data.category,
                     data.website,
+                    data.type,
                 )
 
             val result = repository.getItems(null)
@@ -26,6 +27,7 @@ class TestZalandoItemRepository {
     data class TestData(
         val category: ZalandoProductCategory,
         val website: ZalandoWebsite,
+        val type: ZalandoMonitorType,
     )
 
     companion object {
@@ -34,7 +36,11 @@ class TestZalandoItemRepository {
             ZalandoWebsite.entries
                 .map { website ->
                     ZalandoProductCategory.entries
-                        .map { category -> TestData(category, website) }
+                        .map { category ->
+                            ZalandoMonitorType.entries.map { monitorType ->
+                                TestData(category, website, monitorType)
+                            }
+                        }.flatten()
                 }.flatten()
     }
 }

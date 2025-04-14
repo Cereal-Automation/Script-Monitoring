@@ -1,5 +1,6 @@
 package com.cereal.zalando
 
+import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
 import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
 import com.cereal.command.monitor.data.zalando.ZalandoWebsite
 import com.cereal.script.utils.configuration.BaseConfiguration
@@ -8,7 +9,7 @@ import com.cereal.sdk.models.proxy.RandomProxy
 
 interface ZalandoConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(
-        keyName = KEY_CATEGORY,
+        keyName = KEY_WEBSITE,
         name = "Website",
         description = "The website to monitor.",
     )
@@ -20,6 +21,13 @@ interface ZalandoConfiguration : BaseConfiguration {
         description = "The category to monitor.",
     )
     fun category(): ZalandoProductCategory
+
+    @ScriptConfigurationItem(
+        keyName = KEY_MONITOR_TYPE,
+        name = "What to monitor",
+        description = "What do you want to monitor?",
+    )
+    fun monitorType(): ZalandoMonitorType
 
     @ScriptConfigurationItem(
         keyName = KEY_MONITOR_PRICE,
@@ -47,6 +55,7 @@ interface ZalandoConfiguration : BaseConfiguration {
     companion object {
         const val KEY_WEBSITE = "website"
         const val KEY_CATEGORY = "category"
+        const val KEY_MONITOR_TYPE = "monitor_type"
         const val KEY_MONITOR_PRICE = "monitor_price"
         const val KEY_MONITOR_NEW_PRODUCTS = "monitor_new_products"
         const val KEY_RANDOM_PROXY = "random_proxy"

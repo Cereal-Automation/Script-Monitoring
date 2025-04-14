@@ -8,6 +8,7 @@ import com.cereal.command.monitor.data.snkrs.Locale
 import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
+import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
 import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
 import com.cereal.command.monitor.data.zalando.ZalandoWebsite
 import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
@@ -57,6 +58,7 @@ class TestItemRepositoryIntegrations {
                     FakeLogRepository(),
                     ZalandoProductCategory.MEN_SNEAKERS,
                     ZalandoWebsite.UK,
+                    ZalandoMonitorType.NewReleases,
                 ),
             )
     }

@@ -22,6 +22,7 @@ class ZalandoItemRepository(
     private val logRepository: LogRepository,
     private val category: ZalandoProductCategory,
     private val website: ZalandoWebsite,
+    private val monitorType: ZalandoMonitorType,
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
@@ -33,14 +34,12 @@ class ZalandoItemRepository(
 
         val page = nextPageToken?.toInt() ?: 0
         urlBuilder.addQueryParameter("p", page.toString())
-        urlBuilder.addQueryParameter("order", "activation_date")
 
-        // TODO: Detect last page or just scrape 1 page in case of new releases sorting.
+        if (monitorType == ZalandoMonitorType.NewReleases) {
+            urlBuilder.addQueryParameter("order", "activation_date")
+        }
 
         val document = defaultJSoupClient(urlBuilder.build().toString(), timeout, randomProxy?.invoke()).get()
-        val baseUri = document.baseUri()
-        print(baseUri)
-
         val links: Elements = document.select("article.z5x6ht._0xLoFW.JT3_zV.mo6ZnF._78xIQ- > a")
 
         val items =
@@ -53,7 +52,8 @@ class ZalandoItemRepository(
                 }
             }
 
-        return Page((page + 1).toString(), items)
+        // For now only fetch the first page because we only support ZalandoMonitorType.NewReleases for now which sorts the results on activation_date.
+        return Page(null, items)
     }
 
     private fun getProduct(url: String): Item {

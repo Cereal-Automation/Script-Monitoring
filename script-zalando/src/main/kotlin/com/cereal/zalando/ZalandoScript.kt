@@ -64,6 +64,7 @@ class ZalandoScript : Script<ZalandoConfiguration> {
                 logRepository = logRepository,
                 website = configuration.website(),
                 category = configuration.category(),
+                monitorType = configuration.monitorType(),
                 randomProxy = configuration.proxy(),
             )
 
