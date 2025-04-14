@@ -2,6 +2,7 @@ package com.cereal.command.monitor.data.zalando
 
 import com.cereal.command.monitor.data.common.json.defaultJson
 import com.cereal.command.monitor.data.common.webclient.defaultJSoupClient
+import com.cereal.command.monitor.data.zalando.models.Availability
 import com.cereal.command.monitor.data.zalando.models.ZalandoProduct
 import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
@@ -12,9 +13,7 @@ import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import org.jsoup.Jsoup
 import org.jsoup.select.Elements
-import java.math.BigDecimal
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,8 +55,8 @@ class ZalandoItemRepository(
         return Page(null, items)
     }
 
-    private fun getProduct(url: String): Item {
-        val document = Jsoup.connect(url).get()
+    private suspend fun getProduct(url: String): Item {
+        val document = defaultJSoupClient(url, timeout, randomProxy?.invoke()).get()
         val jsonData =
             document
                 .select("script[type=application/ld+json]")
@@ -82,9 +81,9 @@ class ZalandoItemRepository(
                         it.sku,
                         "Size ${extractSize(it.sku) ?: "N/A"}",
                         listOf(
-                            ItemProperty.Stock(it.availability == "http://schema.org/InStock", null, null),
+                            ItemProperty.Stock(it.availability == Availability.InStock, null, null),
                             ItemProperty.Price(
-                                BigDecimal(it.price),
+                                it.price,
                                 Currency.fromCode(it.priceCurrency) ?: website.defaultCurrency,
                             ),
                         ),

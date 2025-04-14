@@ -1,5 +1,6 @@
 package com.cereal.command.monitor.data.common.webclient
 
+import com.cereal.command.monitor.data.common.useragent.DESKTOP_USER_AGENTS
 import com.cereal.sdk.models.proxy.Proxy
 import org.jsoup.Connection
 import org.jsoup.Jsoup
@@ -23,4 +24,5 @@ fun defaultJSoupClient(
         .ignoreContentType(true) // Prevents errors from non-HTML content
         .ignoreHttpErrors(true) // Avoids stopping on HTTP errors
         .followRedirects(true)
+        .userAgent(DESKTOP_USER_AGENTS.random())
 }
