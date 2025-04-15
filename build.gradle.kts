@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.22"
     id("com.gradleup.shadow") version "8.3.5"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("org.openapi.generator") version "7.12.0"
 }
 
 allprojects {
