@@ -24,6 +24,15 @@ buildscript {
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
+    ktlint {
+        filter {
+            exclude { element ->
+                val path = element.file.path
+                path.contains("stockx-api-client")
+            }
+        }
+    }
+
     if (name !in listOf("command", "command-monitoring", "script-common")) {
         apply(plugin = "com.gradleup.shadow")
 
@@ -86,4 +95,15 @@ tasks {
             languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
+}
+
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec.set("$rootDir/specs/stockx.json")
+    outputDir.set("$rootDir/stockx-api-client")
+    apiPackage.set("com.cereal.stockx.api")
+    invokerPackage.set("com.cereal.stockx.api.invoker")
+    modelPackage.set("com.cereal.stockx.api.model")
+    configOptions.put("dateLibrary", "java8")
+    configOptions.put("omitGradleWrapper", "true")
 }
