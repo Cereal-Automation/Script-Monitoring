@@ -99,12 +99,18 @@ class SnkrsApiClient(
         product.availableGtins.forEach { availableGtin ->
             val gtin = availableGtin.gtin
 
-            if (availableGtin.available) {
-                product.skus.forEach { sku ->
-                    if (sku.gtin == gtin) {
-                        sizes.add(Variant(sku.nikeSize, availableGtin.level != "OOS", availableGtin.level))
-                        return@forEach
-                    }
+            product.skus.forEach { sku ->
+                if (sku.gtin == gtin) {
+                    sizes.add(
+                        Variant(
+                            sku.id,
+                            sku.nikeSize,
+                            listOf(
+                                ItemProperty.Stock(availableGtin.available, null, availableGtin.level),
+                            ),
+                        ),
+                    )
+                    return@forEach
                 }
             }
         }
@@ -134,9 +140,9 @@ class SnkrsApiClient(
                 title,
                 description,
                 thumbnail,
+                variants = sizes,
                 properties =
                     listOf(
-                        ItemProperty.Variants(sizes),
                         ItemProperty.Price(price, currency),
                         ItemProperty.Custom("Style code", styleCode),
                     ),

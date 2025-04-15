@@ -156,7 +156,7 @@ class TestMonitorCommand {
                                 properties =
                                     listOf(
                                         ItemProperty.PublishDate(Clock.System.now()),
-                                        ItemProperty.AvailableStock(1),
+                                        ItemProperty.Stock(isInStock = true, amount = 1, null),
                                         ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
                             ),
@@ -167,7 +167,7 @@ class TestMonitorCommand {
                                 properties =
                                     listOf(
                                         ItemProperty.PublishDate(Clock.System.now()),
-                                        ItemProperty.AvailableStock(0),
+                                        ItemProperty.Stock(isInStock = false, amount = 0, null),
                                         ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
                             ),
@@ -178,7 +178,7 @@ class TestMonitorCommand {
                                 properties =
                                     listOf(
                                         ItemProperty.PublishDate(Clock.System.now().minus(60.seconds)),
-                                        ItemProperty.AvailableStock(0),
+                                        ItemProperty.Stock(isInStock = false, amount = 0, null),
                                         ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
                                     ),
                             ),
@@ -189,7 +189,7 @@ class TestMonitorCommand {
                                 properties =
                                     listOf(
                                         ItemProperty.PublishDate(Clock.System.now()),
-                                        ItemProperty.AvailableStock(1),
+                                        ItemProperty.Stock(isInStock = true, amount = 1, null),
                                         ItemProperty.Price(BigDecimal("50.00"), Currency.EUR),
                                     ),
                             ),

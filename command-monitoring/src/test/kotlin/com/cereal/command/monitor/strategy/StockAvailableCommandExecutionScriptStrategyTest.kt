@@ -2,7 +2,6 @@ package com.cereal.command.monitor.strategy
 
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
-import com.cereal.command.monitor.models.ItemProperty.AvailableStock
 import com.cereal.command.monitor.models.Variant
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -20,14 +19,14 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com/item/1",
                 name = "Item 1",
-                properties = listOf(AvailableStock(value = 10)),
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 10, null)),
             )
         val previousItem =
             Item(
                 id = "1",
                 url = "http://example.com/item/1",
                 name = "Item 1",
-                properties = listOf(AvailableStock(value = 0)),
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, null)),
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
@@ -41,14 +40,14 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "2",
                 url = "http://example.com/item/2",
                 name = "Item 2",
-                properties = listOf(AvailableStock(value = 0)),
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, null)),
             )
         val previousItem =
             Item(
                 id = "1",
                 url = "http://example.com/item/1",
                 name = "Item 1",
-                properties = listOf(AvailableStock(value = 10)),
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 10, null)),
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
@@ -62,14 +61,14 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties = listOf(AvailableStock(0)),
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, null)),
             )
         val currentItem =
             Item(
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties = listOf(AvailableStock(5)),
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, null)),
             )
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
@@ -84,14 +83,14 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties = listOf(AvailableStock(0)),
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, null)),
             )
         val currentItem =
             Item(
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties = listOf(AvailableStock(0)),
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, null)),
             )
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
@@ -106,13 +105,12 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties =
+                variants =
                     listOf(
-                        ItemProperty.Variants(
-                            value =
-                                listOf(
-                                    Variant("variant1", inStock = false, stockLevel = "OOS"),
-                                ),
+                        Variant(
+                            id = "variant1",
+                            name = "variant1",
+                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
                         ),
                     ),
             )
@@ -121,14 +119,13 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties =
+                variants =
                     listOf(
-                        ItemProperty.Variants(
-                            value =
-                                listOf(
-                                    Variant("variant1", inStock = false, stockLevel = "OOS"),
-                                    Variant("variant2", inStock = true, stockLevel = "HIGH"),
-                                ),
+                        Variant("1", "variant1", properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))),
+                        Variant(
+                            "2",
+                            "variant2",
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
             )
@@ -145,14 +142,9 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties =
+                variants =
                     listOf(
-                        ItemProperty.Variants(
-                            value =
-                                listOf(
-                                    Variant("variant1", inStock = false, stockLevel = "OOS"),
-                                ),
-                        ),
+                        Variant("1", "variant1", properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))),
                     ),
             )
         val currentItem =
@@ -160,13 +152,12 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties =
+                variants =
                     listOf(
-                        ItemProperty.Variants(
-                            value =
-                                listOf(
-                                    Variant("variant1", inStock = true, stockLevel = "HIGH"),
-                                ),
+                        Variant(
+                            "1",
+                            "variant1",
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
             )
@@ -183,13 +174,12 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties =
+                variants =
                     listOf(
-                        ItemProperty.Variants(
-                            value =
-                                listOf(
-                                    Variant("variant1", inStock = true, stockLevel = "HIGH"),
-                                ),
+                        Variant(
+                            "2",
+                            "variant2",
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
             )
@@ -198,13 +188,12 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 id = "1",
                 url = "http://example.com",
                 name = "Test Item",
-                properties =
+                variants =
                     listOf(
-                        ItemProperty.Variants(
-                            value =
-                                listOf(
-                                    Variant("variant1", inStock = true, stockLevel = "HIGH"),
-                                ),
+                        Variant(
+                            "2",
+                            "variant2",
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
             )

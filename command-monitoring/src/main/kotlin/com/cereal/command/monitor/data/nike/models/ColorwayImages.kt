@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ColorwayImages(
     @SerialName("portraitURL")
-    val portraitURL: String = "",
+    val portraitURL: String? = null,
     @SerialName("squarishURL")
-    val squarishURL: String = "",
+    val squarishURL: String? = null,
 )

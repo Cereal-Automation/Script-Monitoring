@@ -1,6 +1,6 @@
 package com.cereal.command.monitor.data.nike
 
-import com.cereal.command.monitor.fixtures.FakeLogRepository
+import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
