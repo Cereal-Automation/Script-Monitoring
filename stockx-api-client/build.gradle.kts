@@ -5,7 +5,7 @@ plugins {
 
 openApiGenerate {
     generatorName.set("kotlin")
-    inputSpec.set("specs/stockx.json")
+    inputSpec.set("$projectDir/specs/stockx.json")
     outputDir.set("${layout.buildDirectory.get()}/generated")
     apiPackage.set("com.cereal.stockx.api")
     invokerPackage.set("com.cereal.stockx.api.invoker")
