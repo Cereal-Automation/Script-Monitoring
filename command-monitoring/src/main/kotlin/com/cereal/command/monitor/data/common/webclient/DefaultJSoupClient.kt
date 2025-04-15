@@ -11,6 +11,7 @@ fun defaultJSoupClient(
     url: String,
     timeout: Duration,
     httpProxy: Proxy?,
+    userAgent: String = DESKTOP_USER_AGENTS.random(),
 ): Connection {
     val proxy =
         httpProxy?.let {
@@ -24,5 +25,5 @@ fun defaultJSoupClient(
         .ignoreContentType(true) // Prevents errors from non-HTML content
         .ignoreHttpErrors(true) // Avoids stopping on HTTP errors
         .followRedirects(true)
-        .userAgent(DESKTOP_USER_AGENTS.random())
+        .userAgent(userAgent)
 }

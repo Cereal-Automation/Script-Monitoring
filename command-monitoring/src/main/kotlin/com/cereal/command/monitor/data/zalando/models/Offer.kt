@@ -11,7 +11,7 @@ enum class Availability {
     InStock,
 
     @SerialName("http://schema.org/OutOfStock")
-    OutStock,
+    OutOfStock,
 }
 
 @Serializable

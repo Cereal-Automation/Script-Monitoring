@@ -1,6 +1,7 @@
 package com.cereal.command.monitor.data.zalando
 
 import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.command.monitor.data.common.useragent.DESKTOP_USER_AGENTS
 import com.cereal.command.monitor.data.common.webclient.defaultJSoupClient
 import com.cereal.command.monitor.data.zalando.models.Availability
 import com.cereal.command.monitor.data.zalando.models.ZalandoProduct
@@ -26,10 +27,13 @@ class ZalandoItemRepository(
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
     private val json = defaultJson()
+    private val userAgent = DESKTOP_USER_AGENTS.random()
 
     override suspend fun getItems(nextPageToken: String?): Page {
         val baseUrl = website.url.toHttpUrl()
-        val urlBuilder = baseUrl.newBuilder().addPathSegment(category.paths[website]!!)
+        val path =
+            category.paths[website] ?: throw IllegalStateException("No path found for category ${category.name} on website ${website.name}")
+        val urlBuilder = baseUrl.newBuilder().addPathSegment(path)
 
         val page = nextPageToken?.toInt() ?: 0
         urlBuilder.addQueryParameter("p", page.toString())
@@ -38,7 +42,7 @@ class ZalandoItemRepository(
             urlBuilder.addQueryParameter("order", "activation_date")
         }
 
-        val document = defaultJSoupClient(urlBuilder.build().toString(), timeout, randomProxy?.invoke()).get()
+        val document = defaultJSoupClient(urlBuilder.build().toString(), timeout, randomProxy?.invoke(), userAgent).get()
         val links: Elements = document.select("article.z5x6ht._0xLoFW.JT3_zV.mo6ZnF._78xIQ- > a")
 
         val items =
@@ -56,40 +60,44 @@ class ZalandoItemRepository(
     }
 
     private suspend fun getProduct(url: String): Item {
-        val document = defaultJSoupClient(url, timeout, randomProxy?.invoke()).get()
-        val jsonData =
-            document
-                .select("script[type=application/ld+json]")
-                .first()
-                ?.data() ?: throw RuntimeException("No product data found.")
+        try {
+            val document = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).get()
+            val jsonData =
+                document
+                    .select("script[type=application/ld+json]")
+                    .first()
+                    ?.data() ?: throw IllegalStateException("No product data found for URL: $url")
 
-        val product =
-            json
-                .decodeFromString<ZalandoProduct>(
-                    jsonData,
-                )
-
-        return Item(
-            id = product.sku,
-            url = url,
-            name = product.name,
-            description = product.description,
-            imageUrl = product.image.firstOrNull(),
-            variants =
-                product.offers.map {
-                    Variant(
-                        it.sku,
-                        "Size ${extractSize(it.sku) ?: "N/A"}",
-                        listOf(
-                            ItemProperty.Stock(it.availability == Availability.InStock, null, null),
-                            ItemProperty.Price(
-                                it.price,
-                                Currency.fromCode(it.priceCurrency) ?: website.defaultCurrency,
-                            ),
-                        ),
+            val product =
+                json
+                    .decodeFromString<ZalandoProduct>(
+                        jsonData,
                     )
-                },
-        )
+
+            return Item(
+                id = product.sku,
+                url = url,
+                name = product.name,
+                description = product.description,
+                imageUrl = product.image.firstOrNull(),
+                variants =
+                    product.offers.map {
+                        Variant(
+                            it.sku,
+                            "Size ${extractSize(it.sku) ?: "N/A"}",
+                            listOf(
+                                ItemProperty.Stock(it.availability == Availability.InStock, null, null),
+                                ItemProperty.Price(
+                                    it.price,
+                                    Currency.fromCode(it.priceCurrency) ?: website.defaultCurrency,
+                                ),
+                            ),
+                        )
+                    },
+            )
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to process product data from $url", e)
+        }
     }
 
     private fun extractSize(sku: String): String? {
