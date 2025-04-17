@@ -2487,7 +2487,7 @@
     "responses": {},
     "schemas": {
       "HttpStatusCodeLiteral": {
-        "type": "number",
+        "type": "integer",
         "enum": [
           100,
           101,
