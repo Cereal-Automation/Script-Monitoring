@@ -106,4 +106,5 @@ openApiGenerate {
     modelPackage.set("com.cereal.stockx.api.model")
     configOptions.put("dateLibrary", "java8")
     configOptions.put("omitGradleWrapper", "true")
+    configOptions.put("library", "jvm-ktor")
 }

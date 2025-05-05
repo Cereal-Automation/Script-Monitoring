@@ -15,10 +15,6 @@
 
 package com.cereal.stockx.api
 
-import java.io.IOException
-import okhttp3.Call
-import okhttp3.HttpUrl
-
 import com.cereal.stockx.api.model.CatalogIngestionInput
 import com.cereal.stockx.api.model.CurrencyCode
 import com.cereal.stockx.api.model.GetIngestionItemsReponse
@@ -30,667 +26,306 @@ import com.cereal.stockx.api.model.PublicApiError
 import com.cereal.stockx.api.model.Search
 import com.cereal.stockx.api.model.VariantMarketData
 
-import com.squareup.moshi.Json
+import org.openapitools.client.infrastructure.*
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.request.forms.formData
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.http.ParametersBuilder
 
-import org.openapitools.client.infrastructure.ApiClient
-import org.openapitools.client.infrastructure.ApiResponse
-import org.openapitools.client.infrastructure.ClientException
-import org.openapitools.client.infrastructure.ClientError
-import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.infrastructure.ServerError
-import org.openapitools.client.infrastructure.MultiValueMap
-import org.openapitools.client.infrastructure.PartConfig
-import org.openapitools.client.infrastructure.RequestConfig
-import org.openapitools.client.infrastructure.RequestMethod
-import org.openapitools.client.infrastructure.ResponseType
-import org.openapitools.client.infrastructure.Success
-import org.openapitools.client.infrastructure.toMultiValue
+    open class CatalogApi(
+    baseUrl: String = ApiClient.BASE_URL,
+    httpClientEngine: HttpClientEngine? = null,
+    httpClientConfig: ((HttpClientConfig<*>) -> Unit)? = null,
+    ) : ApiClient(
+        baseUrl,
+        httpClientEngine,
+        httpClientConfig,
+    ) {
 
-class CatalogApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = ApiClient.defaultClient) : ApiClient(basePath, client) {
-    companion object {
-        @JvmStatic
-        val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(ApiClient.baseUrlKey, "https://api.stockx.com/v2")
-        }
-    }
+        /**
+        * GET /catalog/products/{productId}
+        * Get single product
+        * Get product details API allows you to fetch details for a single product
+         * @param productId Unique identifier for a product 
+         * @return Product
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getProduct(productId: kotlin.String): HttpResponse<Product> {
 
-    /**
-     * GET /catalog/products/{productId}
-     * Get single product
-     * Get product details API allows you to fetch details for a single product
-     * @param productId Unique identifier for a product
-     * @return Product
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getProduct(productId: kotlin.String) : Product {
-        val localVarResponse = getProductWithHttpInfo(productId = productId)
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as Product
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
-            }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-    /**
-     * GET /catalog/products/{productId}
-     * Get single product
-     * Get product details API allows you to fetch details for a single product
-     * @param productId Unique identifier for a product
-     * @return ApiResponse<Product?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getProductWithHttpInfo(productId: kotlin.String) : ApiResponse<Product?> {
-        val localVariableConfig = getProductRequestConfig(productId = productId)
+            val localVariableQuery = mutableMapOf<String, List<String>>()
 
-        return request<Unit, Product>(
-            localVariableConfig
-        )
-    }
+            val localVariableHeaders = mutableMapOf<String, String>()
 
-    /**
-     * To obtain the request config of the operation getProduct
-     *
-     * @param productId Unique identifier for a product
-     * @return RequestConfig
-     */
-    fun getProductRequestConfig(productId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
-
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/products/{productId}".replace("{"+"productId"+"}", encodeURIComponent(productId.toString())),
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/products/{productId}".replace("{" + "productId" + "}", "$productId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /catalog/products/{productId}/market-data
-     * Get market data for a product
-     * Get Market Data API allows you to obtain basic market data - the highest Bid and lowest Ask amount for all variants of given product. You may notice discrepancies in the values for sellFasterAmount and earnMoreAmount between this and the ‘Get market data for a variant&#x60; API. This is because this API does not take into account any live asks you currently have for each individual variant, while the &#39;Get market data for a variant’ API does.&lt;br/&gt; &lt;b&gt;Note:&lt;/b&gt; &lt;li&gt;Based on your region, the response object may vary.&lt;/li&gt;&lt;/ul&gt;
-     * @param productId Unique identifier for a product
-     * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
-     * @return kotlin.collections.List<VariantMarketData>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getProductMarketData(productId: kotlin.String, currencyCode: CurrencyCode? = null) : kotlin.collections.List<VariantMarketData> {
-        val localVarResponse = getProductMarketDataWithHttpInfo(productId = productId, currencyCode = currencyCode)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.List<VariantMarketData>
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /catalog/products/{productId}/market-data
-     * Get market data for a product
-     * Get Market Data API allows you to obtain basic market data - the highest Bid and lowest Ask amount for all variants of given product. You may notice discrepancies in the values for sellFasterAmount and earnMoreAmount between this and the ‘Get market data for a variant&#x60; API. This is because this API does not take into account any live asks you currently have for each individual variant, while the &#39;Get market data for a variant’ API does.&lt;br/&gt; &lt;b&gt;Note:&lt;/b&gt; &lt;li&gt;Based on your region, the response object may vary.&lt;/li&gt;&lt;/ul&gt;
-     * @param productId Unique identifier for a product
-     * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
-     * @return ApiResponse<kotlin.collections.List<VariantMarketData>?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getProductMarketDataWithHttpInfo(productId: kotlin.String, currencyCode: CurrencyCode?) : ApiResponse<kotlin.collections.List<VariantMarketData>?> {
-        val localVariableConfig = getProductMarketDataRequestConfig(productId = productId, currencyCode = currencyCode)
+        /**
+        * GET /catalog/products/{productId}/market-data
+        * Get market data for a product
+        * Get Market Data API allows you to obtain basic market data - the highest Bid and lowest Ask amount for all variants of given product. You may notice discrepancies in the values for sellFasterAmount and earnMoreAmount between this and the ‘Get market data for a variant&#x60; API. This is because this API does not take into account any live asks you currently have for each individual variant, while the &#39;Get market data for a variant’ API does.&lt;br/&gt; &lt;b&gt;Note:&lt;/b&gt; &lt;li&gt;Based on your region, the response object may vary.&lt;/li&gt;&lt;/ul&gt;
+         * @param productId Unique identifier for a product 
+         * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
+         * @return kotlin.collections.List<VariantMarketData>
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getProductMarketData(productId: kotlin.String, currencyCode: CurrencyCode?): HttpResponse<kotlin.collections.List<VariantMarketData>> {
 
-        return request<Unit, kotlin.collections.List<VariantMarketData>>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getProductMarketData
-     *
-     * @param productId Unique identifier for a product
-     * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
-     * @return RequestConfig
-     */
-    fun getProductMarketDataRequestConfig(productId: kotlin.String, currencyCode: CurrencyCode?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (currencyCode != null) {
-                    put("currencyCode", listOf(currencyCode.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/products/{productId}/market-data".replace("{"+"productId"+"}", encodeURIComponent(productId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            currencyCode?.apply { localVariableQuery["currencyCode"] = listOf("$currencyCode") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/products/{productId}/market-data".replace("{" + "productId" + "}", "$productId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /catalog/products/{productId}/variants/{variantId}
-     * Get single product variant
-     * Get variant details API allows you to fetch the details of a single variant for a given product. If the product id doesn&#39;t contain the specified variant, a validation error will be returned.
-     * @param productId Unique identifier for a product
-     * @param variantId Unique identifier for a products variant
-     * @return ProductVariantDetails
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getVariant(productId: kotlin.String, variantId: kotlin.String) : ProductVariantDetails {
-        val localVarResponse = getVariantWithHttpInfo(productId = productId, variantId = variantId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ProductVariantDetails
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /catalog/products/{productId}/variants/{variantId}
-     * Get single product variant
-     * Get variant details API allows you to fetch the details of a single variant for a given product. If the product id doesn&#39;t contain the specified variant, a validation error will be returned.
-     * @param productId Unique identifier for a product
-     * @param variantId Unique identifier for a products variant
-     * @return ApiResponse<ProductVariantDetails?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getVariantWithHttpInfo(productId: kotlin.String, variantId: kotlin.String) : ApiResponse<ProductVariantDetails?> {
-        val localVariableConfig = getVariantRequestConfig(productId = productId, variantId = variantId)
+        /**
+        * GET /catalog/products/{productId}/variants/{variantId}
+        * Get single product variant
+        * Get variant details API allows you to fetch the details of a single variant for a given product. If the product id doesn&#39;t contain the specified variant, a validation error will be returned.
+         * @param productId Unique identifier for a product 
+         * @param variantId Unique identifier for a products variant 
+         * @return ProductVariantDetails
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getVariant(productId: kotlin.String, variantId: kotlin.String): HttpResponse<ProductVariantDetails> {
 
-        return request<Unit, ProductVariantDetails>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getVariant
-     *
-     * @param productId Unique identifier for a product
-     * @param variantId Unique identifier for a products variant
-     * @return RequestConfig
-     */
-    fun getVariantRequestConfig(productId: kotlin.String, variantId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/products/{productId}/variants/{variantId}".replace("{"+"productId"+"}", encodeURIComponent(productId.toString())).replace("{"+"variantId"+"}", encodeURIComponent(variantId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/products/{productId}/variants/{variantId}".replace("{" + "productId" + "}", "$productId").replace("{" + "variantId" + "}", "$variantId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /catalog/products/{productId}/variants/{variantId}/market-data
-     * Get market data for a variant
-     * Get Market Data API allows you to obtain basic market data - the highest Bid and lowest Ask amount for a given variant. If the product id doesn&#39;t contain the specified variant, a validation error will be returned.&lt;br/&gt; &lt;b&gt;Note:&lt;/b&gt; &lt;ul&gt;&lt;li&gt;We have deprecated the country param as the market data will now be based on your market.&lt;/li&gt; &lt;li&gt;Based on your region, the response object may vary.&lt;/li&gt;&lt;/ul&gt;
-     * @param productId Unique identifier for a product
-     * @param variantId Unique identifier for a products variant
-     * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
-     * @param country ISO Alpha-2 code representing the country you need the market data for. If not provided, will default to your country. (optional)
-     * @return VariantMarketData
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getVariantMarketData(productId: kotlin.String, variantId: kotlin.String, currencyCode: CurrencyCode? = null, country: kotlin.String? = null) : VariantMarketData {
-        val localVarResponse = getVariantMarketDataWithHttpInfo(productId = productId, variantId = variantId, currencyCode = currencyCode, country = country)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as VariantMarketData
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /catalog/products/{productId}/variants/{variantId}/market-data
-     * Get market data for a variant
-     * Get Market Data API allows you to obtain basic market data - the highest Bid and lowest Ask amount for a given variant. If the product id doesn&#39;t contain the specified variant, a validation error will be returned.&lt;br/&gt; &lt;b&gt;Note:&lt;/b&gt; &lt;ul&gt;&lt;li&gt;We have deprecated the country param as the market data will now be based on your market.&lt;/li&gt; &lt;li&gt;Based on your region, the response object may vary.&lt;/li&gt;&lt;/ul&gt;
-     * @param productId Unique identifier for a product
-     * @param variantId Unique identifier for a products variant
-     * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
-     * @param country ISO Alpha-2 code representing the country you need the market data for. If not provided, will default to your country. (optional)
-     * @return ApiResponse<VariantMarketData?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getVariantMarketDataWithHttpInfo(productId: kotlin.String, variantId: kotlin.String, currencyCode: CurrencyCode?, country: kotlin.String?) : ApiResponse<VariantMarketData?> {
-        val localVariableConfig = getVariantMarketDataRequestConfig(productId = productId, variantId = variantId, currencyCode = currencyCode, country = country)
+        /**
+        * GET /catalog/products/{productId}/variants/{variantId}/market-data
+        * Get market data for a variant
+        * Get Market Data API allows you to obtain basic market data - the highest Bid and lowest Ask amount for a given variant. If the product id doesn&#39;t contain the specified variant, a validation error will be returned.&lt;br/&gt; &lt;b&gt;Note:&lt;/b&gt; &lt;ul&gt;&lt;li&gt;We have deprecated the country param as the market data will now be based on your market.&lt;/li&gt; &lt;li&gt;Based on your region, the response object may vary.&lt;/li&gt;&lt;/ul&gt;
+         * @param productId Unique identifier for a product 
+         * @param variantId Unique identifier for a products variant 
+         * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
+         * @param country ISO Alpha-2 code representing the country you need the market data for. If not provided, will default to your country. (optional)
+         * @return VariantMarketData
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getVariantMarketData(productId: kotlin.String, variantId: kotlin.String, currencyCode: CurrencyCode?, country: kotlin.String?): HttpResponse<VariantMarketData> {
 
-        return request<Unit, VariantMarketData>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getVariantMarketData
-     *
-     * @param productId Unique identifier for a product
-     * @param variantId Unique identifier for a products variant
-     * @param currencyCode The currency code this product is being listed in.&lt;br&gt;&lt;br&gt;Available values: \&quot;AUD\&quot;, \&quot;CAD\&quot;, \&quot;CHF\&quot;, \&quot;EUR\&quot;, \&quot;GBP\&quot;, \&quot;HKD\&quot;, \&quot;JPY\&quot;, \&quot;KRW\&quot;, \&quot;MXN\&quot;, \&quot;NZD\&quot;, \&quot;SGD\&quot;, \&quot;USD\&quot; (optional)
-     * @param country ISO Alpha-2 code representing the country you need the market data for. If not provided, will default to your country. (optional)
-     * @return RequestConfig
-     */
-    fun getVariantMarketDataRequestConfig(productId: kotlin.String, variantId: kotlin.String, currencyCode: CurrencyCode?, country: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (currencyCode != null) {
-                    put("currencyCode", listOf(currencyCode.toString()))
-                }
-                if (country != null) {
-                    put("country", listOf(country.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/products/{productId}/variants/{variantId}/market-data".replace("{"+"productId"+"}", encodeURIComponent(productId.toString())).replace("{"+"variantId"+"}", encodeURIComponent(variantId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            currencyCode?.apply { localVariableQuery["currencyCode"] = listOf("$currencyCode") }
+            country?.apply { localVariableQuery["country"] = listOf("$country") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/products/{productId}/variants/{variantId}/market-data".replace("{" + "productId" + "}", "$productId").replace("{" + "variantId" + "}", "$variantId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /catalog/products/{productId}/variants
-     * Get all product variants
-     * Get product variants API allows you to get all the different variants of a given product.
-     * @param productId Unique identifier for a product
-     * @return kotlin.collections.List<ProductVariant>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getVariants(productId: kotlin.String) : kotlin.collections.List<ProductVariant> {
-        val localVarResponse = getVariantsWithHttpInfo(productId = productId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.List<ProductVariant>
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /catalog/products/{productId}/variants
-     * Get all product variants
-     * Get product variants API allows you to get all the different variants of a given product.
-     * @param productId Unique identifier for a product
-     * @return ApiResponse<kotlin.collections.List<ProductVariant>?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getVariantsWithHttpInfo(productId: kotlin.String) : ApiResponse<kotlin.collections.List<ProductVariant>?> {
-        val localVariableConfig = getVariantsRequestConfig(productId = productId)
+        /**
+        * GET /catalog/products/{productId}/variants
+        * Get all product variants
+        * Get product variants API allows you to get all the different variants of a given product.
+         * @param productId Unique identifier for a product 
+         * @return kotlin.collections.List<ProductVariant>
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getVariants(productId: kotlin.String): HttpResponse<kotlin.collections.List<ProductVariant>> {
 
-        return request<Unit, kotlin.collections.List<ProductVariant>>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getVariants
-     *
-     * @param productId Unique identifier for a product
-     * @return RequestConfig
-     */
-    fun getVariantsRequestConfig(productId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/products/{productId}/variants".replace("{"+"productId"+"}", encodeURIComponent(productId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/products/{productId}/variants".replace("{" + "productId" + "}", "$productId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * POST /catalog/ingestion
-     * Post - Create a Catalog Ingestion Job (Beta)
-     * &lt;b&gt;Seamlessly Integrate Catalog Data into Our Platform.&lt;/b&gt;&lt;br&gt;To create an ingestion job, you need to provide a set of catalog attributes. This API is asynchronous and will return an IngestionID that will require polling.
-     * @param catalogIngestionInput 
-     * @return IngestionControllerResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun ingestion(catalogIngestionInput: CatalogIngestionInput) : IngestionControllerResponse {
-        val localVarResponse = ingestionWithHttpInfo(catalogIngestionInput = catalogIngestionInput)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as IngestionControllerResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * POST /catalog/ingestion
-     * Post - Create a Catalog Ingestion Job (Beta)
-     * &lt;b&gt;Seamlessly Integrate Catalog Data into Our Platform.&lt;/b&gt;&lt;br&gt;To create an ingestion job, you need to provide a set of catalog attributes. This API is asynchronous and will return an IngestionID that will require polling.
-     * @param catalogIngestionInput 
-     * @return ApiResponse<IngestionControllerResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun ingestionWithHttpInfo(catalogIngestionInput: CatalogIngestionInput) : ApiResponse<IngestionControllerResponse?> {
-        val localVariableConfig = ingestionRequestConfig(catalogIngestionInput = catalogIngestionInput)
+        /**
+        * POST /catalog/ingestion
+        * Post - Create a Catalog Ingestion Job (Beta)
+        * &lt;b&gt;Seamlessly Integrate Catalog Data into Our Platform.&lt;/b&gt;&lt;br&gt;To create an ingestion job, you need to provide a set of catalog attributes. This API is asynchronous and will return an IngestionID that will require polling.
+         * @param catalogIngestionInput  
+         * @return IngestionControllerResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun ingestion(catalogIngestionInput: CatalogIngestionInput): HttpResponse<IngestionControllerResponse> {
 
-        return request<CatalogIngestionInput, IngestionControllerResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation ingestion
-     *
-     * @param catalogIngestionInput 
-     * @return RequestConfig
-     */
-    fun ingestionRequestConfig(catalogIngestionInput: CatalogIngestionInput) : RequestConfig<CatalogIngestionInput> {
-        val localVariableBody = catalogIngestionInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = catalogIngestionInput
 
-        return RequestConfig(
-            method = RequestMethod.POST,
-            path = "/catalog/ingestion",
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.POST,
+            "/catalog/ingestion",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /catalog/ingestion/{ingestionId}
-     * Get - Catalog Ingestion Status (Beta)
-     * &lt;b&gt;Monitor Your Data Integration Status.&lt;/b&gt;&lt;br&gt;Once you create an ingestion job successfully, you need to poll the get catalog ingestion API to track the progress, whether the entire job or individual updates.
-     * @param ingestionId Unique ID used to return the status of an ingestion job.
-     * @param status The status of the ingestion job. In review, Completed, Rejected. (optional)
-     * @return GetIngestionItemsReponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun ingestionItems(ingestionId: kotlin.String, status: kotlin.String? = null) : GetIngestionItemsReponse {
-        val localVarResponse = ingestionItemsWithHttpInfo(ingestionId = ingestionId, status = status)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetIngestionItemsReponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /catalog/ingestion/{ingestionId}
-     * Get - Catalog Ingestion Status (Beta)
-     * &lt;b&gt;Monitor Your Data Integration Status.&lt;/b&gt;&lt;br&gt;Once you create an ingestion job successfully, you need to poll the get catalog ingestion API to track the progress, whether the entire job or individual updates.
-     * @param ingestionId Unique ID used to return the status of an ingestion job.
-     * @param status The status of the ingestion job. In review, Completed, Rejected. (optional)
-     * @return ApiResponse<GetIngestionItemsReponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun ingestionItemsWithHttpInfo(ingestionId: kotlin.String, status: kotlin.String?) : ApiResponse<GetIngestionItemsReponse?> {
-        val localVariableConfig = ingestionItemsRequestConfig(ingestionId = ingestionId, status = status)
+        /**
+        * GET /catalog/ingestion/{ingestionId}
+        * Get - Catalog Ingestion Status (Beta)
+        * &lt;b&gt;Monitor Your Data Integration Status.&lt;/b&gt;&lt;br&gt;Once you create an ingestion job successfully, you need to poll the get catalog ingestion API to track the progress, whether the entire job or individual updates.
+         * @param ingestionId Unique ID used to return the status of an ingestion job. 
+         * @param status The status of the ingestion job. In review, Completed, Rejected. (optional)
+         * @return GetIngestionItemsReponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun ingestionItems(ingestionId: kotlin.String, status: kotlin.String?): HttpResponse<GetIngestionItemsReponse> {
 
-        return request<Unit, GetIngestionItemsReponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation ingestionItems
-     *
-     * @param ingestionId Unique ID used to return the status of an ingestion job.
-     * @param status The status of the ingestion job. In review, Completed, Rejected. (optional)
-     * @return RequestConfig
-     */
-    fun ingestionItemsRequestConfig(ingestionId: kotlin.String, status: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (status != null) {
-                    put("status", listOf(status.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/ingestion/{ingestionId}".replace("{"+"ingestionId"+"}", encodeURIComponent(ingestionId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            status?.apply { localVariableQuery["status"] = listOf("$status") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/ingestion/{ingestionId}".replace("{" + "ingestionId" + "}", "$ingestionId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /catalog/search
-     * Search catalog
-     * Search catalog API allows you to search the StockX catalog via freeform text. The output is a paginated list of products that match the search term provided in the API call.
-     * @param query Specifies a keyword search as a String.
-     * @param pageNumber Requested page number. By default, the page number starts at 1. (optional)
-     * @param pageSize The number of products to return. By default, the page size starts at 1. (optional)
-     * @return Search
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun search(query: kotlin.String, pageNumber: kotlin.Int? = null, pageSize: kotlin.Int? = null) : Search {
-        val localVarResponse = searchWithHttpInfo(query = query, pageNumber = pageNumber, pageSize = pageSize)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as Search
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /catalog/search
-     * Search catalog
-     * Search catalog API allows you to search the StockX catalog via freeform text. The output is a paginated list of products that match the search term provided in the API call.
-     * @param query Specifies a keyword search as a String.
-     * @param pageNumber Requested page number. By default, the page number starts at 1. (optional)
-     * @param pageSize The number of products to return. By default, the page size starts at 1. (optional)
-     * @return ApiResponse<Search?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun searchWithHttpInfo(query: kotlin.String, pageNumber: kotlin.Int?, pageSize: kotlin.Int?) : ApiResponse<Search?> {
-        val localVariableConfig = searchRequestConfig(query = query, pageNumber = pageNumber, pageSize = pageSize)
+        /**
+        * GET /catalog/search
+        * Search catalog
+        * Search catalog API allows you to search the StockX catalog via freeform text. The output is a paginated list of products that match the search term provided in the API call.
+         * @param query Specifies a keyword search as a String. 
+         * @param pageNumber Requested page number. By default, the page number starts at 1. (optional)
+         * @param pageSize The number of products to return. By default, the page size starts at 1. (optional)
+         * @return Search
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun search(query: kotlin.String, pageNumber: kotlin.Int?, pageSize: kotlin.Int?): HttpResponse<Search> {
 
-        return request<Unit, Search>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation search
-     *
-     * @param query Specifies a keyword search as a String.
-     * @param pageNumber Requested page number. By default, the page number starts at 1. (optional)
-     * @param pageSize The number of products to return. By default, the page size starts at 1. (optional)
-     * @return RequestConfig
-     */
-    fun searchRequestConfig(query: kotlin.String, pageNumber: kotlin.Int?, pageSize: kotlin.Int?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                put("query", listOf(query.toString()))
-                if (pageNumber != null) {
-                    put("pageNumber", listOf(pageNumber.toString()))
-                }
-                if (pageSize != null) {
-                    put("pageSize", listOf(pageSize.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/catalog/search",
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            query?.apply { localVariableQuery["query"] = listOf("$query") }
+            pageNumber?.apply { localVariableQuery["pageNumber"] = listOf("$pageNumber") }
+            pageSize?.apply { localVariableQuery["pageSize"] = listOf("$pageSize") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/catalog/search",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
+            }
 
-    private fun encodeURIComponent(uriComponent: kotlin.String): kotlin.String =
-        HttpUrl.Builder().scheme("http").host("localhost").addPathSegment(uriComponent).build().encodedPathSegments[0]
-}
+        }
