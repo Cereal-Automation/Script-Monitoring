@@ -3,6 +3,7 @@ package com.cereal.zalando
 import com.cereal.command.monitor.MonitorCommandFactory
 import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
+import com.cereal.command.monitor.strategy.MonitorStrategyFactory
 import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.command.monitor.strategy.PriceDropMonitorStrategy
 import com.cereal.script.CommandExecutionScript
@@ -82,10 +83,10 @@ class ZalandoScript : Script<ZalandoConfiguration> {
     private fun buildMonitorStrategies(configuration: ZalandoConfiguration): List<MonitorStrategy> =
         buildList {
             if (configuration.monitorNewProduct()) {
-                add(NewItemAvailableMonitorStrategy(Clock.System.now()))
+                add(MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now()))
             }
             if (configuration.monitorPriceDrops()) {
-                add(PriceDropMonitorStrategy())
+                add(MonitorStrategyFactory.priceDropMonitorStrategy())
             }
         }
 }

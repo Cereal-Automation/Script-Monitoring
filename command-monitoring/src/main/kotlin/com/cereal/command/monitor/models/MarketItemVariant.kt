@@ -1,8 +1,6 @@
 package com.cereal.command.monitor.models
 
-data class Variant(
+data class MarketItemVariant(
     val id: String,
-    val name: String,
-    val styleId: String?,
     val properties: List<ItemProperty>,
 )

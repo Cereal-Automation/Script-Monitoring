@@ -110,6 +110,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                         Variant(
                             id = "variant1",
                             name = "variant1",
+                            styleId = null,
                             properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
                         ),
                     ),
@@ -121,10 +122,16 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 name = "Test Item",
                 variants =
                     listOf(
-                        Variant("1", "variant1", properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))),
+                        Variant(
+                            "1",
+                            "variant1",
+                            styleId = null,
+                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))
+                        ),
                         Variant(
                             "2",
                             "variant2",
+                            styleId = null,
                             properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
@@ -144,7 +151,12 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                 name = "Test Item",
                 variants =
                     listOf(
-                        Variant("1", "variant1", properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))),
+                        Variant(
+                            "1",
+                            "variant1",
+                            styleId = null,
+                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))
+                        ),
                     ),
             )
         val currentItem =
@@ -157,6 +169,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                         Variant(
                             "1",
                             "variant1",
+                            styleId = null,
                             properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
@@ -179,6 +192,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                         Variant(
                             "2",
                             "variant2",
+                            styleId = null,
                             properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),
@@ -193,6 +207,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                         Variant(
                             "2",
                             "variant2",
+                            styleId = null,
                             properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
                         ),
                     ),

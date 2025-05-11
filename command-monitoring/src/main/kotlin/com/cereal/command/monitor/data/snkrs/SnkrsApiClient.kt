@@ -105,6 +105,7 @@ class SnkrsApiClient(
                         Variant(
                             sku.id,
                             sku.nikeSize,
+                            availableGtin.styleColor,
                             listOf(
                                 ItemProperty.Stock(availableGtin.available, null, availableGtin.level),
                             ),
