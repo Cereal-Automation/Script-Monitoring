@@ -8,7 +8,9 @@ class MarketPriceComparisonStrategy(private val marketItemRepository: MarketItem
         item: Item,
         previousItem: Item?,
     ): String? {
-        throw NotImplementedError()
+        // TODO: Implement market price comparison logic
+        // TODO: Returning null for now (no notification)
+        return null
     }
 
     override fun requiresBaseline(): Boolean = false

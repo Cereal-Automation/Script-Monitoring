@@ -30,7 +30,7 @@ class StockXMarketItemRepository(private val catalogApi: CatalogApi) : MarketIte
             val itemUrl = "https://stockx.com/${stockxProduct.urlKey}"
 
             val marketItemVariants =
-                variants.body().map { stockxVariant ->
+                variants.body().mapNotNull { stockxVariant ->
                     val marketData =
                         catalogApi.getVariantMarketData(
                             productId = stockxVariant.productId,
@@ -39,7 +39,7 @@ class StockXMarketItemRepository(private val catalogApi: CatalogApi) : MarketIte
                             country = null,
                         )
 
-                    val highestBid = marketData.body().highestBidAmount ?: return null
+                    val highestBid = marketData.body().highestBidAmount ?: return@mapNotNull null
                     val highestBidAmountItem = BigDecimal(highestBid)
                     val currencyCode = marketData.body().currencyCode
                     val currency = Currency.fromCode(currencyCode) ?: throw UnknownCurrencyException(currencyCode)

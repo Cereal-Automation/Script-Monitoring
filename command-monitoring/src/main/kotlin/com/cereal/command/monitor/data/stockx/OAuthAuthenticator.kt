@@ -14,8 +14,10 @@ class OAuthAuthenticator(
         response: Response,
     ): Request? =
         runBlocking {
-            // If we already tried to refresh the token, give up
-            if (response.code == 401) {
+            // Avoid infinite retry loops by checking if we just refreshed
+            val previousAuthHeader = response.request.header("Authorization")
+            if (previousAuthHeader != null && previousAuthHeader.startsWith("Bearer ") && response.code == 401) {
+                // If we already tried with a token and still got 401, give up
                 null
             } else {
                 // Try to refresh the token using the refresh token
