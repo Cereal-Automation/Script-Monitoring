@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.junit5.JUnit5Asserter.assertNotNull
-import kotlin.test.junit5.JUnit5Asserter.fail
 
 class TestZalandoItemRepository {
     @Tag("integration")
@@ -22,16 +21,12 @@ class TestZalandoItemRepository {
                     data.type,
                 )
 
-            try {
-                val result = repository.getItems(null)
-                assert(result.items.isNotEmpty()) { "Expected non-empty items list" }
+            val result = repository.getItems(null)
+            assert(result.items.isNotEmpty()) { "Expected non-empty items list" }
 
-                result.items.forEach { item ->
-                    assertNotNull(item.id) { "Item ID should not be null" }
-                    assertNotNull(item.name) { "Item name should not be null" }
-                }
-            } catch (e: Exception) {
-                fail("Repository threw unexpected exception: ${e.message}", e)
+            result.items.forEach { item ->
+                assertNotNull(item.id) { "Item ID should not be null" }
+                assertNotNull(item.name) { "Item name should not be null" }
             }
         }
 

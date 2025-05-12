@@ -24,7 +24,7 @@ class ZalandoItemRepository(
     private val website: ZalandoWebsite,
     private val monitorType: ZalandoMonitorType,
     private val randomProxy: RandomProxy? = null,
-    private val timeout: Duration = 20.seconds,
+    private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
     private val json = defaultJson()
     private val userAgent = DESKTOP_USER_AGENTS.random()
@@ -32,7 +32,8 @@ class ZalandoItemRepository(
     override suspend fun getItems(nextPageToken: String?): Page {
         val baseUrl = website.url.toHttpUrl()
         val path =
-            category.paths[website] ?: throw IllegalStateException("No path found for category ${category.name} on website ${website.name}")
+            category.paths[website]
+                ?: throw IllegalStateException("No path found for category ${category.name} on website ${website.name}")
         val urlBuilder = baseUrl.newBuilder().addPathSegment(path)
 
         val page = nextPageToken?.toInt() ?: 0
@@ -42,7 +43,8 @@ class ZalandoItemRepository(
             urlBuilder.addQueryParameter("order", "activation_date")
         }
 
-        val document = defaultJSoupClient(urlBuilder.build().toString(), timeout, randomProxy?.invoke(), userAgent).get()
+        val document =
+            defaultJSoupClient(urlBuilder.build().toString(), timeout, randomProxy?.invoke(), userAgent).get()
         val links: Elements = document.select("article.z5x6ht._0xLoFW.JT3_zV.mo6ZnF._78xIQ- > a")
 
         val items =
