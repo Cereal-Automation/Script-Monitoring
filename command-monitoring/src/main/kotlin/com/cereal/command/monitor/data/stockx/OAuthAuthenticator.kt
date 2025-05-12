@@ -7,20 +7,23 @@ import okhttp3.Response
 import okhttp3.Route
 
 class OAuthAuthenticator(
-    private val tokenProvider: OAuthTokenProvider
+    private val tokenProvider: OAuthTokenProvider,
 ) : Authenticator {
-    override fun authenticate(route: Route?, response: Response): Request? = runBlocking {
-        // If we already tried to refresh the token, give up
-        if (response.code == 401) {
-             null
-        } else {
-            // Try to refresh the token using the refresh token
-            tokenProvider.refreshToken()?.let {
-                response.request.newBuilder()
-                    .header("Authorization", "Bearer $it")
-                    .build()
+    override fun authenticate(
+        route: Route?,
+        response: Response,
+    ): Request? =
+        runBlocking {
+            // If we already tried to refresh the token, give up
+            if (response.code == 401) {
+                null
+            } else {
+                // Try to refresh the token using the refresh token
+                tokenProvider.refreshToken()?.let {
+                    response.request.newBuilder()
+                        .header("Authorization", "Bearer $it")
+                        .build()
+                }
             }
         }
-
-    }
 }

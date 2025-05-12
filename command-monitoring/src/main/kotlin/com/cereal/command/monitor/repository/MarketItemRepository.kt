@@ -4,7 +4,6 @@ import com.cereal.command.monitor.models.MarketItem
 import com.cereal.command.monitor.models.SearchCriteria
 
 interface MarketItemRepository {
-
     /**
      * Searches for an item based on the provided search criteria.
      *

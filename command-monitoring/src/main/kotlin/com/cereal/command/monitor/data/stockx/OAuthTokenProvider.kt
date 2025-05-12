@@ -14,8 +14,8 @@ import okhttp3.Request
 data class OAuthTokenResponse(
     val access_token: String,
     val token_type: String,
-    val expires_in: Int, // in seconds
-    val refresh_token: String?
+    val expires_in: Int,
+    val refresh_token: String?,
 )
 
 class OAuthTokenProvider(
@@ -25,65 +25,71 @@ class OAuthTokenProvider(
     private val redirectUri: String,
     private val tokenUrl: String,
     private val authorizationUrl: String,
-    private var refreshToken: String? = null
+    private var refreshToken: String? = null,
 ) {
     private var currentToken: String? = null
     private var expiresAt: Long = 0L
 
-    suspend fun fetchTokenWithAuthorizationCode(code: String): String = withContext(Dispatchers.IO) {
-        val body = FormBody.Builder()
-            .add("client_id", clientId)
-            .add("client_secret", clientSecret)
-            .add("code", code)
-            .add("redirect_uri", redirectUri)
-            .add("grant_type", "authorization_code")
-            .build()
+    suspend fun fetchTokenWithAuthorizationCode(code: String): String =
+        withContext(Dispatchers.IO) {
+            val body =
+                FormBody.Builder()
+                    .add("client_id", clientId)
+                    .add("client_secret", clientSecret)
+                    .add("code", code)
+                    .add("redirect_uri", redirectUri)
+                    .add("grant_type", "authorization_code")
+                    .build()
 
-        val tokenRequest = Request.Builder()
-            .url(tokenUrl)
-            .post(body)
-            .build()
+            val tokenRequest =
+                Request.Builder()
+                    .url(tokenUrl)
+                    .post(body)
+                    .build()
 
-        val tokenResponse = OkHttpClient().newCall(tokenRequest).execute()
+            val tokenResponse = OkHttpClient().newCall(tokenRequest).execute()
 
-        if (!tokenResponse.isSuccessful) throw Exception("Failed to fetch token")
+            if (!tokenResponse.isSuccessful) throw Exception("Failed to fetch token")
 
-        val json = tokenResponse.body?.string() ?: ""
-        val tokenData = Json.decodeFromString<OAuthTokenResponse>(json)
+            val json = tokenResponse.body?.string() ?: ""
+            val tokenData = Json.decodeFromString<OAuthTokenResponse>(json)
 
-        currentToken = tokenData.access_token
-        refreshToken = tokenData.refresh_token
-        expiresAt = System.currentTimeMillis() + (tokenData.expires_in * 1000)
+            currentToken = tokenData.access_token
+            refreshToken = tokenData.refresh_token
+            expiresAt = System.currentTimeMillis() + (tokenData.expires_in * 1000)
 
-        currentToken!!
-    }
+            currentToken!!
+        }
 
-    suspend fun refreshToken(): String? = withContext(Dispatchers.IO) {
-        val body = FormBody.Builder()
-            .add("client_id", clientId)
-            .add("client_secret", clientSecret)
-            .add("refresh_token", refreshToken ?: "")
-            .add("grant_type", "refresh_token")
-            .build()
+    suspend fun refreshToken(): String? =
+        withContext(Dispatchers.IO) {
+            val body =
+                FormBody.Builder()
+                    .add("client_id", clientId)
+                    .add("client_secret", clientSecret)
+                    .add("refresh_token", refreshToken ?: "")
+                    .add("grant_type", "refresh_token")
+                    .build()
 
-        val tokenRequest = Request.Builder()
-            .url(tokenUrl)
-            .post(body)
-            .build()
+            val tokenRequest =
+                Request.Builder()
+                    .url(tokenUrl)
+                    .post(body)
+                    .build()
 
-        val tokenResponse = OkHttpClient().newCall(tokenRequest).execute()
+            val tokenResponse = OkHttpClient().newCall(tokenRequest).execute()
 
-        if (!tokenResponse.isSuccessful) throw Exception("Failed to refresh token")
+            if (!tokenResponse.isSuccessful) throw Exception("Failed to refresh token")
 
-        val json = tokenResponse.body?.string() ?: ""
-        val tokenData = Json.decodeFromString<OAuthTokenResponse>(json)
+            val json = tokenResponse.body?.string() ?: ""
+            val tokenData = Json.decodeFromString<OAuthTokenResponse>(json)
 
-        currentToken = tokenData.access_token
-        refreshToken = tokenData.refresh_token
-        expiresAt = System.currentTimeMillis() + (tokenData.expires_in * 1000)
+            currentToken = tokenData.access_token
+            refreshToken = tokenData.refresh_token
+            expiresAt = System.currentTimeMillis() + (tokenData.expires_in * 1000)
 
-        currentToken!!
-    }
+            currentToken!!
+        }
 
     suspend fun getToken(): String? {
         // If no token, initiate the Authorization Code Flow or refresh token if expired
@@ -99,14 +105,14 @@ class OAuthTokenProvider(
 
     suspend fun requestUserAuthorization(): String {
         val authUrl = "$authorizationUrl?client_id=$clientId&redirect_uri=$redirectUri&response_type=code&scope=read"
-        val result = userInteractionComponent.showUrl("Authenticate with StockX", authUrl) {
-            it.url.startsWith(redirectUri)
-        }
+        val result =
+            userInteractionComponent.showUrl("Authenticate with StockX", authUrl) {
+                it.url.startsWith(redirectUri)
+            }
 
         val httpUrl = result.url.toHttpUrl()
 
         val code = httpUrl.queryParameter("code") ?: throw Exception("Failed to get auth code")
         return fetchTokenWithAuthorizationCode(code)
     }
-
 }

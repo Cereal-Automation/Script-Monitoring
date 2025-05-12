@@ -16,7 +16,6 @@ import java.math.BigDecimal
  * @param catalogApi The StockX API client.
  */
 class StockXMarketItemRepository(private val catalogApi: CatalogApi) : MarketItemRepository {
-
     override suspend fun search(criteria: SearchCriteria): MarketItem? {
         val result = catalogApi.search(criteria.styleId, pageNumber = null, pageSize = 10)
 
@@ -30,30 +29,37 @@ class StockXMarketItemRepository(private val catalogApi: CatalogApi) : MarketIte
             val variants = catalogApi.getVariants(stockxProduct.productId)
             val itemUrl = "https://stockx.com/${stockxProduct.urlKey}"
 
-            val marketItemVariants = variants.body().map { stockxVariant ->
-                val marketData = catalogApi.getVariantMarketData(
-                    productId = stockxVariant.productId,
-                    variantId = stockxVariant.variantId,
-                    currencyCode = CurrencyCode.decode(criteria.currency.code),
-                    country = null // Deprecated in their API so provide nothing.
-                )
-
-                val highestBid = marketData.body().highestBidAmount ?: return null
-                val highestBidAmountItem = BigDecimal(highestBid)
-                val currencyCode = marketData.body().currencyCode
-                val currency = Currency.fromCode(currencyCode) ?: throw UnknownCurrencyException(currencyCode)
-
-                MarketItemVariant(
-                    id = stockxVariant.variantId, properties = listOf(
-                        ItemProperty.Price(
-                            highestBidAmountItem, currency
+            val marketItemVariants =
+                variants.body().map { stockxVariant ->
+                    val marketData =
+                        catalogApi.getVariantMarketData(
+                            productId = stockxVariant.productId,
+                            variantId = stockxVariant.variantId,
+                            currencyCode = CurrencyCode.decode(criteria.currency.code),
+                            country = null,
                         )
+
+                    val highestBid = marketData.body().highestBidAmount ?: return null
+                    val highestBidAmountItem = BigDecimal(highestBid)
+                    val currencyCode = marketData.body().currencyCode
+                    val currency = Currency.fromCode(currencyCode) ?: throw UnknownCurrencyException(currencyCode)
+
+                    MarketItemVariant(
+                        id = stockxVariant.variantId,
+                        properties =
+                            listOf(
+                                ItemProperty.Price(
+                                    highestBidAmountItem,
+                                    currency,
+                                ),
+                            ),
                     )
-                )
-            }
+                }
 
             MarketItem(
-                id = stockxProduct.productId, url = itemUrl, variants = marketItemVariants
+                id = stockxProduct.productId,
+                url = itemUrl,
+                variants = marketItemVariants,
             )
         }
     }

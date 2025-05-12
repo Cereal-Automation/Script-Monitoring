@@ -126,7 +126,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                             "1",
                             "variant1",
                             styleId = null,
-                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))
+                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
                         ),
                         Variant(
                             "2",
@@ -155,7 +155,7 @@ class StockAvailableCommandExecutionScriptStrategyTest {
                             "1",
                             "variant1",
                             styleId = null,
-                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS"))
+                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
                         ),
                     ),
             )

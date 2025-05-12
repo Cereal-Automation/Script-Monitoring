@@ -15,142 +15,154 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TestRateLimiterPlugin {
-
     @Test
-    fun `test rate limiting with single request`() = runTest {
-        val interval = 100.milliseconds
-        val plugin = RateLimiterPlugin(interval).plugin
-        val client = HttpClient(MockEngine) {
-            install(plugin)
-            engine {
-                addHandler { request ->
-                    respondOk()
+    fun `test rate limiting with single request`() =
+        runTest {
+            val interval = 100.milliseconds
+            val plugin = RateLimiterPlugin(interval).plugin
+            val client =
+                HttpClient(MockEngine) {
+                    install(plugin)
+                    engine {
+                        addHandler { request ->
+                            respondOk()
+                        }
+                    }
                 }
-            }
+
+            val startTime = currentTime
+            client.get("https://example.com")
+            val endTime = currentTime
+
+            assertEquals(0L, endTime - startTime, "No delay expected for the first request")
         }
 
-        val startTime = currentTime
-        client.get("https://example.com")
-        val endTime = currentTime
-
-        assertEquals(0L, endTime - startTime, "No delay expected for the first request")
-    }
-
     @Test
-    fun `test rate limiting with multiple requests`() = runTest {
-        val interval = 100.milliseconds
-        val plugin = RateLimiterPlugin(interval).plugin
-        val client = HttpClient(MockEngine) {
-            install(plugin)
-            engine {
-                addHandler { request ->
-                    respondOk()
+    fun `test rate limiting with multiple requests`() =
+        runTest {
+            val interval = 100.milliseconds
+            val plugin = RateLimiterPlugin(interval).plugin
+            val client =
+                HttpClient(MockEngine) {
+                    install(plugin)
+                    engine {
+                        addHandler { request ->
+                            respondOk()
+                        }
+                    }
                 }
-            }
+
+            val startTime = currentTime
+            client.get("https://example.com/1")
+            client.get("https://example.com/2")
+            val endTime = currentTime
+
+            assertTrue((endTime - startTime) >= interval.inWholeMilliseconds * 0.9, "Delay should match the interval")
         }
 
-        val startTime = currentTime
-        client.get("https://example.com/1")
-        client.get("https://example.com/2")
-        val endTime = currentTime
-
-        assertTrue((endTime - startTime) >= interval.inWholeMilliseconds * 0.9, "Delay should match the interval")
-    }
-
     @Test
-    fun `test rate limiting with different request methods`() = runTest {
-        val interval = 100.milliseconds
-        val plugin = RateLimiterPlugin(interval).plugin
-        val client = HttpClient(MockEngine) {
-            install(plugin)
-            engine {
-                addHandler { request ->
-                    respondOk()
+    fun `test rate limiting with different request methods`() =
+        runTest {
+            val interval = 100.milliseconds
+            val plugin = RateLimiterPlugin(interval).plugin
+            val client =
+                HttpClient(MockEngine) {
+                    install(plugin)
+                    engine {
+                        addHandler { request ->
+                            respondOk()
+                        }
+                    }
                 }
-            }
-        }
 
-        val startTime = currentTime
-        client.get("https://example.com/1")
-        client.post("https://example.com/2") { }
-        val endTime = currentTime
+            val startTime = currentTime
+            client.get("https://example.com/1")
+            client.post("https://example.com/2") { }
+            val endTime = currentTime
 
-        assertTrue(
-            (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-            "Delay should match the interval regardless of method"
-        )
-    }
-
-    @Test
-    fun `test rate limiting with longer interval`() = runTest {
-        val interval = 500.milliseconds
-        val plugin = RateLimiterPlugin(interval).plugin
-        val client = HttpClient(MockEngine) {
-            install(plugin)
-            engine {
-                addHandler { request ->
-                    respondOk()
-                }
-            }
-        }
-
-        val startTime = currentTime
-        client.get("https://example.com/1")
-        client.get("https://example.com/2")
-        val endTime = currentTime
-
-        assertTrue(
-            (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-            "Delay should match the longer interval"
-        )
-    }
-
-    @Test
-    fun `test rate limiting with zero interval`() = runTest {
-        val interval = 0.milliseconds
-        val plugin = RateLimiterPlugin(interval).plugin
-        val client = HttpClient(MockEngine) {
-            install(plugin)
-            engine {
-                addHandler { request ->
-                    respondOk()
-                }
-            }
-        }
-
-        val startTime = currentTime
-        client.get("https://example.com/1")
-        client.get("https://example.com/2")
-        val endTime = currentTime
-
-        assertEquals(0L, endTime - startTime, "No delay expected with zero interval")
-    }
-
-    @Test
-    fun `test rate limiting with real HTTP client (integration test)`() = runTest {
-        // Note: This is more of an integration test and might be slower.
-        // It uses a real HTTP client and a mock server to verify the plugin's behavior.
-        val interval = 200.milliseconds
-        val plugin = RateLimiterPlugin(interval).plugin
-
-        val mockEngine = MockEngine { request ->
-            respondOk(
-                content = "OK",
+            assertTrue(
+                (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
+                "Delay should match the interval regardless of method",
             )
         }
 
-        val client = HttpClient(mockEngine) {
-            install(plugin)
+    @Test
+    fun `test rate limiting with longer interval`() =
+        runTest {
+            val interval = 500.milliseconds
+            val plugin = RateLimiterPlugin(interval).plugin
+            val client =
+                HttpClient(MockEngine) {
+                    install(plugin)
+                    engine {
+                        addHandler { request ->
+                            respondOk()
+                        }
+                    }
+                }
+
+            val startTime = currentTime
+            client.get("https://example.com/1")
+            client.get("https://example.com/2")
+            val endTime = currentTime
+
+            assertTrue(
+                (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
+                "Delay should match the longer interval",
+            )
         }
 
-        val startTime = currentTime
-        client.get("https://example.com/1")
-        client.get("https://example.com/2")
-        val endTime = currentTime
+    @Test
+    fun `test rate limiting with zero interval`() =
+        runTest {
+            val interval = 0.milliseconds
+            val plugin = RateLimiterPlugin(interval).plugin
+            val client =
+                HttpClient(MockEngine) {
+                    install(plugin)
+                    engine {
+                        addHandler { request ->
+                            respondOk()
+                        }
+                    }
+                }
 
-        assertTrue(
-            (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-            "Delay should match the interval (integration test)"
-        )
-    }
+            val startTime = currentTime
+            client.get("https://example.com/1")
+            client.get("https://example.com/2")
+            val endTime = currentTime
+
+            assertEquals(0L, endTime - startTime, "No delay expected with zero interval")
+        }
+
+    @Test
+    fun `test rate limiting with real HTTP client (integration test)`() =
+        runTest {
+            // Note: This is more of an integration test and might be slower.
+            // It uses a real HTTP client and a mock server to verify the plugin's behavior.
+            val interval = 200.milliseconds
+            val plugin = RateLimiterPlugin(interval).plugin
+
+            val mockEngine =
+                MockEngine { request ->
+                    respondOk(
+                        content = "OK",
+                    )
+                }
+
+            val client =
+                HttpClient(mockEngine) {
+                    install(plugin)
+                }
+
+            val startTime = currentTime
+            client.get("https://example.com/1")
+            client.get("https://example.com/2")
+            val endTime = currentTime
+
+            assertTrue(
+                (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
+                "Delay should match the interval (integration test)",
+            )
+        }
 }

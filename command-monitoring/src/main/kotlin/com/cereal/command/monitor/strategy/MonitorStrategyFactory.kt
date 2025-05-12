@@ -19,7 +19,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 object MonitorStrategyFactory {
-
     fun priceDropMonitorStrategy(): MonitorStrategy {
         return PriceDropMonitorStrategy()
     }
@@ -35,39 +34,44 @@ object MonitorStrategyFactory {
     fun marketPriceComparisonStrategy(
         userInteractionComponent: UserInteractionComponent,
         clientId: String,
-        clientSecret: String
+        clientSecret: String,
     ): MonitorStrategy {
-        val catalogApi = CatalogApi(
-            baseUrl = "https://api.stockx.com/v2", httpClientEngine = OkHttp.create {
-                config {
-                    followRedirects(true)
+        val catalogApi =
+            CatalogApi(
+                baseUrl = "https://api.stockx.com/v2",
+                httpClientEngine =
+                    OkHttp.create {
+                        config {
+                            followRedirects(true)
 
-                    val tokenProvider = OAuthTokenProvider(
-                        userInteractionComponent,
-                        clientId = clientId,
-                        clientSecret = clientSecret,
-                        redirectUri = "http://localhost/stockx-auth-callback",
-                        tokenUrl = "https://accounts.stockx.com/oauth/token",
-                        authorizationUrl = "https://accounts.stockx.com/authorize"
-                    )
-                    addInterceptor(OAuthInterceptor(tokenProvider))
-                    authenticator(OAuthAuthenticator(tokenProvider))
-                }
-            }, httpClientConfig = {
-                it.install(ContentNegotiation.Plugin) {
-                    json(
-                        defaultJson(),
-                    )
-                }
-                it.install(Logging.Companion) {
-                    level = LogLevel.HEADERS
-                }
-                it.install(HttpTimeout.Plugin) {
-                    requestTimeoutMillis = 10.seconds.inWholeMilliseconds
-                }
-                it.install(RateLimiterPlugin(1100.milliseconds).plugin)
-            }
-        )
+                            val tokenProvider =
+                                OAuthTokenProvider(
+                                    userInteractionComponent,
+                                    clientId = clientId,
+                                    clientSecret = clientSecret,
+                                    redirectUri = "http://localhost/stockx-auth-callback",
+                                    tokenUrl = "https://accounts.stockx.com/oauth/token",
+                                    authorizationUrl = "https://accounts.stockx.com/authorize",
+                                )
+                            addInterceptor(OAuthInterceptor(tokenProvider))
+                            authenticator(OAuthAuthenticator(tokenProvider))
+                        }
+                    },
+                httpClientConfig = {
+                    it.install(ContentNegotiation.Plugin) {
+                        json(
+                            defaultJson(),
+                        )
+                    }
+                    it.install(Logging.Companion) {
+                        level = LogLevel.HEADERS
+                    }
+                    it.install(HttpTimeout.Plugin) {
+                        requestTimeoutMillis = 10.seconds.inWholeMilliseconds
+                    }
+                    it.install(RateLimiterPlugin(1100.milliseconds).plugin)
+                },
+            )
 
         val marketItemRepository = StockXMarketItemRepository(catalogApi)
         return MarketPriceComparisonStrategy(marketItemRepository)
