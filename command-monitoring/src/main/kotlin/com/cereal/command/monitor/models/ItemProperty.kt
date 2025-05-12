@@ -76,20 +76,6 @@ sealed class ItemProperty(
         fun stockValue(): String? = amount?.toString() ?: level
     }
 
-//    /**
-//     * Represents a collection of variants associated with an item property. Each variant contains specific
-//     * characteristics and properties that define it, such as its unique name and associated attributes.
-//     *
-//     * The primary use of this class is to store and process a list of variants, providing a string representation
-//     * that concisely summarizes all variants and their properties.
-//     *
-//     * @param value A list of Variant objects that describe different options or configurations
-//     *              related to the item property.
-//     */
-//    data class Variants : ItemProperty("sizes") {
-//        override fun toString(): String = value.joinToString("\n") { "${it.name}: ${it.properties.toDisplay()}" }
-//    }
-
     /**
      * Represents a custom property associated with an item.
      *

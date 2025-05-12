@@ -3,8 +3,7 @@ package com.cereal.nike
 import com.cereal.command.monitor.MonitorCommandFactory
 import com.cereal.command.monitor.data.nike.NikeItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
-import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
-import com.cereal.command.monitor.strategy.PriceDropMonitorStrategy
+import com.cereal.command.monitor.strategy.MonitorStrategyFactory
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
@@ -80,10 +79,10 @@ class NikeScript : Script<NikeConfiguration> {
     private fun buildMonitorStrategies(configuration: NikeConfiguration): List<MonitorStrategy> =
         buildList {
             if (configuration.monitorNewProduct()) {
-                add(NewItemAvailableMonitorStrategy(Clock.System.now()))
+                add(MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now()))
             }
             if (configuration.monitorPriceDrops()) {
-                add(PriceDropMonitorStrategy())
+                add(MonitorStrategyFactory.priceDropMonitorStrategy())
             }
         }
 }

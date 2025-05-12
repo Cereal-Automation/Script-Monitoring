@@ -15,10 +15,6 @@
 
 package com.cereal.stockx.api
 
-import java.io.IOException
-import okhttp3.Call
-import okhttp3.HttpUrl
-
 import com.cereal.stockx.api.model.BatchCreateListingInput
 import com.cereal.stockx.api.model.BatchCreateListingResponse
 import com.cereal.stockx.api.model.BatchDeleteListingInput
@@ -33,715 +29,329 @@ import com.cereal.stockx.api.model.GetListingUpdateBatchItemsResponse
 import com.cereal.stockx.api.model.GetListingUpdateBatchResponse
 import com.cereal.stockx.api.model.PublicApiError
 
-import com.squareup.moshi.Json
+import org.openapitools.client.infrastructure.*
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.request.forms.formData
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.http.ParametersBuilder
 
-import org.openapitools.client.infrastructure.ApiClient
-import org.openapitools.client.infrastructure.ApiResponse
-import org.openapitools.client.infrastructure.ClientException
-import org.openapitools.client.infrastructure.ClientError
-import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.infrastructure.ServerError
-import org.openapitools.client.infrastructure.MultiValueMap
-import org.openapitools.client.infrastructure.PartConfig
-import org.openapitools.client.infrastructure.RequestConfig
-import org.openapitools.client.infrastructure.RequestMethod
-import org.openapitools.client.infrastructure.ResponseType
-import org.openapitools.client.infrastructure.Success
-import org.openapitools.client.infrastructure.toMultiValue
+    open class BatchApi(
+    baseUrl: String = ApiClient.BASE_URL,
+    httpClientEngine: HttpClientEngine? = null,
+    httpClientConfig: ((HttpClientConfig<*>) -> Unit)? = null,
+    ) : ApiClient(
+        baseUrl,
+        httpClientEngine,
+        httpClientConfig,
+    ) {
 
-class BatchApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = ApiClient.defaultClient) : ApiClient(basePath, client) {
-    companion object {
-        @JvmStatic
-        val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(ApiClient.baseUrlKey, "https://api.stockx.com/v2")
-        }
-    }
+        /**
+        * POST /selling/batch/create-listing
+        * Batch listings creation
+        * Create a new batch of listings
+         * @param batchCreateListingInput  
+         * @return BatchCreateListingResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun createListings(batchCreateListingInput: BatchCreateListingInput): HttpResponse<BatchCreateListingResponse> {
 
-    /**
-     * POST /selling/batch/create-listing
-     * Batch listings creation
-     * Create a new batch of listings
-     * @param batchCreateListingInput 
-     * @return BatchCreateListingResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun createListings(batchCreateListingInput: BatchCreateListingInput) : BatchCreateListingResponse {
-        val localVarResponse = createListingsWithHttpInfo(batchCreateListingInput = batchCreateListingInput)
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as BatchCreateListingResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
-            }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
+            val localVariableBody = batchCreateListingInput
 
-    /**
-     * POST /selling/batch/create-listing
-     * Batch listings creation
-     * Create a new batch of listings
-     * @param batchCreateListingInput 
-     * @return ApiResponse<BatchCreateListingResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun createListingsWithHttpInfo(batchCreateListingInput: BatchCreateListingInput) : ApiResponse<BatchCreateListingResponse?> {
-        val localVariableConfig = createListingsRequestConfig(batchCreateListingInput = batchCreateListingInput)
+            val localVariableQuery = mutableMapOf<String, List<String>>()
 
-        return request<BatchCreateListingInput, BatchCreateListingResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableHeaders = mutableMapOf<String, String>()
 
-    /**
-     * To obtain the request config of the operation createListings
-     *
-     * @param batchCreateListingInput 
-     * @return RequestConfig
-     */
-    fun createListingsRequestConfig(batchCreateListingInput: BatchCreateListingInput) : RequestConfig<BatchCreateListingInput> {
-        val localVariableBody = batchCreateListingInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
-
-        return RequestConfig(
-            method = RequestMethod.POST,
-            path = "/selling/batch/create-listing",
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.POST,
+            "/selling/batch/create-listing",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * POST /selling/batch/delete-listing
-     * Batch listings deletion
-     * Batch delete listings API allows a user to delete up to 100 individual listings in a single API call. This API is asynchronous in nature and will return a batchId that you would need to poll using the polling APIs described later.
-     * @param batchDeleteListingInput 
-     * @return BatchDeleteListingResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun deleteListings(batchDeleteListingInput: BatchDeleteListingInput) : BatchDeleteListingResponse {
-        val localVarResponse = deleteListingsWithHttpInfo(batchDeleteListingInput = batchDeleteListingInput)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as BatchDeleteListingResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * POST /selling/batch/delete-listing
-     * Batch listings deletion
-     * Batch delete listings API allows a user to delete up to 100 individual listings in a single API call. This API is asynchronous in nature and will return a batchId that you would need to poll using the polling APIs described later.
-     * @param batchDeleteListingInput 
-     * @return ApiResponse<BatchDeleteListingResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun deleteListingsWithHttpInfo(batchDeleteListingInput: BatchDeleteListingInput) : ApiResponse<BatchDeleteListingResponse?> {
-        val localVariableConfig = deleteListingsRequestConfig(batchDeleteListingInput = batchDeleteListingInput)
+        /**
+        * POST /selling/batch/delete-listing
+        * Batch listings deletion
+        * Batch delete listings API allows a user to delete up to 100 individual listings in a single API call. This API is asynchronous in nature and will return a batchId that you would need to poll using the polling APIs described later.
+         * @param batchDeleteListingInput  
+         * @return BatchDeleteListingResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun deleteListings(batchDeleteListingInput: BatchDeleteListingInput): HttpResponse<BatchDeleteListingResponse> {
 
-        return request<BatchDeleteListingInput, BatchDeleteListingResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation deleteListings
-     *
-     * @param batchDeleteListingInput 
-     * @return RequestConfig
-     */
-    fun deleteListingsRequestConfig(batchDeleteListingInput: BatchDeleteListingInput) : RequestConfig<BatchDeleteListingInput> {
-        val localVariableBody = batchDeleteListingInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = batchDeleteListingInput
 
-        return RequestConfig(
-            method = RequestMethod.POST,
-            path = "/selling/batch/delete-listing",
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.POST,
+            "/selling/batch/delete-listing",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/batch/create-listing/{batchId}
-     * Batch listings creation - Get Batch Status
-     * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
-     * @param batchId Unique Batch ID
-     * @return GetListingCreateBatchResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingCreateBatch(batchId: kotlin.String) : GetListingCreateBatchResponse {
-        val localVarResponse = getListingCreateBatchWithHttpInfo(batchId = batchId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetListingCreateBatchResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/batch/create-listing/{batchId}
-     * Batch listings creation - Get Batch Status
-     * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
-     * @param batchId Unique Batch ID
-     * @return ApiResponse<GetListingCreateBatchResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingCreateBatchWithHttpInfo(batchId: kotlin.String) : ApiResponse<GetListingCreateBatchResponse?> {
-        val localVariableConfig = getListingCreateBatchRequestConfig(batchId = batchId)
+        /**
+        * GET /selling/batch/create-listing/{batchId}
+        * Batch listings creation - Get Batch Status
+        * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
+         * @param batchId Unique Batch ID 
+         * @return GetListingCreateBatchResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingCreateBatch(batchId: kotlin.String): HttpResponse<GetListingCreateBatchResponse> {
 
-        return request<Unit, GetListingCreateBatchResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingCreateBatch
-     *
-     * @param batchId Unique Batch ID
-     * @return RequestConfig
-     */
-    fun getListingCreateBatchRequestConfig(batchId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/batch/create-listing/{batchId}".replace("{"+"batchId"+"}", encodeURIComponent(batchId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/batch/create-listing/{batchId}".replace("{" + "batchId" + "}", "$batchId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/batch/create-listing/{batchId}/items
-     * Batch listings creation - Get Items
-     * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch.
-     * @param batchId The ID of batch
-     * @param status Status of listing (optional)
-     * @return GetListingCreateBatchItemsResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingCreateBatchItems(batchId: kotlin.String, status: kotlin.String? = null) : GetListingCreateBatchItemsResponse {
-        val localVarResponse = getListingCreateBatchItemsWithHttpInfo(batchId = batchId, status = status)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetListingCreateBatchItemsResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/batch/create-listing/{batchId}/items
-     * Batch listings creation - Get Items
-     * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch.
-     * @param batchId The ID of batch
-     * @param status Status of listing (optional)
-     * @return ApiResponse<GetListingCreateBatchItemsResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingCreateBatchItemsWithHttpInfo(batchId: kotlin.String, status: kotlin.String?) : ApiResponse<GetListingCreateBatchItemsResponse?> {
-        val localVariableConfig = getListingCreateBatchItemsRequestConfig(batchId = batchId, status = status)
+        /**
+        * GET /selling/batch/create-listing/{batchId}/items
+        * Batch listings creation - Get Items
+        * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch.
+         * @param batchId The ID of batch 
+         * @param status Status of listing (optional)
+         * @return GetListingCreateBatchItemsResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingCreateBatchItems(batchId: kotlin.String, status: kotlin.String?): HttpResponse<GetListingCreateBatchItemsResponse> {
 
-        return request<Unit, GetListingCreateBatchItemsResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingCreateBatchItems
-     *
-     * @param batchId The ID of batch
-     * @param status Status of listing (optional)
-     * @return RequestConfig
-     */
-    fun getListingCreateBatchItemsRequestConfig(batchId: kotlin.String, status: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (status != null) {
-                    put("status", listOf(status.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/batch/create-listing/{batchId}/items".replace("{"+"batchId"+"}", encodeURIComponent(batchId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            status?.apply { localVariableQuery["status"] = listOf("$status") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/batch/create-listing/{batchId}/items".replace("{" + "batchId" + "}", "$batchId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/batch/delete-listing/{batchId}
-     * Batch listings deletion - Get Batch Status
-     * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
-     * @param batchId Unique Batch ID
-     * @return GetListingDeleteBatchResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingDeleteBatch(batchId: kotlin.String) : GetListingDeleteBatchResponse {
-        val localVarResponse = getListingDeleteBatchWithHttpInfo(batchId = batchId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetListingDeleteBatchResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/batch/delete-listing/{batchId}
-     * Batch listings deletion - Get Batch Status
-     * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
-     * @param batchId Unique Batch ID
-     * @return ApiResponse<GetListingDeleteBatchResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingDeleteBatchWithHttpInfo(batchId: kotlin.String) : ApiResponse<GetListingDeleteBatchResponse?> {
-        val localVariableConfig = getListingDeleteBatchRequestConfig(batchId = batchId)
+        /**
+        * GET /selling/batch/delete-listing/{batchId}
+        * Batch listings deletion - Get Batch Status
+        * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
+         * @param batchId Unique Batch ID 
+         * @return GetListingDeleteBatchResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingDeleteBatch(batchId: kotlin.String): HttpResponse<GetListingDeleteBatchResponse> {
 
-        return request<Unit, GetListingDeleteBatchResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingDeleteBatch
-     *
-     * @param batchId Unique Batch ID
-     * @return RequestConfig
-     */
-    fun getListingDeleteBatchRequestConfig(batchId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/batch/delete-listing/{batchId}".replace("{"+"batchId"+"}", encodeURIComponent(batchId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/batch/delete-listing/{batchId}".replace("{" + "batchId" + "}", "$batchId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/batch/delete-listing/{batchId}/items
-     * Batch listings deletion - Get Items
-     * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch.
-     * @param batchId Unique Batch ID
-     * @param status  (optional)
-     * @return GetListingDeleteBatchItemsResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingDeleteBatchItems(batchId: kotlin.String, status: kotlin.String? = null) : GetListingDeleteBatchItemsResponse {
-        val localVarResponse = getListingDeleteBatchItemsWithHttpInfo(batchId = batchId, status = status)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetListingDeleteBatchItemsResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/batch/delete-listing/{batchId}/items
-     * Batch listings deletion - Get Items
-     * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch.
-     * @param batchId Unique Batch ID
-     * @param status  (optional)
-     * @return ApiResponse<GetListingDeleteBatchItemsResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingDeleteBatchItemsWithHttpInfo(batchId: kotlin.String, status: kotlin.String?) : ApiResponse<GetListingDeleteBatchItemsResponse?> {
-        val localVariableConfig = getListingDeleteBatchItemsRequestConfig(batchId = batchId, status = status)
+        /**
+        * GET /selling/batch/delete-listing/{batchId}/items
+        * Batch listings deletion - Get Items
+        * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch.
+         * @param batchId Unique Batch ID 
+         * @param status  (optional)
+         * @return GetListingDeleteBatchItemsResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingDeleteBatchItems(batchId: kotlin.String, status: kotlin.String?): HttpResponse<GetListingDeleteBatchItemsResponse> {
 
-        return request<Unit, GetListingDeleteBatchItemsResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingDeleteBatchItems
-     *
-     * @param batchId Unique Batch ID
-     * @param status  (optional)
-     * @return RequestConfig
-     */
-    fun getListingDeleteBatchItemsRequestConfig(batchId: kotlin.String, status: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (status != null) {
-                    put("status", listOf(status.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/batch/delete-listing/{batchId}/items".replace("{"+"batchId"+"}", encodeURIComponent(batchId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            status?.apply { localVariableQuery["status"] = listOf("$status") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/batch/delete-listing/{batchId}/items".replace("{" + "batchId" + "}", "$batchId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/batch/update-listing/{batchId}
-     * Batch listings update - Get Batch Status
-     * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
-     * @param batchId Unique Batch ID
-     * @return GetListingUpdateBatchResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingUpdateBatch(batchId: kotlin.String) : GetListingUpdateBatchResponse {
-        val localVarResponse = getListingUpdateBatchWithHttpInfo(batchId = batchId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetListingUpdateBatchResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/batch/update-listing/{batchId}
-     * Batch listings update - Get Batch Status
-     * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
-     * @param batchId Unique Batch ID
-     * @return ApiResponse<GetListingUpdateBatchResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingUpdateBatchWithHttpInfo(batchId: kotlin.String) : ApiResponse<GetListingUpdateBatchResponse?> {
-        val localVariableConfig = getListingUpdateBatchRequestConfig(batchId = batchId)
+        /**
+        * GET /selling/batch/update-listing/{batchId}
+        * Batch listings update - Get Batch Status
+        * Once you are able to create a batch successfully, you need to poll the get batch status API to track the progress of the batch. This polling is necessary because all batch operations are asynchronous in nature.
+         * @param batchId Unique Batch ID 
+         * @return GetListingUpdateBatchResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingUpdateBatch(batchId: kotlin.String): HttpResponse<GetListingUpdateBatchResponse> {
 
-        return request<Unit, GetListingUpdateBatchResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingUpdateBatch
-     *
-     * @param batchId Unique Batch ID
-     * @return RequestConfig
-     */
-    fun getListingUpdateBatchRequestConfig(batchId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/batch/update-listing/{batchId}".replace("{"+"batchId"+"}", encodeURIComponent(batchId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/batch/update-listing/{batchId}".replace("{" + "batchId" + "}", "$batchId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/batch/update-listing/{batchId}/items
-     * Batch listings update - Get Items
-     * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch
-     * @param batchId Unique Batch ID
-     * @param status Status of listing (optional)
-     * @return GetListingUpdateBatchItemsResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingUpdateBatchItems(batchId: kotlin.String, status: kotlin.String? = null) : GetListingUpdateBatchItemsResponse {
-        val localVarResponse = getListingUpdateBatchItemsWithHttpInfo(batchId = batchId, status = status)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as GetListingUpdateBatchItemsResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/batch/update-listing/{batchId}/items
-     * Batch listings update - Get Items
-     * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch
-     * @param batchId Unique Batch ID
-     * @param status Status of listing (optional)
-     * @return ApiResponse<GetListingUpdateBatchItemsResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingUpdateBatchItemsWithHttpInfo(batchId: kotlin.String, status: kotlin.String?) : ApiResponse<GetListingUpdateBatchItemsResponse?> {
-        val localVariableConfig = getListingUpdateBatchItemsRequestConfig(batchId = batchId, status = status)
+        /**
+        * GET /selling/batch/update-listing/{batchId}/items
+        * Batch listings update - Get Items
+        * Once a batch completes successfully, you need to use the get batch items API to see the results of each item in the batch. You can also use this API at any point in time after the batch is created to see the progress of each individual item in a batch
+         * @param batchId Unique Batch ID 
+         * @param status Status of listing (optional)
+         * @return GetListingUpdateBatchItemsResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingUpdateBatchItems(batchId: kotlin.String, status: kotlin.String?): HttpResponse<GetListingUpdateBatchItemsResponse> {
 
-        return request<Unit, GetListingUpdateBatchItemsResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingUpdateBatchItems
-     *
-     * @param batchId Unique Batch ID
-     * @param status Status of listing (optional)
-     * @return RequestConfig
-     */
-    fun getListingUpdateBatchItemsRequestConfig(batchId: kotlin.String, status: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (status != null) {
-                    put("status", listOf(status.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/batch/update-listing/{batchId}/items".replace("{"+"batchId"+"}", encodeURIComponent(batchId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            status?.apply { localVariableQuery["status"] = listOf("$status") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/batch/update-listing/{batchId}/items".replace("{" + "batchId" + "}", "$batchId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * POST /selling/batch/update-listing
-     * Batch listings update
-     * Batch update listings API allows a user to update up to 100 individual listings in a single API call. This API is asynchronous in nature and will return a batchId that you would need to poll using the polling APIs described later.
-     * @param batchUpdateListingInput 
-     * @return BatchUpdateListingResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun updateListings(batchUpdateListingInput: BatchUpdateListingInput) : BatchUpdateListingResponse {
-        val localVarResponse = updateListingsWithHttpInfo(batchUpdateListingInput = batchUpdateListingInput)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as BatchUpdateListingResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * POST /selling/batch/update-listing
-     * Batch listings update
-     * Batch update listings API allows a user to update up to 100 individual listings in a single API call. This API is asynchronous in nature and will return a batchId that you would need to poll using the polling APIs described later.
-     * @param batchUpdateListingInput 
-     * @return ApiResponse<BatchUpdateListingResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun updateListingsWithHttpInfo(batchUpdateListingInput: BatchUpdateListingInput) : ApiResponse<BatchUpdateListingResponse?> {
-        val localVariableConfig = updateListingsRequestConfig(batchUpdateListingInput = batchUpdateListingInput)
+        /**
+        * POST /selling/batch/update-listing
+        * Batch listings update
+        * Batch update listings API allows a user to update up to 100 individual listings in a single API call. This API is asynchronous in nature and will return a batchId that you would need to poll using the polling APIs described later.
+         * @param batchUpdateListingInput  
+         * @return BatchUpdateListingResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun updateListings(batchUpdateListingInput: BatchUpdateListingInput): HttpResponse<BatchUpdateListingResponse> {
 
-        return request<BatchUpdateListingInput, BatchUpdateListingResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation updateListings
-     *
-     * @param batchUpdateListingInput 
-     * @return RequestConfig
-     */
-    fun updateListingsRequestConfig(batchUpdateListingInput: BatchUpdateListingInput) : RequestConfig<BatchUpdateListingInput> {
-        val localVariableBody = batchUpdateListingInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = batchUpdateListingInput
 
-        return RequestConfig(
-            method = RequestMethod.POST,
-            path = "/selling/batch/update-listing",
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.POST,
+            "/selling/batch/update-listing",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
+            }
 
-    private fun encodeURIComponent(uriComponent: kotlin.String): kotlin.String =
-        HttpUrl.Builder().scheme("http").host("localhost").addPathSegment(uriComponent).build().encodedPathSegments[0]
-}
+        }

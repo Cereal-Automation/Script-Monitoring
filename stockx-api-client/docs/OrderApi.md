@@ -183,7 +183,7 @@ Configure jwt:
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/pdf, application/json
 
 <a id="getOrders"></a>
 # **getOrders**

@@ -68,6 +68,7 @@ class ShopifyItemRepository(
                             Variant(
                                 it.id.toString(),
                                 it.title,
+                                null,
                                 properties = listOf(ItemProperty.Stock(it.available, null, null)),
                             )
                         },
