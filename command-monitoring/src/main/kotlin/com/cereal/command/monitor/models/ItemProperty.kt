@@ -110,7 +110,10 @@ sealed class ItemProperty(
 
             companion object {
                 fun fromString(value: String): SizeType {
-                    return when (value.uppercase()) {
+                    val key = value.trim()
+                        .replace("’", "'")        // smart quote → ascii
+                        .uppercase()
+                    return when (key) {
                         "US MEN'S", "US MENS", "US MEN" -> US_MEN
                         "US WOMEN'S", "US WOMENS", "US WOMEN" -> US_WOMEN
                         "US YOUTH", "Y" -> US_YOUTH
@@ -222,7 +225,7 @@ sealed class ItemProperty(
 
             companion object {
                 fun fromString(value: String): SizeValue {
-                    return SizeValue.entries.find { it.display == value }
+                    return SizeValue.entries.find { it.display.equals(value, ignoreCase = true) }
                         ?: throw IllegalArgumentException("Unknown size value: $value")
                 }
             }

@@ -81,7 +81,7 @@ class MarketPriceComparisonStrategyTest {
             val itemPrice = BigDecimal("100.00")
             val marketPrice = BigDecimal("100.00")
             val item = createItemWithStyleId("style123", itemPrice)
-            val marketItem = createMarketItem("style123", marketPrice)
+            val marketItem = createMarketItem(marketPrice)
 
             // Mock repository
             coEvery { marketItemRepository.search(match { it.styleId == "style123" }) } returns marketItem
@@ -100,7 +100,7 @@ class MarketPriceComparisonStrategyTest {
             val itemPrice = BigDecimal("100.00")
             val marketPrice = BigDecimal("90.00")
             val item = createItemWithStyleId("style123", itemPrice)
-            val marketItem = createMarketItem("style123", marketPrice)
+            val marketItem = createMarketItem(marketPrice)
 
             // Mock repository
             coEvery { marketItemRepository.search(match { it.styleId == "style123" }) } returns marketItem
@@ -119,7 +119,7 @@ class MarketPriceComparisonStrategyTest {
             val itemPrice = BigDecimal("95.00")
             val marketPrice = BigDecimal("100.00") // Only $5 difference, below threshold
             val item = createItemWithStyleId("style123", itemPrice)
-            val marketItem = createMarketItem("style123", marketPrice)
+            val marketItem = createMarketItem(marketPrice)
 
             // Mock repository
             coEvery { marketItemRepository.search(match { it.styleId == "style123" }) } returns marketItem
@@ -138,7 +138,7 @@ class MarketPriceComparisonStrategyTest {
             val itemPrice = BigDecimal("90.00")
             val marketPrice = BigDecimal("110.00") // $20 difference, above threshold
             val item = createItemWithStyleId("style123", itemPrice)
-            val marketItem = createMarketItem("style123", marketPrice)
+            val marketItem = createMarketItem(marketPrice)
 
             // Mock repository
             coEvery { marketItemRepository.search(match { it.styleId == "style123" }) } returns marketItem
@@ -282,7 +282,6 @@ class MarketPriceComparisonStrategyTest {
     }
 
     private fun createMarketItem(
-        styleId: String,
         price: BigDecimal,
     ): MarketItem {
         return MarketItem(
