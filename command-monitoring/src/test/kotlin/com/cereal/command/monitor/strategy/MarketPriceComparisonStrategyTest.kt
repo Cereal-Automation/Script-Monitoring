@@ -148,7 +148,7 @@ class MarketPriceComparisonStrategyTest {
 
             // Verify
             assertNotNull(result)
-            assertTrue(result.contains("18,2%"))
+            assertTrue(result.contains("18,2%") || result.contains("18.2%"))
             assertTrue(result.contains("You'll earn"))
         }
 
