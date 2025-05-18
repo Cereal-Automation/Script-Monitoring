@@ -87,6 +87,7 @@ class ZalandoItemRepository(
                         Variant(
                             it.sku,
                             "Size ${extractSize(it.sku) ?: "N/A"}",
+                            null,
                             listOf(
                                 ItemProperty.Stock(it.availability == Availability.InStock, null, null),
                                 ItemProperty.Price(

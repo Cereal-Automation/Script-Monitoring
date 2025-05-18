@@ -4,8 +4,7 @@ import com.cereal.command.monitor.MonitorCommandFactory
 import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
-import com.cereal.command.monitor.strategy.PriceDropMonitorStrategy
-import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
+import com.cereal.command.monitor.strategy.MonitorStrategyFactory
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
@@ -83,10 +82,10 @@ class SnkrsScript : Script<SnkrsConfiguration> {
     private fun buildMonitorStrategies(configuration: SnkrsConfiguration): List<MonitorStrategy> =
         buildList {
             if (configuration.monitorPriceDrops()) {
-                add(PriceDropMonitorStrategy())
+                add(MonitorStrategyFactory.priceDropMonitorStrategy())
             }
             if (configuration.monitorStockChanges()) {
-                add(StockAvailableMonitorStrategy())
+                add(MonitorStrategyFactory.stockAvailableMonitorStrategy())
             }
         }
 }

@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    api("com.cereal-automation:cereal-sdk:1.5.0:all")
-    api("com.cereal-automation:cereal-licensing:1.4.0")
+    api("com.cereal-automation:cereal-sdk:1.6.0:all")
+    api("com.cereal-automation:cereal-licensing:1.6.0")
 
     api("com.prof18.rssparser:rssparser:6.0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
@@ -18,6 +18,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("io.ktor:ktor-client-mock:2.3.13")
 
     // Ktor
     implementation("io.ktor:ktor-client-core:2.3.13")
@@ -29,6 +30,7 @@ dependencies {
     implementation("io.ktor:ktor-client-encoding:2.3.13")
 
     implementation(project(":command"))
+    api(project(":stockx-api-client"))
     testImplementation(project(":command"))
 }
 

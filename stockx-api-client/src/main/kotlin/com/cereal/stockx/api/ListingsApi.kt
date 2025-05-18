@@ -15,10 +15,6 @@
 
 package com.cereal.stockx.api
 
-import java.io.IOException
-import okhttp3.Call
-import okhttp3.HttpUrl
-
 import com.cereal.stockx.api.model.ActivateListingInput
 import com.cereal.stockx.api.model.CreateListingInput
 import com.cereal.stockx.api.model.ListingAsyncOperationResponse
@@ -29,773 +25,349 @@ import com.cereal.stockx.api.model.OperationsCursorResponse
 import com.cereal.stockx.api.model.PublicApiError
 import com.cereal.stockx.api.model.UpdateListingInput
 
-import com.squareup.moshi.Json
+import org.openapitools.client.infrastructure.*
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.request.forms.formData
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.http.ParametersBuilder
 
-import org.openapitools.client.infrastructure.ApiClient
-import org.openapitools.client.infrastructure.ApiResponse
-import org.openapitools.client.infrastructure.ClientException
-import org.openapitools.client.infrastructure.ClientError
-import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.infrastructure.ServerError
-import org.openapitools.client.infrastructure.MultiValueMap
-import org.openapitools.client.infrastructure.PartConfig
-import org.openapitools.client.infrastructure.RequestConfig
-import org.openapitools.client.infrastructure.RequestMethod
-import org.openapitools.client.infrastructure.ResponseType
-import org.openapitools.client.infrastructure.Success
-import org.openapitools.client.infrastructure.toMultiValue
+    open class ListingsApi(
+    baseUrl: String = ApiClient.BASE_URL,
+    httpClientEngine: HttpClientEngine? = null,
+    httpClientConfig: ((HttpClientConfig<*>) -> Unit)? = null,
+    ) : ApiClient(
+        baseUrl,
+        httpClientEngine,
+        httpClientConfig,
+    ) {
 
-class ListingsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = ApiClient.defaultClient) : ApiClient(basePath, client) {
-    companion object {
-        @JvmStatic
-        val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(ApiClient.baseUrlKey, "https://api.stockx.com/v2")
-        }
-    }
+        /**
+        * PUT /selling/listings/{listingId}/activate
+        * Activate a listing
+        * Activate listing API allows you to activate a listing. A listing is active when it contains an available ask.
+         * @param listingId Unique ID for this listing 
+         * @param activateListingInput  
+         * @return ListingAsyncOperationResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun activateListing(listingId: kotlin.String, activateListingInput: ActivateListingInput): HttpResponse<ListingAsyncOperationResponse> {
 
-    /**
-     * PUT /selling/listings/{listingId}/activate
-     * Activate a listing
-     * Activate listing API allows you to activate a listing. A listing is active when it contains an available ask.
-     * @param listingId Unique ID for this listing
-     * @param activateListingInput 
-     * @return ListingAsyncOperationResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun activateListing(listingId: kotlin.String, activateListingInput: ActivateListingInput) : ListingAsyncOperationResponse {
-        val localVarResponse = activateListingWithHttpInfo(listingId = listingId, activateListingInput = activateListingInput)
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ListingAsyncOperationResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
-            }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
+            val localVariableBody = activateListingInput
 
-    /**
-     * PUT /selling/listings/{listingId}/activate
-     * Activate a listing
-     * Activate listing API allows you to activate a listing. A listing is active when it contains an available ask.
-     * @param listingId Unique ID for this listing
-     * @param activateListingInput 
-     * @return ApiResponse<ListingAsyncOperationResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun activateListingWithHttpInfo(listingId: kotlin.String, activateListingInput: ActivateListingInput) : ApiResponse<ListingAsyncOperationResponse?> {
-        val localVariableConfig = activateListingRequestConfig(listingId = listingId, activateListingInput = activateListingInput)
+            val localVariableQuery = mutableMapOf<String, List<String>>()
 
-        return request<ActivateListingInput, ListingAsyncOperationResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableHeaders = mutableMapOf<String, String>()
 
-    /**
-     * To obtain the request config of the operation activateListing
-     *
-     * @param listingId Unique ID for this listing
-     * @param activateListingInput 
-     * @return RequestConfig
-     */
-    fun activateListingRequestConfig(listingId: kotlin.String, activateListingInput: ActivateListingInput) : RequestConfig<ActivateListingInput> {
-        val localVariableBody = activateListingInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
-
-        return RequestConfig(
-            method = RequestMethod.PUT,
-            path = "/selling/listings/{listingId}/activate".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())),
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.PUT,
+            "/selling/listings/{listingId}/activate".replace("{" + "listingId" + "}", "$listingId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * POST /selling/listings
-     * Create a new listing
-     * Create listings API allows you to create new listings. The listings correspond to an ask in the StockX UI. The listings can be for the same variant ID.
-     * @param createListingInput 
-     * @return ListingAsyncOperationResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun create(createListingInput: CreateListingInput) : ListingAsyncOperationResponse {
-        val localVarResponse = createWithHttpInfo(createListingInput = createListingInput)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ListingAsyncOperationResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * POST /selling/listings
-     * Create a new listing
-     * Create listings API allows you to create new listings. The listings correspond to an ask in the StockX UI. The listings can be for the same variant ID.
-     * @param createListingInput 
-     * @return ApiResponse<ListingAsyncOperationResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun createWithHttpInfo(createListingInput: CreateListingInput) : ApiResponse<ListingAsyncOperationResponse?> {
-        val localVariableConfig = createRequestConfig(createListingInput = createListingInput)
+        /**
+        * POST /selling/listings
+        * Create a new listing
+        * Create listings API allows you to create new listings. The listings correspond to an ask in the StockX UI. The listings can be for the same variant ID.
+         * @param createListingInput  
+         * @return ListingAsyncOperationResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun create(createListingInput: CreateListingInput): HttpResponse<ListingAsyncOperationResponse> {
 
-        return request<CreateListingInput, ListingAsyncOperationResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation create
-     *
-     * @param createListingInput 
-     * @return RequestConfig
-     */
-    fun createRequestConfig(createListingInput: CreateListingInput) : RequestConfig<CreateListingInput> {
-        val localVariableBody = createListingInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = createListingInput
 
-        return RequestConfig(
-            method = RequestMethod.POST,
-            path = "/selling/listings",
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.POST,
+            "/selling/listings",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * PUT /selling/listings/{listingId}/deactivate
-     * Deactivate a listing
-     * Deactivate listing API allows you to deactivate a listing. A listing is deactivated when it doesn&#39;t have an ask or when it contains an expired ask.
-     * @param listingId Unique ID for this listing
-     * @return ListingAsyncOperationResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun deactivateListing(listingId: kotlin.String) : ListingAsyncOperationResponse {
-        val localVarResponse = deactivateListingWithHttpInfo(listingId = listingId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ListingAsyncOperationResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * PUT /selling/listings/{listingId}/deactivate
-     * Deactivate a listing
-     * Deactivate listing API allows you to deactivate a listing. A listing is deactivated when it doesn&#39;t have an ask or when it contains an expired ask.
-     * @param listingId Unique ID for this listing
-     * @return ApiResponse<ListingAsyncOperationResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun deactivateListingWithHttpInfo(listingId: kotlin.String) : ApiResponse<ListingAsyncOperationResponse?> {
-        val localVariableConfig = deactivateListingRequestConfig(listingId = listingId)
+        /**
+        * PUT /selling/listings/{listingId}/deactivate
+        * Deactivate a listing
+        * Deactivate listing API allows you to deactivate a listing. A listing is deactivated when it doesn&#39;t have an ask or when it contains an expired ask.
+         * @param listingId Unique ID for this listing 
+         * @return ListingAsyncOperationResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun deactivateListing(listingId: kotlin.String): HttpResponse<ListingAsyncOperationResponse> {
 
-        return request<Unit, ListingAsyncOperationResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation deactivateListing
-     *
-     * @param listingId Unique ID for this listing
-     * @return RequestConfig
-     */
-    fun deactivateListingRequestConfig(listingId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.PUT,
-            path = "/selling/listings/{listingId}/deactivate".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.PUT,
+            "/selling/listings/{listingId}/deactivate".replace("{" + "listingId" + "}", "$listingId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * DELETE /selling/listings/{listingId}
-     * Delete a listing
-     * Operation used to delete an existing listing by its ID.
-     * @param listingId Unique ID for this listing
-     * @return ListingAsyncOperationResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun deleteListing(listingId: kotlin.String) : ListingAsyncOperationResponse {
-        val localVarResponse = deleteListingWithHttpInfo(listingId = listingId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ListingAsyncOperationResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * DELETE /selling/listings/{listingId}
-     * Delete a listing
-     * Operation used to delete an existing listing by its ID.
-     * @param listingId Unique ID for this listing
-     * @return ApiResponse<ListingAsyncOperationResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun deleteListingWithHttpInfo(listingId: kotlin.String) : ApiResponse<ListingAsyncOperationResponse?> {
-        val localVariableConfig = deleteListingRequestConfig(listingId = listingId)
+        /**
+        * DELETE /selling/listings/{listingId}
+        * Delete a listing
+        * Operation used to delete an existing listing by its ID.
+         * @param listingId Unique ID for this listing 
+         * @return ListingAsyncOperationResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun deleteListing(listingId: kotlin.String): HttpResponse<ListingAsyncOperationResponse> {
 
-        return request<Unit, ListingAsyncOperationResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation deleteListing
-     *
-     * @param listingId Unique ID for this listing
-     * @return RequestConfig
-     */
-    fun deleteListingRequestConfig(listingId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.DELETE,
-            path = "/selling/listings/{listingId}".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.DELETE,
+            "/selling/listings/{listingId}".replace("{" + "listingId" + "}", "$listingId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/listings/{listingId}
-     * Get single listing
-     * Get a listing API allows you to get a listing by its ID.
-     * @param listingId Unique ID for this listing
-     * @return ListingResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun findById(listingId: kotlin.String) : ListingResponse {
-        val localVarResponse = findByIdWithHttpInfo(listingId = listingId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ListingResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/listings/{listingId}
-     * Get single listing
-     * Get a listing API allows you to get a listing by its ID.
-     * @param listingId Unique ID for this listing
-     * @return ApiResponse<ListingResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun findByIdWithHttpInfo(listingId: kotlin.String) : ApiResponse<ListingResponse?> {
-        val localVariableConfig = findByIdRequestConfig(listingId = listingId)
+        /**
+        * GET /selling/listings/{listingId}
+        * Get single listing
+        * Get a listing API allows you to get a listing by its ID.
+         * @param listingId Unique ID for this listing 
+         * @return ListingResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun findById(listingId: kotlin.String): HttpResponse<ListingResponse> {
 
-        return request<Unit, ListingResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation findById
-     *
-     * @param listingId Unique ID for this listing
-     * @return RequestConfig
-     */
-    fun findByIdRequestConfig(listingId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/listings/{listingId}".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/listings/{listingId}".replace("{" + "listingId" + "}", "$listingId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/listings/{listingId}/operations/{operationId}
-     * Get single listing operation
-     * Get listing operation API allows you to fetch a listing operation by listing ID and operation ID
-     * @param listingId Unique ID for this listing.
-     * @param operationId Unique ID for this operation.
-     * @return OperationApi
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun findOperationById(listingId: kotlin.String, operationId: kotlin.String) : OperationApi {
-        val localVarResponse = findOperationByIdWithHttpInfo(listingId = listingId, operationId = operationId)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as OperationApi
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/listings/{listingId}/operations/{operationId}
-     * Get single listing operation
-     * Get listing operation API allows you to fetch a listing operation by listing ID and operation ID
-     * @param listingId Unique ID for this listing.
-     * @param operationId Unique ID for this operation.
-     * @return ApiResponse<OperationApi?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun findOperationByIdWithHttpInfo(listingId: kotlin.String, operationId: kotlin.String) : ApiResponse<OperationApi?> {
-        val localVariableConfig = findOperationByIdRequestConfig(listingId = listingId, operationId = operationId)
+        /**
+        * GET /selling/listings/{listingId}/operations/{operationId}
+        * Get single listing operation
+        * Get listing operation API allows you to fetch a listing operation by listing ID and operation ID
+         * @param listingId Unique ID for this listing. 
+         * @param operationId Unique ID for this operation. 
+         * @return OperationApi
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun findOperationById(listingId: kotlin.String, operationId: kotlin.String): HttpResponse<OperationApi> {
 
-        return request<Unit, OperationApi>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation findOperationById
-     *
-     * @param listingId Unique ID for this listing.
-     * @param operationId Unique ID for this operation.
-     * @return RequestConfig
-     */
-    fun findOperationByIdRequestConfig(listingId: kotlin.String, operationId: kotlin.String) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/listings/{listingId}/operations/{operationId}".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())).replace("{"+"operationId"+"}", encodeURIComponent(operationId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/listings/{listingId}/operations/{operationId}".replace("{" + "listingId" + "}", "$listingId").replace("{" + "operationId" + "}", "$operationId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/listings
-     * Get all listings
-     * Get all listings API allows you to fetch all existing listings. Multiple filters are available.
-     * @param pageNumber Requested page number. By default the page number starts at 1 (optional)
-     * @param pageSize The number of listings to return. By default the page size starts at 1. (optional)
-     * @param productIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param variantIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param batchIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param fromDate Start date of the query (optional)
-     * @param toDate End date of the query (optional)
-     * @param listingStatuses Comma separated list of listing statuses. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot;\&quot; | &#39;&#39;).&lt;br&gt;&lt;br&gt;Available values: \&quot;INACTIVE\&quot;, \&quot;ACTIVE\&quot;, \&quot;DELETED\&quot;, \&quot;CANCELED\&quot;, \&quot;MATCHED\&quot;, \&quot;COMPLETED\&quot; (optional)
-     * @param inventoryTypes Comma-separated list of inventory type(s). This field must not include array brackets [] or quotation marks (\&quot;| &#39;&#39;). The inventory types are STANDARD or FLEX. (optional)
-     * @param initiatedShipmentDisplayIds The shipment&#39;s unique display id associated with the listing. Note: This is the same ID generated when a Flex inbound list is created in StockX Pro. (optional)
-     * @return Listings
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getAllListings(pageNumber: kotlin.Int? = null, pageSize: kotlin.Int? = null, productIds: kotlin.String? = null, variantIds: kotlin.String? = null, batchIds: kotlin.String? = null, fromDate: kotlin.String? = null, toDate: kotlin.String? = null, listingStatuses: kotlin.String? = null, inventoryTypes: kotlin.String? = null, initiatedShipmentDisplayIds: kotlin.String? = null) : Listings {
-        val localVarResponse = getAllListingsWithHttpInfo(pageNumber = pageNumber, pageSize = pageSize, productIds = productIds, variantIds = variantIds, batchIds = batchIds, fromDate = fromDate, toDate = toDate, listingStatuses = listingStatuses, inventoryTypes = inventoryTypes, initiatedShipmentDisplayIds = initiatedShipmentDisplayIds)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as Listings
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/listings
-     * Get all listings
-     * Get all listings API allows you to fetch all existing listings. Multiple filters are available.
-     * @param pageNumber Requested page number. By default the page number starts at 1 (optional)
-     * @param pageSize The number of listings to return. By default the page size starts at 1. (optional)
-     * @param productIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param variantIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param batchIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param fromDate Start date of the query (optional)
-     * @param toDate End date of the query (optional)
-     * @param listingStatuses Comma separated list of listing statuses. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot;\&quot; | &#39;&#39;).&lt;br&gt;&lt;br&gt;Available values: \&quot;INACTIVE\&quot;, \&quot;ACTIVE\&quot;, \&quot;DELETED\&quot;, \&quot;CANCELED\&quot;, \&quot;MATCHED\&quot;, \&quot;COMPLETED\&quot; (optional)
-     * @param inventoryTypes Comma-separated list of inventory type(s). This field must not include array brackets [] or quotation marks (\&quot;| &#39;&#39;). The inventory types are STANDARD or FLEX. (optional)
-     * @param initiatedShipmentDisplayIds The shipment&#39;s unique display id associated with the listing. Note: This is the same ID generated when a Flex inbound list is created in StockX Pro. (optional)
-     * @return ApiResponse<Listings?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getAllListingsWithHttpInfo(pageNumber: kotlin.Int?, pageSize: kotlin.Int?, productIds: kotlin.String?, variantIds: kotlin.String?, batchIds: kotlin.String?, fromDate: kotlin.String?, toDate: kotlin.String?, listingStatuses: kotlin.String?, inventoryTypes: kotlin.String?, initiatedShipmentDisplayIds: kotlin.String?) : ApiResponse<Listings?> {
-        val localVariableConfig = getAllListingsRequestConfig(pageNumber = pageNumber, pageSize = pageSize, productIds = productIds, variantIds = variantIds, batchIds = batchIds, fromDate = fromDate, toDate = toDate, listingStatuses = listingStatuses, inventoryTypes = inventoryTypes, initiatedShipmentDisplayIds = initiatedShipmentDisplayIds)
+        /**
+        * GET /selling/listings
+        * Get all listings
+        * Get all listings API allows you to fetch all existing listings. Multiple filters are available.
+         * @param pageNumber Requested page number. By default the page number starts at 1 (optional)
+         * @param pageSize The number of listings to return. By default the page size starts at 1. (optional)
+         * @param productIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
+         * @param variantIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
+         * @param batchIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
+         * @param fromDate Start date of the query (optional)
+         * @param toDate End date of the query (optional)
+         * @param listingStatuses Comma separated list of listing statuses. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot;\&quot; | &#39;&#39;).&lt;br&gt;&lt;br&gt;Available values: \&quot;INACTIVE\&quot;, \&quot;ACTIVE\&quot;, \&quot;DELETED\&quot;, \&quot;CANCELED\&quot;, \&quot;MATCHED\&quot;, \&quot;COMPLETED\&quot; (optional)
+         * @param inventoryTypes Comma-separated list of inventory type(s). This field must not include array brackets [] or quotation marks (\&quot;| &#39;&#39;). The inventory types are STANDARD or FLEX. (optional)
+         * @param initiatedShipmentDisplayIds The shipment&#39;s unique display id associated with the listing. Note: This is the same ID generated when a Flex inbound list is created in StockX Pro. (optional)
+         * @return Listings
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getAllListings(pageNumber: kotlin.Int?, pageSize: kotlin.Int?, productIds: kotlin.String?, variantIds: kotlin.String?, batchIds: kotlin.String?, fromDate: kotlin.String?, toDate: kotlin.String?, listingStatuses: kotlin.String?, inventoryTypes: kotlin.String?, initiatedShipmentDisplayIds: kotlin.String?): HttpResponse<Listings> {
 
-        return request<Unit, Listings>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getAllListings
-     *
-     * @param pageNumber Requested page number. By default the page number starts at 1 (optional)
-     * @param pageSize The number of listings to return. By default the page size starts at 1. (optional)
-     * @param productIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param variantIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param batchIds Comma separated list of ids. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot; \&quot; | &#39; &#39;). (optional)
-     * @param fromDate Start date of the query (optional)
-     * @param toDate End date of the query (optional)
-     * @param listingStatuses Comma separated list of listing statuses. This field must not include array brackets &#x60;[]&#x60; or quotation marks (\&quot;\&quot; | &#39;&#39;).&lt;br&gt;&lt;br&gt;Available values: \&quot;INACTIVE\&quot;, \&quot;ACTIVE\&quot;, \&quot;DELETED\&quot;, \&quot;CANCELED\&quot;, \&quot;MATCHED\&quot;, \&quot;COMPLETED\&quot; (optional)
-     * @param inventoryTypes Comma-separated list of inventory type(s). This field must not include array brackets [] or quotation marks (\&quot;| &#39;&#39;). The inventory types are STANDARD or FLEX. (optional)
-     * @param initiatedShipmentDisplayIds The shipment&#39;s unique display id associated with the listing. Note: This is the same ID generated when a Flex inbound list is created in StockX Pro. (optional)
-     * @return RequestConfig
-     */
-    fun getAllListingsRequestConfig(pageNumber: kotlin.Int?, pageSize: kotlin.Int?, productIds: kotlin.String?, variantIds: kotlin.String?, batchIds: kotlin.String?, fromDate: kotlin.String?, toDate: kotlin.String?, listingStatuses: kotlin.String?, inventoryTypes: kotlin.String?, initiatedShipmentDisplayIds: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (pageNumber != null) {
-                    put("pageNumber", listOf(pageNumber.toString()))
-                }
-                if (pageSize != null) {
-                    put("pageSize", listOf(pageSize.toString()))
-                }
-                if (productIds != null) {
-                    put("productIds", listOf(productIds.toString()))
-                }
-                if (variantIds != null) {
-                    put("variantIds", listOf(variantIds.toString()))
-                }
-                if (batchIds != null) {
-                    put("batchIds", listOf(batchIds.toString()))
-                }
-                if (fromDate != null) {
-                    put("fromDate", listOf(fromDate.toString()))
-                }
-                if (toDate != null) {
-                    put("toDate", listOf(toDate.toString()))
-                }
-                if (listingStatuses != null) {
-                    put("listingStatuses", listOf(listingStatuses.toString()))
-                }
-                if (inventoryTypes != null) {
-                    put("inventoryTypes", listOf(inventoryTypes.toString()))
-                }
-                if (initiatedShipmentDisplayIds != null) {
-                    put("initiatedShipmentDisplayIds", listOf(initiatedShipmentDisplayIds.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/listings",
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            pageNumber?.apply { localVariableQuery["pageNumber"] = listOf("$pageNumber") }
+            pageSize?.apply { localVariableQuery["pageSize"] = listOf("$pageSize") }
+            productIds?.apply { localVariableQuery["productIds"] = listOf("$productIds") }
+            variantIds?.apply { localVariableQuery["variantIds"] = listOf("$variantIds") }
+            batchIds?.apply { localVariableQuery["batchIds"] = listOf("$batchIds") }
+            fromDate?.apply { localVariableQuery["fromDate"] = listOf("$fromDate") }
+            toDate?.apply { localVariableQuery["toDate"] = listOf("$toDate") }
+            listingStatuses?.apply { localVariableQuery["listingStatuses"] = listOf("$listingStatuses") }
+            inventoryTypes?.apply { localVariableQuery["inventoryTypes"] = listOf("$inventoryTypes") }
+            initiatedShipmentDisplayIds?.apply { localVariableQuery["initiatedShipmentDisplayIds"] = listOf("$initiatedShipmentDisplayIds") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/listings",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * GET /selling/listings/{listingId}/operations
-     * Get all listing operations
-     * Get all listing operations API allows you to fetch a paginated list of single listing with all operations.
-     * @param listingId Unique ID for this listing
-     * @param pageSize Requested page number. Starts at 1. (optional)
-     * @param cursor The cursor to use as a starting point (optional)
-     * @return OperationsCursorResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getListingOperations(listingId: kotlin.String, pageSize: kotlin.Int? = null, cursor: kotlin.String? = null) : OperationsCursorResponse {
-        val localVarResponse = getListingOperationsWithHttpInfo(listingId = listingId, pageSize = pageSize, cursor = cursor)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as OperationsCursorResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * GET /selling/listings/{listingId}/operations
-     * Get all listing operations
-     * Get all listing operations API allows you to fetch a paginated list of single listing with all operations.
-     * @param listingId Unique ID for this listing
-     * @param pageSize Requested page number. Starts at 1. (optional)
-     * @param cursor The cursor to use as a starting point (optional)
-     * @return ApiResponse<OperationsCursorResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun getListingOperationsWithHttpInfo(listingId: kotlin.String, pageSize: kotlin.Int?, cursor: kotlin.String?) : ApiResponse<OperationsCursorResponse?> {
-        val localVariableConfig = getListingOperationsRequestConfig(listingId = listingId, pageSize = pageSize, cursor = cursor)
+        /**
+        * GET /selling/listings/{listingId}/operations
+        * Get all listing operations
+        * Get all listing operations API allows you to fetch a paginated list of single listing with all operations.
+         * @param listingId Unique ID for this listing 
+         * @param pageSize Requested page number. Starts at 1. (optional)
+         * @param cursor The cursor to use as a starting point (optional)
+         * @return OperationsCursorResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun getListingOperations(listingId: kotlin.String, pageSize: kotlin.Int?, cursor: kotlin.String?): HttpResponse<OperationsCursorResponse> {
 
-        return request<Unit, OperationsCursorResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation getListingOperations
-     *
-     * @param listingId Unique ID for this listing
-     * @param pageSize Requested page number. Starts at 1. (optional)
-     * @param cursor The cursor to use as a starting point (optional)
-     * @return RequestConfig
-     */
-    fun getListingOperationsRequestConfig(listingId: kotlin.String, pageSize: kotlin.Int?, cursor: kotlin.String?) : RequestConfig<Unit> {
-        val localVariableBody = null
-        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
-            .apply {
-                if (pageSize != null) {
-                    put("pageSize", listOf(pageSize.toString()))
-                }
-                if (cursor != null) {
-                    put("cursor", listOf(cursor.toString()))
-                }
-            }
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = 
+                    io.ktor.client.utils.EmptyContent
 
-        return RequestConfig(
-            method = RequestMethod.GET,
-            path = "/selling/listings/{listingId}/operations".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+            pageSize?.apply { localVariableQuery["pageSize"] = listOf("$pageSize") }
+            cursor?.apply { localVariableQuery["cursor"] = listOf("$cursor") }
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/selling/listings/{listingId}/operations".replace("{" + "listingId" + "}", "$listingId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
-    /**
-     * PATCH /selling/listings/{listingId}
-     * Update a listing
-     * Operation used to update an existing listing by its ID.
-     * @param listingId Unique ID for this listing
-     * @param updateListingInput 
-     * @return ListingAsyncOperationResponse
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     * @throws UnsupportedOperationException If the API returns an informational or redirection response
-     * @throws ClientException If the API returns a client error response
-     * @throws ServerException If the API returns a server error response
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun update(listingId: kotlin.String, updateListingInput: UpdateListingInput) : ListingAsyncOperationResponse {
-        val localVarResponse = updateWithHttpInfo(listingId = listingId, updateListingInput = updateListingInput)
-
-        return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as ListingAsyncOperationResponse
-            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
-            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
-            ResponseType.ClientError -> {
-                val localVarError = localVarResponse as ClientError<*>
-                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
             }
-            ResponseType.ServerError -> {
-                val localVarError = localVarResponse as ServerError<*>
-                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
-            }
-        }
-    }
 
-    /**
-     * PATCH /selling/listings/{listingId}
-     * Update a listing
-     * Operation used to update an existing listing by its ID.
-     * @param listingId Unique ID for this listing
-     * @param updateListingInput 
-     * @return ApiResponse<ListingAsyncOperationResponse?>
-     * @throws IllegalStateException If the request is not correctly configured
-     * @throws IOException Rethrows the OkHttp execute method exception
-     */
-    @Suppress("UNCHECKED_CAST")
-    @Throws(IllegalStateException::class, IOException::class)
-    fun updateWithHttpInfo(listingId: kotlin.String, updateListingInput: UpdateListingInput) : ApiResponse<ListingAsyncOperationResponse?> {
-        val localVariableConfig = updateRequestConfig(listingId = listingId, updateListingInput = updateListingInput)
+        /**
+        * PATCH /selling/listings/{listingId}
+        * Update a listing
+        * Operation used to update an existing listing by its ID.
+         * @param listingId Unique ID for this listing 
+         * @param updateListingInput  
+         * @return ListingAsyncOperationResponse
+        */
+            @Suppress("UNCHECKED_CAST")
+        open suspend fun update(listingId: kotlin.String, updateListingInput: UpdateListingInput): HttpResponse<ListingAsyncOperationResponse> {
 
-        return request<UpdateListingInput, ListingAsyncOperationResponse>(
-            localVariableConfig
-        )
-    }
+            val localVariableAuthNames = listOf<String>("api_key", "jwt")
 
-    /**
-     * To obtain the request config of the operation update
-     *
-     * @param listingId Unique ID for this listing
-     * @param updateListingInput 
-     * @return RequestConfig
-     */
-    fun updateRequestConfig(listingId: kotlin.String, updateListingInput: UpdateListingInput) : RequestConfig<UpdateListingInput> {
-        val localVariableBody = updateListingInput
-        val localVariableQuery: MultiValueMap = mutableMapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Content-Type"] = "application/json"
-        localVariableHeaders["Accept"] = "application/json"
+            val localVariableBody = updateListingInput
 
-        return RequestConfig(
-            method = RequestMethod.PATCH,
-            path = "/selling/listings/{listingId}".replace("{"+"listingId"+"}", encodeURIComponent(listingId.toString())),
+            val localVariableQuery = mutableMapOf<String, List<String>>()
+
+            val localVariableHeaders = mutableMapOf<String, String>()
+
+            val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.PATCH,
+            "/selling/listings/{listingId}".replace("{" + "listingId" + "}", "$listingId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
-            body = localVariableBody
-        )
-    }
+            )
 
+            return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+            ).wrap()
+            }
 
-    private fun encodeURIComponent(uriComponent: kotlin.String): kotlin.String =
-        HttpUrl.Builder().scheme("http").host("localhost").addPathSegment(uriComponent).build().encodedPathSegments[0]
-}
+        }
