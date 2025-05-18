@@ -14,37 +14,42 @@ class MonitorIntervalStateModifierTest {
     private val intervalKey = BaseConfiguration.KEY_MONITOR_INTERVAL
 
     @Test
-    fun `getError returns null when interval is greater than zero`() = runTest {
-        val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(2)))
-        val error = MonitorIntervalStateModifier.getError(config)
-        assertNull(error)
-    }
+    fun `getError returns null when interval is greater than zero`() =
+        runTest {
+            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(2)))
+            val error = MonitorIntervalStateModifier.getError(config)
+            assertNull(error)
+        }
 
     @Test
-    fun `getError returns error message when interval is less than one`() = runTest {
-        val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(0)))
-        val error = MonitorIntervalStateModifier.getError(config)
-        assertEquals("Interval must be at least 1 second.", error)
-    }
+    fun `getError returns error message when interval is less than one`() =
+        runTest {
+            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(0)))
+            val error = MonitorIntervalStateModifier.getError(config)
+            assertEquals("Interval must be at least 1 second.", error)
+        }
 
     @Test
-    fun `getError returns null when ScriptConfig does not contain interval`() = runTest {
-        val config = InMemoryScriptConfig(mapOf())
-        val error = MonitorIntervalStateModifier.getError(config)
-        assertNull(error)
-    }
+    fun `getError returns null when ScriptConfig does not contain interval`() =
+        runTest {
+            val config = InMemoryScriptConfig(mapOf())
+            val error = MonitorIntervalStateModifier.getError(config)
+            assertNull(error)
+        }
 
     @Test
-    fun `getError returns null when interval is a different type`() = runTest {
-        val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.StringScriptConfigValue("invalid")))
-        val error = MonitorIntervalStateModifier.getError(config)
-        assertNull(error)
-    }
+    fun `getError returns null when interval is a different type`() =
+        runTest {
+            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.StringScriptConfigValue("invalid")))
+            val error = MonitorIntervalStateModifier.getError(config)
+            assertNull(error)
+        }
 
     @Test
-    fun `getVisibility returns VisibleOptional`() = runTest {
-        val config = InMemoryScriptConfig(mapOf())
-        val visibility = MonitorIntervalStateModifier.getVisibility(config)
-        assertEquals(Visibility.VisibleOptional, visibility)
-    }
+    fun `getVisibility returns VisibleOptional`() =
+        runTest {
+            val config = InMemoryScriptConfig(mapOf())
+            val visibility = MonitorIntervalStateModifier.getVisibility(config)
+            assertEquals(Visibility.VisibleOptional, visibility)
+        }
 }

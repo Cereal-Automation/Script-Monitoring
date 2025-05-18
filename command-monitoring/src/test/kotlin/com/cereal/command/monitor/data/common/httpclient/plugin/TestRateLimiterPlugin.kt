@@ -62,7 +62,8 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the interval. Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms"
+                "Delay should match the interval. Expected at least ${interval.inWholeMilliseconds * 0.9}ms" +
+                    "but got ${endTime - startTime}ms",
             )
         }
 
@@ -91,7 +92,8 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the interval regardless of method. Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms"
+                "Delay should match the interval regardless of method. Expected at least " +
+                    "${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms",
             )
         }
 
@@ -121,7 +123,8 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the longer interval. Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms",
+                "Delay should match the longer interval. Expected at least " +
+                    "${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms",
             )
         }
 
@@ -178,7 +181,8 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the interval (integration test). Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms"
+                "Delay should match the interval (integration test). Expected at least " +
+                    "${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms",
             )
         }
 }
