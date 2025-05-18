@@ -43,7 +43,7 @@ sealed class ItemProperty(
      */
     data class PublishDate(
         val value: Instant?,
-    ) : ItemProperty("publish date") {
+    ) : ItemProperty("release date") {
         override fun toString(): String {
             val localDateTime = value?.toLocalDateTime(TimeZone.currentSystemDefault())?.toJavaLocalDateTime()
             val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
