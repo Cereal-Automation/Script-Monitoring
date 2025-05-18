@@ -37,33 +37,37 @@ class MarketPriceComparisonStrategy(private val marketItemRepository: MarketItem
             val price = variant.getValue<ItemProperty.Price>() ?: item.getValue<ItemProperty.Price>() ?: continue
 
             // Create search criteria using the variant's styleId and the item's currency
-            val searchCriteria = SearchCriteria(
-                styleId = variant.styleId!!,
-                currency = price.currency
-            )
+            val searchCriteria =
+                SearchCriteria(
+                    styleId = variant.styleId!!,
+                    currency = price.currency,
+                )
 
             // Search for market data
             val marketItem = marketItemRepository.search(searchCriteria) ?: continue
 
             // Find the matching variant in market data
-            val matchingMarketVariant = findMatchingVariant(variant, marketItem.variants)
-                ?: continue
+            val matchingMarketVariant =
+                findMatchingVariant(variant, marketItem.variants)
+                    ?: continue
 
             // Find the market price property
-            val marketPrice = matchingMarketVariant.properties.filterIsInstance<ItemProperty.Price>().firstOrNull()
-                ?: continue
+            val marketPrice =
+                matchingMarketVariant.properties.filterIsInstance<ItemProperty.Price>().firstOrNull()
+                    ?: continue
 
             // If market price is higher than our item's price by the threshold amount or more
             if (isPriceSignificantlyBetter(price.value, marketPrice.value)) {
                 val savingsAmount = marketPrice.value.subtract(price.value)
                 val savingsPercentage = calculatePercentageDifference(price.value, marketPrice.value)
 
-                val notification = buildString {
-                    append("Price for ${item.name} ${variant.name} (${price}) is ")
-                    append(formatSavingsPercentage(savingsPercentage))
-                    append(" lower than market price (${marketPrice}). ")
-                    append("You'll earn ${ItemProperty.Price(savingsAmount, price.currency)}")
-                }
+                val notification =
+                    buildString {
+                        append("Price for ${item.name} ${variant.name} ($price) is ")
+                        append(formatSavingsPercentage(savingsPercentage))
+                        append(" lower than market price ($marketPrice). ")
+                        append("You'll earn ${ItemProperty.Price(savingsAmount, price.currency)}")
+                    }
                 notifications.add(notification)
             }
         }
@@ -72,14 +76,20 @@ class MarketPriceComparisonStrategy(private val marketItemRepository: MarketItem
         return if (notifications.isNotEmpty()) notifications.joinToString("\n\n") else null
     }
 
-    private fun isPriceSignificantlyBetter(itemPrice: BigDecimal, marketPrice: BigDecimal): Boolean {
+    private fun isPriceSignificantlyBetter(
+        itemPrice: BigDecimal,
+        marketPrice: BigDecimal,
+    ): Boolean {
         if (itemPrice >= marketPrice) return false
 
         val priceDifference = marketPrice.subtract(itemPrice)
         return priceDifference >= PRICE_ADVANTAGE_THRESHOLD
     }
 
-    private fun calculatePercentageDifference(itemPrice: BigDecimal, marketPrice: BigDecimal): Double {
+    private fun calculatePercentageDifference(
+        itemPrice: BigDecimal,
+        marketPrice: BigDecimal,
+    ): Double {
         return marketPrice.subtract(itemPrice)
             .divide(marketPrice, 4, RoundingMode.HALF_UP)
             .multiply(BigDecimal(100))
@@ -90,14 +100,17 @@ class MarketPriceComparisonStrategy(private val marketItemRepository: MarketItem
         return String.format("%.1f%%", percentage)
     }
 
-    private fun findMatchingVariant(variant: Variant, marketVariants: List<MarketItemVariant>): MarketItemVariant? {
+    private fun findMatchingVariant(
+        variant: Variant,
+        marketVariants: List<MarketItemVariant>,
+    ): MarketItemVariant? {
         val variantSize = variant.getValue<ItemProperty.Size>()
         if (variantSize != null) {
             marketVariants.firstOrNull { marketVariant ->
                 val marketSize = marketVariant.properties.filterIsInstance<ItemProperty.Size>().firstOrNull()
                 marketSize != null &&
-                        marketSize.type == variantSize.type &&
-                        marketSize.value == variantSize.value
+                    marketSize.type == variantSize.type &&
+                    marketSize.value == variantSize.value
             }?.let { return it }
         }
 
