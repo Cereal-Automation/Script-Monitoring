@@ -52,12 +52,18 @@ class TestRateLimiterPlugin {
                     }
                 }
 
+            // Make an initial request to start the rate limiter
+            client.get("https://example.com/initial")
+
             val startTime = currentTime
             client.get("https://example.com/1")
             client.get("https://example.com/2")
             val endTime = currentTime
 
-            assertTrue((endTime - startTime) >= interval.inWholeMilliseconds * 0.9, "Delay should match the interval")
+            assertTrue(
+                (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
+                "Delay should match the interval. Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms"
+            )
         }
 
     @Test
@@ -75,6 +81,9 @@ class TestRateLimiterPlugin {
                     }
                 }
 
+            // Make an initial request to start the rate limiter
+            client.get("https://example.com/initial")
+
             val startTime = currentTime
             client.get("https://example.com/1")
             client.post("https://example.com/2") { }
@@ -82,7 +91,7 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the interval regardless of method",
+                "Delay should match the interval regardless of method. Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms"
             )
         }
 
@@ -101,6 +110,10 @@ class TestRateLimiterPlugin {
                     }
                 }
 
+            // Make an initial request to start the rate limiter
+            client.get("https://example.com/initial")
+
+            // Now measure the time for the next requests
             val startTime = currentTime
             client.get("https://example.com/1")
             client.get("https://example.com/2")
@@ -108,7 +121,7 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the longer interval",
+                "Delay should match the longer interval. Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms",
             )
         }
 
@@ -155,6 +168,9 @@ class TestRateLimiterPlugin {
                     install(plugin)
                 }
 
+            // Make an initial request to start the rate limiter
+            client.get("https://example.com/initial")
+
             val startTime = currentTime
             client.get("https://example.com/1")
             client.get("https://example.com/2")
@@ -162,7 +178,7 @@ class TestRateLimiterPlugin {
 
             assertTrue(
                 (endTime - startTime) >= interval.inWholeMilliseconds * 0.9,
-                "Delay should match the interval (integration test)",
+                "Delay should match the interval (integration test). Expected at least ${interval.inWholeMilliseconds * 0.9}ms but got ${endTime - startTime}ms"
             )
         }
 }
