@@ -68,6 +68,7 @@ class ScriptNotificationRepository(
             is ItemProperty.Custom -> null
             is ItemProperty.PublishDate -> ":alarm_clock:"
             is ItemProperty.Stock -> ":bar_chart:"
+            is ItemProperty.Size -> ":straight_ruler:"
         }
     }
 

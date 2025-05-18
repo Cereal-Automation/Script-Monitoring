@@ -77,6 +77,102 @@ sealed class ItemProperty(
     }
 
     /**
+     * Represents the size information of an item.
+     *
+     * This class provides size details including the size value and its type.
+     *
+     * @property type The type of size classification.
+     * @property value The actual size value.
+     */
+    data class Size(
+        val type: SizeType,
+        val value: SizeValue,
+    ) : ItemProperty("size") {
+        override fun toString(): String = "${value.display} (${type.displayName})"
+
+        /**
+         * Enumeration of size types used in various sizing systems.
+         *
+         * @property displayName The human-readable name of the size type.
+         */
+        enum class SizeType(val displayName: String) {
+            US_MEN("US Men's"),
+            US_WOMEN("US Women's"),
+            US_YOUTH("US Youth"),
+            US_INFANT("US Infant"),
+            US_PRESCHOOL("US Preschool"),
+            EU("EU"),
+            UK("UK"),
+            CM("CM"),
+            JP("JP"),
+            ONE_SIZE("One Size");
+
+            companion object {
+                fun fromString(value: String): SizeType {
+                    return when (value.uppercase()) {
+                        "US MEN'S", "US MENS", "US MEN" -> US_MEN
+                        "US WOMEN'S", "US WOMENS", "US WOMEN" -> US_WOMEN
+                        "US YOUTH", "Y" -> US_YOUTH
+                        "US INFANT", "INFANT" -> US_INFANT
+                        "US PRESCHOOL", "PRESCHOOL", "PS" -> US_PRESCHOOL
+                        "EU" -> EU
+                        "UK" -> UK
+                        "CM" -> CM
+                        "JP" -> JP
+                        "ONE SIZE", "OS" -> ONE_SIZE
+                        else -> throw IllegalArgumentException("Unknown size type: $value")
+                    }
+                }
+            }
+        }
+
+        /**
+         * Enum representing standardized size values.
+         *
+         * @property display The display representation of the size value.
+         */
+        enum class SizeValue(val display: String) {
+            // US Men's sizes
+            US_MEN_4("4"), US_MEN_4_5("4.5"), US_MEN_5("5"), US_MEN_5_5("5.5"),
+            US_MEN_6("6"), US_MEN_6_5("6.5"), US_MEN_7("7"), US_MEN_7_5("7.5"),
+            US_MEN_8("8"), US_MEN_8_5("8.5"), US_MEN_9("9"), US_MEN_9_5("9.5"),
+            US_MEN_10("10"), US_MEN_10_5("10.5"), US_MEN_11("11"), US_MEN_11_5("11.5"),
+            US_MEN_12("12"), US_MEN_12_5("12.5"), US_MEN_13("13"), US_MEN_13_5("13.5"),
+            US_MEN_14("14"), US_MEN_15("15"), US_MEN_16("16"), US_MEN_17("17"),
+            US_MEN_18("18"),
+
+            // US Women's sizes
+            US_WOMEN_5("5"), US_WOMEN_5_5("5.5"), US_WOMEN_6("6"), US_WOMEN_6_5("6.5"),
+            US_WOMEN_7("7"), US_WOMEN_7_5("7.5"), US_WOMEN_8("8"), US_WOMEN_8_5("8.5"),
+            US_WOMEN_9("9"), US_WOMEN_9_5("9.5"), US_WOMEN_10("10"), US_WOMEN_10_5("10.5"),
+            US_WOMEN_11("11"), US_WOMEN_11_5("11.5"), US_WOMEN_12("12"),
+
+            // EU sizes
+            EU_35("35"), EU_36("36"), EU_37("37"), EU_38("38"),
+            EU_39("39"), EU_40("40"), EU_41("41"), EU_42("42"),
+            EU_43("43"), EU_44("44"), EU_45("45"), EU_46("46"),
+            EU_47("47"), EU_48("48"), EU_49("49"), EU_50("50"),
+
+            // UK sizes
+            UK_3("3"), UK_3_5("3.5"), UK_4("4"), UK_4_5("4.5"),
+            UK_5("5"), UK_5_5("5.5"), UK_6("6"), UK_6_5("6.5"),
+            UK_7("7"), UK_7_5("7.5"), UK_8("8"), UK_8_5("8.5"),
+            UK_9("9"), UK_9_5("9.5"), UK_10("10"), UK_10_5("10.5"),
+            UK_11("11"), UK_11_5("11.5"), UK_12("12"),
+
+            // Other sizes
+            ONE_SIZE("One Size");
+
+            companion object {
+                fun fromString(value: String): SizeValue {
+                    return SizeValue.entries.find { it.display == value }
+                        ?: throw IllegalArgumentException("Unknown size value: $value")
+                }
+            }
+        }
+    }
+
+    /**
      * Represents a custom property associated with an item.
      *
      * This class extends the base `ItemProperty` class and allows defining a custom
