@@ -110,9 +110,10 @@ sealed class ItemProperty(
 
             companion object {
                 fun fromString(value: String): SizeType {
-                    val key = value.trim()
-                        .replace("’", "'")        // smart quote → ascii
-                        .uppercase()
+                    val key =
+                        value.trim()
+                            .replace("’", "'") // smart quote → ascii
+                            .uppercase()
                     return when (key) {
                         "US MEN'S", "US MENS", "US MEN" -> US_MEN
                         "US WOMEN'S", "US WOMENS", "US WOMEN" -> US_WOMEN

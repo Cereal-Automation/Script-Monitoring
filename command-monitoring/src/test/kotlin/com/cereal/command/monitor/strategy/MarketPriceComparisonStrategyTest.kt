@@ -281,9 +281,7 @@ class MarketPriceComparisonStrategyTest {
         )
     }
 
-    private fun createMarketItem(
-        price: BigDecimal,
-    ): MarketItem {
+    private fun createMarketItem(price: BigDecimal): MarketItem {
         return MarketItem(
             id = "market1",
             url = "https://market.com/item1",
