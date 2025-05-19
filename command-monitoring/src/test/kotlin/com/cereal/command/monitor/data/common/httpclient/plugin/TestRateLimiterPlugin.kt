@@ -24,7 +24,7 @@ class TestRateLimiterPlugin {
                 HttpClient(MockEngine) {
                     install(plugin)
                     engine {
-                        addHandler { request ->
+                        addHandler { _ ->
                             respondOk()
                         }
                     }
@@ -46,7 +46,7 @@ class TestRateLimiterPlugin {
                 HttpClient(MockEngine) {
                     install(plugin)
                     engine {
-                        addHandler { request ->
+                        addHandler { _ ->
                             respondOk()
                         }
                     }
@@ -76,7 +76,7 @@ class TestRateLimiterPlugin {
                 HttpClient(MockEngine) {
                     install(plugin)
                     engine {
-                        addHandler { request ->
+                        addHandler { _ ->
                             respondOk()
                         }
                     }
@@ -106,7 +106,7 @@ class TestRateLimiterPlugin {
                 HttpClient(MockEngine) {
                     install(plugin)
                     engine {
-                        addHandler { request ->
+                        addHandler { _ ->
                             respondOk()
                         }
                     }
@@ -137,7 +137,7 @@ class TestRateLimiterPlugin {
                 HttpClient(MockEngine) {
                     install(plugin)
                     engine {
-                        addHandler { request ->
+                        addHandler { _ ->
                             respondOk()
                         }
                     }
@@ -160,7 +160,7 @@ class TestRateLimiterPlugin {
             val plugin = RateLimiterPlugin(interval).plugin
 
             val mockEngine =
-                MockEngine { request ->
+                MockEngine { _ ->
                     respondOk(
                         content = "OK",
                     )
