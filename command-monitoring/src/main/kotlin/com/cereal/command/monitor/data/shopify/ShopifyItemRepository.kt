@@ -63,10 +63,18 @@ class ShopifyItemRepository(
                     name = product.title,
                     description = product.bodyHtml?.stripHtml(),
                     imageUrl = product.images.firstOrNull()?.src,
+                    variants =
+                        product.variants.map {
+                            Variant(
+                                it.id.toString(),
+                                it.title,
+                                null,
+                                properties = listOf(ItemProperty.Stock(it.available, null, null)),
+                            )
+                        },
                     properties =
                         listOfNotNull(
                             product.publishedAt?.let { ItemProperty.PublishDate(it) },
-                            ItemProperty.Variants(product.variants.map { Variant(it.title, it.available) }),
                         ),
                 )
             }

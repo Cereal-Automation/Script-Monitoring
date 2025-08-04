@@ -7,7 +7,11 @@ import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.data.snkrs.Locale
 import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
-import com.cereal.command.monitor.fixtures.FakeLogRepository
+import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
+import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
+import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
+import com.cereal.command.monitor.data.zalando.ZalandoWebsite
+import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import com.cereal.command.monitor.repository.ItemRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
@@ -46,7 +50,16 @@ class TestItemRepositoryIntegrations {
                     SnkrsApiClient(FakeLogRepository(), null),
                     Locale.BE_NL,
                 ),
-                ShopifyItemRepository(FakeLogRepository(), ShopifyWebsite("Test", "https://bdgastore.com/collections/newarrivals")),
+                ShopifyItemRepository(
+                    FakeLogRepository(),
+                    ShopifyWebsite("Test", "https://www.fillingpieces.com/collections/men-new-arrivals"),
+                ),
+                ZalandoItemRepository(
+                    FakeLogRepository(),
+                    ZalandoProductCategory.MEN_SNEAKERS,
+                    ZalandoWebsite.UK,
+                    ZalandoMonitorType.NewReleases,
+                ),
             )
     }
 }

@@ -72,3 +72,19 @@ A GitHub actions configuration is included in this repository. It contains the f
 
 * Use the https://plugins.jetbrains.com/plugin/9960-json-to-kotlin-class-jsontokotlinclass- plugin to generate classes
   from JSON.
+
+## Updating Stockx api client
+
+### 1. OpenAPI Specification
+
+Place the updated Stockx OpenAPI JSON file ([found here](https://developer.stockx.com/openapi/reference/overview)) inside the root `specs/` directory: `specs/stockx.json`.
+
+## 2. Generating the Client
+
+Regenerate the API client from the spec by running:
+
+```bash
+./gradlew openApiGenerate
+```
+
+This will regenerate the client code in the `stockx-api-client` module.

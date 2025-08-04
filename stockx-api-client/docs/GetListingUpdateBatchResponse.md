@@ -1,0 +1,16 @@
+
+# GetListingUpdateBatchResponse
+
+## Properties
+| Name | Type | Description | Notes |
+| ------------ | ------------- | ------------- | ------------- |
+| **batchId** | **kotlin.String** | Unique Batch ID |  |
+| **status** | **kotlin.String** | The status of the batch |  |
+| **completedAt** | **kotlin.String** | When this batch was completed in UTC. Represented as ISO 8601 format like 2022-01-18T20:20:39Z |  |
+| **createdAt** | **kotlin.String** | When this batch was created in UTC. Represented as ISO 8601 format like 2022-01-18T20:20:39Z |  |
+| **updatedAt** | **kotlin.String** | When this batch was updated in UTC. Represented as ISO 8601 format like 2022-01-18T20:20:39Z |  |
+| **totalItems** | **kotlin.Double** | Total number of items in this batch |  |
+| **itemStatuses** | **kotlin.collections.Map&lt;kotlin.String, kotlin.Double&gt;** | The number of items in this batch grouped by their statuses. This is a short-hand way to quickly introspect how many items are still enqued, how many succeeded or how many failed in a batch. |  |
+
+
+

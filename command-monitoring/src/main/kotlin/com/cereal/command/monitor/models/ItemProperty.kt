@@ -13,10 +13,21 @@ import java.util.Locale
 sealed class ItemProperty(
     val commonName: String,
 ) {
+    /**
+     * Represents the price of an item, including its numerical value and currency.
+     *
+     * @property value The monetary value of the price.
+     * @property currency The currency in which the price is denominated.
+     *
+     * This class extends the [ItemProperty] base class, specifying the property name as "price".
+     *
+     * The `toString` method provides a string representation of the price formatted according
+     * to the default locale, using the appropriate currency symbol.
+     */
     data class Price(
         val value: BigDecimal,
-        val currency: com.cereal.command.monitor.models.Currency,
-    ) : com.cereal.command.monitor.models.ItemProperty("price") {
+        val currency: Currency,
+    ) : ItemProperty("price") {
         override fun toString(): String {
             val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
             currencyFormatter.currency = java.util.Currency.getInstance(currency.code)
@@ -32,7 +43,7 @@ sealed class ItemProperty(
      */
     data class PublishDate(
         val value: Instant?,
-    ) : com.cereal.command.monitor.models.ItemProperty("publish date") {
+    ) : ItemProperty("release date") {
         override fun toString(): String {
             val localDateTime = value?.toLocalDateTime(TimeZone.currentSystemDefault())?.toJavaLocalDateTime()
             val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
@@ -40,36 +51,62 @@ sealed class ItemProperty(
         }
     }
 
-    data class AvailableStock(
-        val value: Int,
-    ) : com.cereal.command.monitor.models.ItemProperty("stock") {
-        override fun toString(): String = value.toString()
+    /**
+     * Represents the stock status of an item in an inventory or catalog.
+     *
+     * This class provides information about whether an item is in stock,
+     * the quantity available, or the stock level as a descriptive value.
+     *
+     * @property isInStock Indicates whether the item is in stock.
+     * @property amount The quantity of items in stock, if available.
+     * @property level A descriptive value representing the stock level (e.g., "low", "high"), if the amount is not specified.
+     */
+    data class Stock(
+        val isInStock: Boolean,
+        val amount: Int?,
+        val level: String?,
+    ) : ItemProperty("stock") {
+        override fun toString(): String =
+            if (isInStock) {
+                stockValue() ?: "yes"
+            } else {
+                "no"
+            }
+
+        fun stockValue(): String? = amount?.toString() ?: level
     }
 
-    data class InStock(
-        val value: Boolean,
-    ) : com.cereal.command.monitor.models.ItemProperty("in stock") {
-        override fun toString(): String = if (value) "yes" else "no"
-    }
-
-    data class Variants(
-        val value: List<com.cereal.command.monitor.models.Variant>,
-    ) : com.cereal.command.monitor.models.ItemProperty("sizes") {
-        override fun toString(): String = value.joinToString("\n") { "${it.name}: ${it.stockLevel}" }
-    }
-
+    /**
+     * Represents a custom property associated with an item.
+     *
+     * This class extends the base `ItemProperty` class and allows defining a custom
+     * property by specifying a name and its corresponding value. The custom property name
+     * is also used as the common name inherited from `ItemProperty`.
+     *
+     * @constructor Creates a `Custom` property with a specified name and value.
+     * @property name The name of the custom property.
+     * @property value The value associated with the custom property.
+     */
     data class Custom(
         val name: String,
         val value: String,
-    ) : com.cereal.command.monitor.models.ItemProperty(name) {
+    ) : ItemProperty(name) {
         override fun toString(): String = value
     }
 }
 
-inline fun <reified T : com.cereal.command.monitor.models.ItemProperty> com.cereal.command.monitor.models.Item.getValue(): T? =
-    properties.filterIsInstance<T>().firstOrNull()
+fun List<ItemProperty>.toDisplay(): String = joinToString(" / ") { "${it.commonName}: $it" }
 
-inline fun <reified T : com.cereal.command.monitor.models.ItemProperty> com.cereal.command.monitor.models.Item.requireValue(): T =
-    getValue() ?: throw com.cereal.command.monitor.models.MissingValueTypeException(
+inline fun <reified T : ItemProperty> Item.getValue(): T? = properties.filterIsInstance<T>().firstOrNull()
+
+inline fun <reified T : ItemProperty> Item.requireValue(): T =
+    getValue() ?: throw MissingValueTypeException(
+        T::class,
+    )
+
+inline fun <reified T : ItemProperty> Variant.getValue(): T? = properties.filterIsInstance<T>().firstOrNull()
+
+inline fun <reified T : ItemProperty> Variant.requireValue(): T =
+    getValue() ?: throw MissingValueTypeException(
         T::class,
     )

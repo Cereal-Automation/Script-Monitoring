@@ -6,5 +6,6 @@ data class Item(
     val name: String,
     val description: String? = null,
     var imageUrl: String? = null,
-    val properties: List<com.cereal.command.monitor.models.ItemProperty> = listOf(),
+    val variants: List<Variant> = emptyList(),
+    val properties: List<ItemProperty> = emptyList(),
 )
