@@ -58,15 +58,15 @@ object MonitorStrategyFactory {
                         }
                     },
                 httpClientConfig = {
-                    it.install(ContentNegotiation.Plugin) {
+                    it.install(ContentNegotiation) {
                         json(
                             defaultJson(),
                         )
                     }
-                    it.install(Logging.Companion) {
+                    it.install(Logging) {
                         level = LogLevel.HEADERS
                     }
-                    it.install(HttpTimeout.Plugin) {
+                    it.install(HttpTimeout) {
                         requestTimeoutMillis = 10.seconds.inWholeMilliseconds
                     }
                     it.install(RateLimiterPlugin(1100.milliseconds).plugin)
