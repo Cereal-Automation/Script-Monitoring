@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
-    id("com.gradleup.shadow") version "8.3.5"
+    kotlin("jvm") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.0"
+    id("com.gradleup.shadow") version "8.3.8"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
@@ -16,7 +16,7 @@ allprojects {
 
 buildscript {
     dependencies {
-        classpath("com.guardsquare:proguard-gradle:7.6.1")
+        classpath("com.guardsquare:proguard-gradle:7.7.0")
     }
 }
 
