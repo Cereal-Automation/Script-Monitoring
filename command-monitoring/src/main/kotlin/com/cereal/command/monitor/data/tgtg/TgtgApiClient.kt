@@ -131,12 +131,6 @@ class TgtgApiClient(
     }
 
     suspend fun listFavoriteBusinesses(): FavoriteBusinessesResponse? {
-        val session = getSession()
-        if (session.refreshToken == null) {
-            logRepository.info("You are not logged in. Login via authByEmail and authPoll first.")
-            return null
-        }
-
         val request = FavoriteBusinessesRequest(
             favoritesOnly = true,
             origin = FavoriteBusinessesRequest.Origin(
@@ -145,6 +139,15 @@ class TgtgApiClient(
             ),
             radius = 200
         )
+        return listFavoriteBusinesses(request)
+    }
+
+    suspend fun listFavoriteBusinesses(request: FavoriteBusinessesRequest): FavoriteBusinessesResponse? {
+        val session = getSession()
+        if (session.refreshToken == null) {
+            logRepository.info("You are not logged in. Login via authByEmail and authPoll first.")
+            return null
+        }
 
         val headers = defaultHeaders.toMutableMap()
         headers["x-correlation-id"] = config.correlationId

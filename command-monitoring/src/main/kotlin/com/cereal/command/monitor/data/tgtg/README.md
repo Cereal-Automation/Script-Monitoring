@@ -28,6 +28,9 @@ Configuration class that stores:
 ### TgtgAppVersionUpdater
 Utility class to automatically fetch the latest TGTG app version from Google Play Store.
 
+### TgtgItemRepository
+Repository implementation that integrates with the monitoring system's ItemRepository interface. Converts TGTG business items into the standard Item format used by the monitoring system.
+
 ### Data Models
 - **AuthModels**: Authentication request/response models
 - **FavoriteBusinessesModels**: Business listing models with detailed store and item information
@@ -79,6 +82,30 @@ if (loginSuccess) {
 ```kotlin
 val versionUpdater = TgtgAppVersionUpdater(logRepository)
 val success = versionUpdater.updateAppVersion(config)
+```
+
+### Using TgtgItemRepository
+
+```kotlin
+// 1. Create and authenticate API client
+val config = TgtgConfig(email = "your-email@example.com")
+val apiClient = TgtgApiClient(logRepository, config)
+val loginSuccess = apiClient.login()
+
+// 2. Create repository with location parameters
+val repository = TgtgItemRepository(
+    tgtgApiClient = apiClient,
+    latitude = 52.3676, // Amsterdam coordinates
+    longitude = 4.9041,
+    radius = 50000, // 50km radius in meters
+    favoritesOnly = false // Include all businesses, not just favorites
+)
+
+// 3. Fetch items using the standard ItemRepository interface
+val page = repository.getItems(null)
+page.items.forEach { item ->
+    println("${item.name}: ${item.properties.joinToString(", ")}")
+}
 ```
 
 ### Complete Example

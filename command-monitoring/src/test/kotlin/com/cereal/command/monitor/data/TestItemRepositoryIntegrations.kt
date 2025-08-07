@@ -7,6 +7,9 @@ import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.data.snkrs.Locale
 import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
+import com.cereal.command.monitor.data.tgtg.TgtgApiClient
+import com.cereal.command.monitor.data.tgtg.TgtgConfig
+import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
 import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
 import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
 import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
@@ -53,6 +56,17 @@ class TestItemRepositoryIntegrations {
                 ShopifyItemRepository(
                     FakeLogRepository(),
                     ShopifyWebsite("Test", "https://www.fillingpieces.com/collections/men-new-arrivals"),
+                ),
+                TgtgItemRepository(
+                    TgtgApiClient(
+                        FakeLogRepository(),
+                        TgtgConfig(email = "test@example.com"),
+                        null
+                    ),
+                    latitude = 52.3676, // Amsterdam coordinates for testing
+                    longitude = 4.9041,
+                    radius = 10000, // 10km radius
+                    favoritesOnly = false
                 ),
                 ZalandoItemRepository(
                     FakeLogRepository(),

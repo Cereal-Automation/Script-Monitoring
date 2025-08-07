@@ -157,4 +157,55 @@ class TgtgExample(
             logRepository.info("Error during login: ${e.message}")
         }
     }
+
+    suspend fun demonstrateItemRepository(email: String, latitude: Double, longitude: Double) {
+        val config = TgtgConfig(email = email)
+        val apiClient = TgtgApiClient(
+            logRepository = logRepository,
+            config = config,
+            httpProxy = httpProxy
+        )
+
+        try {
+            // Login first
+            logRepository.info("Logging in for: $email")
+            val loginSuccess = apiClient.login()
+
+            if (!loginSuccess) {
+                logRepository.info("Login failed. Please authenticate first using demonstrateFullFlow()")
+                return
+            }
+
+            // Create the repository
+            val repository = TgtgItemRepository(
+                tgtgApiClient = apiClient,
+                latitude = latitude,
+                longitude = longitude,
+                radius = 50000, // 50km radius
+                favoritesOnly = false
+            )
+
+            // Fetch items using the standard ItemRepository interface
+            logRepository.info("Fetching TGTG items using ItemRepository interface...")
+            val page = repository.getItems(null)
+
+            logRepository.info("Found ${page.items.size} items:")
+            page.items.forEach { item ->
+                val properties = item.properties.joinToString(", ") { "${it.commonName}: $it" }
+                val variants = item.variants.joinToString(", ") { variant ->
+                    val variantProps = variant.properties.joinToString(", ") { "${it.commonName}: $it" }
+                    "${variant.name} ($variantProps)"
+                }
+
+                logRepository.info("- ${item.name}")
+                logRepository.info("  URL: ${item.url ?: "N/A"}")
+                logRepository.info("  Properties: $properties")
+                logRepository.info("  Variants: $variants")
+                logRepository.info("  Description: ${item.description?.take(100) ?: "N/A"}...")
+            }
+
+        } catch (e: Exception) {
+            logRepository.info("Error during ItemRepository demonstration: ${e.message}")
+        }
+    }
 }
