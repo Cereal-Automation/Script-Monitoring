@@ -12,6 +12,9 @@ import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
+import com.cereal.tgtg.command.TgtgAuthPollCommand
+import com.cereal.tgtg.command.TgtgLoginCommand
+import com.cereal.tgtg.data.TgtgAuthRepositoryImpl
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -72,19 +75,20 @@ class TgtgScript : Script<TgtgConfiguration> {
                 favoritesOnly = configuration.favoritesOnly(),
             )
 
+        // Create auth repository
+        val tgtgAuthRepository = TgtgAuthRepositoryImpl(tgtgApiClient)
+
         // Create login commands
         val loginCommand =
             TgtgLoginCommand(
-                tgtgApiClient = tgtgApiClient,
+                tgtgAuthRepository = tgtgAuthRepository,
                 logRepository = logRepository,
-                statusUpdate = statusUpdate,
             )
 
         val authPollCommand =
             TgtgAuthPollCommand(
-                tgtgApiClient = tgtgApiClient,
+                tgtgAuthRepository = tgtgAuthRepository,
                 logRepository = logRepository,
-                statusUpdate = statusUpdate,
             )
 
         // Create monitor command

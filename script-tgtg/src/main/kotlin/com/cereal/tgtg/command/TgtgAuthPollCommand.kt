@@ -1,11 +1,11 @@
-package com.cereal.tgtg
+package com.cereal.tgtg.command
 
-import com.cereal.command.monitor.data.tgtg.TgtgApiClient
 import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
+import com.cereal.tgtg.domain.TgtgAuthRepository
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.until
@@ -15,9 +15,8 @@ import kotlinx.datetime.until
  * Command that polls for TGTG authentication completion.
  */
 class TgtgAuthPollCommand(
-    private val tgtgApiClient: TgtgApiClient,
+    private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
-    private val statusUpdate: suspend (message: String) -> Unit,
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         val authState = context.get<TgtgAuthState>()
@@ -62,7 +61,7 @@ class TgtgAuthPollCommand(
         logRepository.info("🔍 Checking authentication status... (${elapsedTime.toInt() + 1} minutes elapsed)")
 
         try {
-            val pollResponse = tgtgApiClient.authPoll(authState.pollingId)
+            val pollResponse = tgtgAuthRepository.authPoll(authState.pollingId)
 
             if (pollResponse.accessToken != null && pollResponse.refreshToken != null) {
                 logRepository.info("🎉 Authentication successful! You are now logged in to TGTG.")

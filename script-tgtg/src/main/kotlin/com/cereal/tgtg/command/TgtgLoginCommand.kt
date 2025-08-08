@@ -1,15 +1,13 @@
-package com.cereal.tgtg
+package com.cereal.tgtg.command
 
-import com.cereal.command.monitor.data.tgtg.TgtgApiClient
 import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
+import com.cereal.tgtg.domain.TgtgAuthRepository
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
-import kotlinx.datetime.until
 
 /**
  * Data class to store authentication state in ChainContext between commands.
@@ -24,9 +22,8 @@ data class TgtgAuthState(
  * Command that checks existing TGTG authentication and initiates email authentication if needed.
  */
 class TgtgLoginCommand(
-    private val tgtgApiClient: TgtgApiClient,
+    private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
-    private val statusUpdate: suspend (message: String) -> Unit,
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         return RunDecision.RunOnce()
@@ -36,7 +33,7 @@ class TgtgLoginCommand(
         logRepository.info("Checking TGTG authentication status...")
 
         // Try to login with existing credentials
-        val loginSuccess = tgtgApiClient.login()
+        val loginSuccess = tgtgAuthRepository.login()
 
         if (loginSuccess) {
             logRepository.info("✅ TGTG authentication successful using existing credentials!")
@@ -50,7 +47,7 @@ class TgtgLoginCommand(
             // Send authentication email
             logRepository.info("📧 Sending authentication email...")
 
-            val authResponse = tgtgApiClient.authByEmail()
+            val authResponse = tgtgAuthRepository.authByEmail()
             val pollingId = authResponse.pollingId
 
             if (pollingId.isNullOrEmpty()) {
