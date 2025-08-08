@@ -7,7 +7,9 @@ import com.cereal.script.commands.RunDecision
 import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
+import kotlinx.datetime.until
 
 /**
  * Data class to store authentication state in ChainContext between commands.
@@ -32,25 +34,21 @@ class TgtgLoginCommand(
 
     override suspend fun execute(context: ChainContext) {
         logRepository.info("Checking TGTG authentication status...")
-        statusUpdate("Checking TGTG authentication...")
 
         // Try to login with existing credentials
         val loginSuccess = tgtgApiClient.login()
 
         if (loginSuccess) {
             logRepository.info("✅ TGTG authentication successful using existing credentials!")
-            statusUpdate("TGTG authentication successful!")
             return
         }
 
         // Login failed - need to start interactive authentication
         logRepository.info("🔐 TGTG login failed. Starting interactive authentication...")
-        statusUpdate("Starting TGTG authentication flow...")
 
         try {
             // Send authentication email
             logRepository.info("📧 Sending authentication email...")
-            statusUpdate("Sending authentication email to your TGTG account...")
 
             val authResponse = tgtgApiClient.authByEmail()
             val pollingId = authResponse.pollingId

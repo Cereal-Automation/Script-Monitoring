@@ -60,14 +60,12 @@ class TgtgAuthPollCommand(
 
         // Poll for authentication completion
         logRepository.info("🔍 Checking authentication status... (${elapsedTime.toInt() + 1} minutes elapsed)")
-        statusUpdate("Checking authentication status... please check your email and click the link")
 
         try {
             val pollResponse = tgtgApiClient.authPoll(authState.pollingId)
 
             if (pollResponse.accessToken != null && pollResponse.refreshToken != null) {
                 logRepository.info("🎉 Authentication successful! You are now logged in to TGTG.")
-                statusUpdate("Authentication successful! TGTG login complete.")
                 // Authentication successful - remove state from context
                 context.store.removeIf { it is TgtgAuthState }
                 return
@@ -105,6 +103,5 @@ class TgtgAuthPollCommand(
             """.trimMargin()
 
         logRepository.info(emailMessage)
-        statusUpdate("Waiting for email authentication - please check your email and click the link")
     }
 }
