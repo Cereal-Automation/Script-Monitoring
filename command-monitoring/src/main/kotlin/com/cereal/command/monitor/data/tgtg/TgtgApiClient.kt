@@ -11,6 +11,7 @@ import com.cereal.command.monitor.data.tgtg.models.FavoriteBusinessesResponse
 import com.cereal.command.monitor.data.tgtg.models.RefreshTokenRequest
 import com.cereal.command.monitor.data.tgtg.models.RefreshTokenResponse
 import com.cereal.script.repository.LogRepository
+import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
@@ -27,6 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 class TgtgApiClient(
     private val logRepository: LogRepository,
     private val config: TgtgConfig,
+    private val preferenceComponent: PreferenceComponent,
     private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,
 ) {
@@ -34,54 +36,95 @@ class TgtgApiClient(
     private val json = defaultJson()
     private val sessionMutex = Mutex()
 
-    private val defaultHeaders = mapOf(
-        HttpHeaders.ContentType to ContentType.Application.Json.toString(),
-        HttpHeaders.Accept to "application/json",
-        HttpHeaders.AcceptLanguage to "en-US",
-        HttpHeaders.AcceptEncoding to "gzip",
-        HttpHeaders.UserAgent to "TGTG/${config.appVersion} Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
-    )
+    // Preference keys for persistent storage
+    private val correlationIdKey = "tgtg_correlation_id_${config.email}"
+    private val sessionKey = "tgtg_session_${config.email}"
 
-    private fun createHttpClient(): HttpClient {
+    private val defaultHeaders =
+        mapOf(
+            HttpHeaders.ContentType to ContentType.Application.Json.toString(),
+            HttpHeaders.Accept to "application/json",
+            HttpHeaders.AcceptLanguage to "en-US",
+            HttpHeaders.AcceptEncoding to "gzip",
+            HttpHeaders.UserAgent to "TGTG/${config.appVersion} Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
+        )
+
+    private suspend fun createHttpClient(): HttpClient {
         val headers = defaultHeaders.toMutableMap()
-        headers["x-correlation-id"] = config.correlationId
+        headers["x-correlation-id"] = getCorrelationId()
 
         return defaultHttpClient(
             timeout = timeout,
             httpProxy = httpProxy,
             logRepository = logRepository,
-            defaultHeaders = headers
+            defaultHeaders = headers,
         )
     }
 
-    suspend fun authByEmail(): AuthByEmailResponse {
-        config.correlationId = UUID.randomUUID().toString()
+    // Helper methods for persistent storage
+    private suspend fun getCorrelationId(): String {
+        return preferenceComponent.getString(correlationIdKey) ?: UUID.randomUUID().toString().also {
+            preferenceComponent.setString(correlationIdKey, it)
+        }
+    }
 
-        val request = AuthByEmailRequest(
-            deviceType = config.deviceType,
-            email = config.email
-        )
+    private suspend fun setCorrelationId(correlationId: String) {
+        preferenceComponent.setString(correlationIdKey, correlationId)
+    }
+
+    private suspend fun getStoredSession(): TgtgSession =
+        sessionMutex.withLock {
+            val sessionJson = preferenceComponent.getString(sessionKey)
+            if (sessionJson != null) {
+                try {
+                    json.decodeFromString<TgtgSession>(sessionJson)
+                } catch (e: Exception) {
+                    logRepository.debug("Failed to deserialize stored session: ${e.message}")
+                    TgtgSession()
+                }
+            } else {
+                TgtgSession()
+            }
+        }
+
+    private suspend fun storeSession(session: TgtgSession) =
+        sessionMutex.withLock {
+            val sessionJson = json.encodeToString(session)
+            preferenceComponent.setString(sessionKey, sessionJson)
+        }
+
+    suspend fun authByEmail(): AuthByEmailResponse {
+        setCorrelationId(UUID.randomUUID().toString())
+
+        val request =
+            AuthByEmailRequest(
+                deviceType = config.deviceType,
+                email = config.email,
+            )
 
         val httpClient = createHttpClient()
-        val response = httpClient.post("${baseUrl}auth/v5/authByEmail") {
-            setBody(json.encodeToString(AuthByEmailRequest.serializer(), request))
-        }
+        val response =
+            httpClient.post("${baseUrl}auth/v5/authByEmail") {
+                setBody(json.encodeToString(AuthByEmailRequest.serializer(), request))
+            }
 
         val bodyText = response.bodyAsText()
         return json.decodeFromString(AuthByEmailResponse.serializer(), bodyText)
     }
 
     suspend fun authPoll(pollingId: String): AuthPollResponse {
-        val request = AuthPollRequest(
-            deviceType = config.deviceType,
-            email = config.email,
-            requestPollingId = pollingId
-        )
+        val request =
+            AuthPollRequest(
+                deviceType = config.deviceType,
+                email = config.email,
+                requestPollingId = pollingId,
+            )
 
         val httpClient = createHttpClient()
-        val response = httpClient.post("${baseUrl}auth/v5/authByRequestPollingId") {
-            setBody(json.encodeToString(AuthPollRequest.serializer(), request))
-        }
+        val response =
+            httpClient.post("${baseUrl}auth/v5/authByRequestPollingId") {
+                setBody(json.encodeToString(AuthPollRequest.serializer(), request))
+            }
 
         val bodyText = response.bodyAsText()
         val authResponse = json.decodeFromString(AuthPollResponse.serializer(), bodyText)
@@ -97,9 +140,9 @@ class TgtgApiClient(
     }
 
     suspend fun login(): Boolean {
-        config.correlationId = UUID.randomUUID().toString()
+        setCorrelationId(UUID.randomUUID().toString())
 
-        val session = getSession()
+        val session = getStoredSession()
         return if (session.refreshToken != null) {
             refreshToken()
         } else {
@@ -109,15 +152,16 @@ class TgtgApiClient(
     }
 
     private suspend fun refreshToken(): Boolean {
-        val session = getSession()
+        val session = getStoredSession()
         val refreshToken = session.refreshToken ?: return false
 
         val request = RefreshTokenRequest(refreshToken = refreshToken)
 
         val httpClient = createHttpClient()
-        val response = httpClient.post("${baseUrl}token/v1/refresh") {
-            setBody(json.encodeToString(RefreshTokenRequest.serializer(), request))
-        }
+        val response =
+            httpClient.post("${baseUrl}token/v1/refresh") {
+                setBody(json.encodeToString(RefreshTokenRequest.serializer(), request))
+            }
 
         val bodyText = response.bodyAsText()
         val tokenResponse = json.decodeFromString(RefreshTokenResponse.serializer(), bodyText)
@@ -131,55 +175,64 @@ class TgtgApiClient(
     }
 
     suspend fun listFavoriteBusinesses(): FavoriteBusinessesResponse? {
-        val request = FavoriteBusinessesRequest(
-            favoritesOnly = true,
-            origin = FavoriteBusinessesRequest.Origin(
-                latitude = 52.5170365,
-                longitude = 13.3888599
-            ),
-            radius = 200
-        )
+        val request =
+            FavoriteBusinessesRequest(
+                favoritesOnly = true,
+                origin =
+                    FavoriteBusinessesRequest.Origin(
+                        latitude = 52.5170365,
+                        longitude = 13.3888599,
+                    ),
+                radius = 200,
+            )
         return listFavoriteBusinesses(request)
     }
 
     suspend fun listFavoriteBusinesses(request: FavoriteBusinessesRequest): FavoriteBusinessesResponse? {
-        val session = getSession()
+        val session = getStoredSession()
         if (session.refreshToken == null) {
             logRepository.info("You are not logged in. Login via authByEmail and authPoll first.")
             return null
         }
 
         val headers = defaultHeaders.toMutableMap()
-        headers["x-correlation-id"] = config.correlationId
+        headers["x-correlation-id"] = getCorrelationId()
         headers[HttpHeaders.Authorization] = "Bearer ${session.accessToken}"
 
-        val httpClient = defaultHttpClient(
-            timeout = timeout,
-            httpProxy = httpProxy,
-            logRepository = logRepository,
-            defaultHeaders = headers
-        )
+        val httpClient =
+            defaultHttpClient(
+                timeout = timeout,
+                httpProxy = httpProxy,
+                logRepository = logRepository,
+                defaultHeaders = headers,
+            )
 
-        val response = httpClient.post("${baseUrl}item/v8/") {
-            setBody(json.encodeToString(FavoriteBusinessesRequest.serializer(), request))
-        }
+        val response =
+            httpClient.post("${baseUrl}item/v8/") {
+                setBody(json.encodeToString(FavoriteBusinessesRequest.serializer(), request))
+            }
 
         val bodyText = response.bodyAsText()
         return json.decodeFromString(FavoriteBusinessesResponse.serializer(), bodyText)
     }
 
-    private suspend fun getSession(): TgtgSession = sessionMutex.withLock {
-        config.session ?: TgtgSession()
+    private suspend fun getSession(): TgtgSession = getStoredSession()
+
+    private suspend fun createSession(
+        accessToken: String,
+        refreshToken: String,
+    ) {
+        val session =
+            TgtgSession(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+            )
+        storeSession(session)
     }
 
-    private suspend fun createSession(accessToken: String, refreshToken: String) = sessionMutex.withLock {
-        config.session = TgtgSession(
-            accessToken = accessToken,
-            refreshToken = refreshToken
-        )
-    }
-
-    private suspend fun updateSession(accessToken: String) = sessionMutex.withLock {
-        config.session = config.session?.copy(accessToken = accessToken)
+    private suspend fun updateSession(accessToken: String) {
+        val currentSession = getStoredSession()
+        val updatedSession = currentSession.copy(accessToken = accessToken)
+        storeSession(updatedSession)
     }
 }

@@ -72,4 +72,3 @@ class TgtgLoginCommand(
 
     override fun getDescription(): String = "Initiating TGTG authentication"
 }
-

@@ -16,6 +16,8 @@ import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
 import com.cereal.command.monitor.data.zalando.ZalandoWebsite
 import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import com.cereal.command.monitor.repository.ItemRepository
+import com.cereal.sdk.component.preference.PreferenceComponent
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
@@ -61,12 +63,13 @@ class TestItemRepositoryIntegrations {
                     TgtgApiClient(
                         FakeLogRepository(),
                         TgtgConfig(email = "test@example.com"),
-                        null
+                        mockk<PreferenceComponent>(relaxed = true),
+                        null,
                     ),
-                    latitude = 52.3676, // Amsterdam coordinates for testing
+                    latitude = 52.3676,
                     longitude = 4.9041,
-                    radius = 10000, // 10km radius
-                    favoritesOnly = false
+                    radius = 10000,
+                    favoritesOnly = false,
                 ),
                 ZalandoItemRepository(
                     FakeLogRepository(),

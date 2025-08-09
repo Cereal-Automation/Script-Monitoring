@@ -17,11 +17,12 @@ class TgtgAppVersionUpdater(
 
     suspend fun updateAppVersion(config: TgtgConfig): Boolean {
         return try {
-            val httpClient = defaultHttpClient(
-                timeout = timeout,
-                httpProxy = httpProxy,
-                logRepository = logRepository
-            )
+            val httpClient =
+                defaultHttpClient(
+                    timeout = timeout,
+                    httpProxy = httpProxy,
+                    logRepository = logRepository,
+                )
 
             val response = httpClient.get(googlePlayUrl)
             val htmlContent = response.bodyAsText()
@@ -47,9 +48,10 @@ class TgtgAppVersionUpdater(
 
             if (candidateVersions.isNotEmpty()) {
                 // Find the highest version number
-                val latestVersion = candidateVersions.maxWithOrNull { a, b ->
-                    compareVersions(a, b)
-                }
+                val latestVersion =
+                    candidateVersions.maxWithOrNull { a, b ->
+                        compareVersions(a, b)
+                    }
 
                 latestVersion?.let { version ->
                     config.appVersion = version
@@ -66,7 +68,10 @@ class TgtgAppVersionUpdater(
         }
     }
 
-    private fun compareVersions(version1: String, version2: String): Int {
+    private fun compareVersions(
+        version1: String,
+        version2: String,
+    ): Int {
         val parts1 = version1.split(".").map { it.toIntOrNull() ?: 0 }
         val parts2 = version2.split(".").map { it.toIntOrNull() ?: 0 }
 

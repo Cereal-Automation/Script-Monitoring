@@ -10,7 +10,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.until
 
-
 /**
  * Command that polls for TGTG authentication completion.
  */
@@ -35,7 +34,7 @@ class TgtgAuthPollCommand(
             context.store.removeIf { it is TgtgAuthState }
             throw UnrecoverableException(
                 "Authentication timeout reached after 5 minutes. " +
-                        "Please restart the script and make sure to click the link in the email.",
+                    "Please restart the script and make sure to click the link in the email.",
             )
         }
 

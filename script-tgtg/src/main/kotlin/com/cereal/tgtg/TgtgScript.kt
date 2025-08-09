@@ -63,6 +63,7 @@ class TgtgScript : Script<TgtgConfiguration> {
             TgtgApiClient(
                 logRepository = logRepository,
                 config = tgtgConfig,
+                preferenceComponent = provider.preference(),
                 httpProxy = configuration.proxy()?.invoke(),
             )
 

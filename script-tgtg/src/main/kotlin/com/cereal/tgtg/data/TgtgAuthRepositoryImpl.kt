@@ -9,9 +9,8 @@ import com.cereal.tgtg.domain.TgtgAuthRepository
  * Implementation of TgtgAuthRepository that uses TgtgApiClient internally.
  */
 class TgtgAuthRepositoryImpl(
-    private val tgtgApiClient: TgtgApiClient
+    private val tgtgApiClient: TgtgApiClient,
 ) : TgtgAuthRepository {
-
     override suspend fun login(): Boolean {
         return tgtgApiClient.login()
     }

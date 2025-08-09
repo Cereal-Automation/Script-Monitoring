@@ -8,7 +8,6 @@ import com.cereal.command.monitor.data.tgtg.models.AuthPollResponse
  *
  */
 interface TgtgAuthRepository {
-
     /**
      * Attempts to login using existing stored credentials (refresh token).
      *

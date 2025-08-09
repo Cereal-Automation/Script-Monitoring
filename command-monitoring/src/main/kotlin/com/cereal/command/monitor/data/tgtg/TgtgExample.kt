@@ -1,6 +1,7 @@
 package com.cereal.command.monitor.data.tgtg
 
 import com.cereal.script.repository.LogRepository
+import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
@@ -18,25 +19,28 @@ import kotlin.time.Duration.Companion.seconds
  */
 class TgtgExample(
     private val logRepository: LogRepository,
-    private val httpProxy: Proxy? = null
+    private val preferenceComponent: PreferenceComponent,
+    private val httpProxy: Proxy? = null,
 ) {
-
     suspend fun demonstrateFullFlow(email: String) {
         // 1. Create configuration
         val config = TgtgConfig(email = email)
 
         // 2. Create API client
-        val apiClient = TgtgApiClient(
-            logRepository = logRepository,
-            config = config,
-            httpProxy = httpProxy
-        )
+        val apiClient =
+            TgtgApiClient(
+                logRepository = logRepository,
+                config = config,
+                preferenceComponent = preferenceComponent,
+                httpProxy = httpProxy,
+            )
 
         // 3. Create app version updater
-        val versionUpdater = TgtgAppVersionUpdater(
-            logRepository = logRepository,
-            httpProxy = httpProxy
-        )
+        val versionUpdater =
+            TgtgAppVersionUpdater(
+                logRepository = logRepository,
+                httpProxy = httpProxy,
+            )
 
         try {
             // 4. Update app version (optional but recommended)
@@ -112,16 +116,16 @@ class TgtgExample(
                     val storeName = business.store?.storeName ?: "Unknown Store"
                     val itemsAvailable = business.itemsAvailable
                     val distance = String.format("%.2f", business.distance / 1000.0) // Convert to km
-                    val price = business.item?.price?.let { price ->
-                        "${price.minorUnits / 100.0} ${price.code}"
-                    } ?: "Unknown price"
+                    val price =
+                        business.item?.price?.let { price ->
+                            "${price.minorUnits / 100.0} ${price.code}"
+                        } ?: "Unknown price"
 
                     logRepository.info("- $storeName: $itemsAvailable items available, ${distance}km away, $price")
                 }
             } else {
                 logRepository.info("Failed to fetch favorite businesses or no businesses found")
             }
-
         } catch (e: Exception) {
             logRepository.info("Error during TGTG API demonstration: ${e.message}")
         }
@@ -129,11 +133,13 @@ class TgtgExample(
 
     suspend fun demonstrateLoginOnly(email: String) {
         val config = TgtgConfig(email = email)
-        val apiClient = TgtgApiClient(
-            logRepository = logRepository,
-            config = config,
-            httpProxy = httpProxy
-        )
+        val apiClient =
+            TgtgApiClient(
+                logRepository = logRepository,
+                config = config,
+                preferenceComponent = preferenceComponent,
+                httpProxy = httpProxy,
+            )
 
         try {
             // Attempt login with existing credentials
@@ -158,13 +164,19 @@ class TgtgExample(
         }
     }
 
-    suspend fun demonstrateItemRepository(email: String, latitude: Double, longitude: Double) {
+    suspend fun demonstrateItemRepository(
+        email: String,
+        latitude: Double,
+        longitude: Double,
+    ) {
         val config = TgtgConfig(email = email)
-        val apiClient = TgtgApiClient(
-            logRepository = logRepository,
-            config = config,
-            httpProxy = httpProxy
-        )
+        val apiClient =
+            TgtgApiClient(
+                logRepository = logRepository,
+                config = config,
+                preferenceComponent = preferenceComponent,
+                httpProxy = httpProxy,
+            )
 
         try {
             // Login first
@@ -177,13 +189,14 @@ class TgtgExample(
             }
 
             // Create the repository
-            val repository = TgtgItemRepository(
-                tgtgApiClient = apiClient,
-                latitude = latitude,
-                longitude = longitude,
-                radius = 50000, // 50km radius
-                favoritesOnly = false
-            )
+            val repository =
+                TgtgItemRepository(
+                    tgtgApiClient = apiClient,
+                    latitude = latitude,
+                    longitude = longitude,
+                    radius = 50000,
+                    favoritesOnly = false,
+                )
 
             // Fetch items using the standard ItemRepository interface
             logRepository.info("Fetching TGTG items using ItemRepository interface...")
@@ -192,10 +205,11 @@ class TgtgExample(
             logRepository.info("Found ${page.items.size} items:")
             page.items.forEach { item ->
                 val properties = item.properties.joinToString(", ") { "${it.commonName}: $it" }
-                val variants = item.variants.joinToString(", ") { variant ->
-                    val variantProps = variant.properties.joinToString(", ") { "${it.commonName}: $it" }
-                    "${variant.name} ($variantProps)"
-                }
+                val variants =
+                    item.variants.joinToString(", ") { variant ->
+                        val variantProps = variant.properties.joinToString(", ") { "${it.commonName}: $it" }
+                        "${variant.name} ($variantProps)"
+                    }
 
                 logRepository.info("- ${item.name}")
                 logRepository.info("  URL: ${item.url ?: "N/A"}")
@@ -203,7 +217,6 @@ class TgtgExample(
                 logRepository.info("  Variants: $variants")
                 logRepository.info("  Description: ${item.description?.take(100) ?: "N/A"}...")
             }
-
         } catch (e: Exception) {
             logRepository.info("Error during ItemRepository demonstration: ${e.message}")
         }

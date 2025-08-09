@@ -10,21 +10,21 @@ data class FavoriteBusinessesRequest(
     @SerialName("origin")
     val origin: Origin,
     @SerialName("radius")
-    val radius: Int
+    val radius: Int,
 ) {
     @Serializable
     data class Origin(
         @SerialName("latitude")
         val latitude: Double,
         @SerialName("longitude")
-        val longitude: Double
+        val longitude: Double,
     )
 }
 
 @Serializable
 data class FavoriteBusinessesResponse(
     @SerialName("items")
-    val items: List<TgtgItem> = emptyList()
+    val items: List<TgtgItem> = emptyList(),
 )
 
 @Serializable
@@ -50,7 +50,7 @@ data class TgtgItem(
     @SerialName("in_sales_window")
     val inSalesWindow: Boolean = false,
     @SerialName("new_item")
-    val newItem: Boolean = false
+    val newItem: Boolean = false,
 )
 
 @Serializable
@@ -104,7 +104,7 @@ data class ItemDetails(
     @SerialName("average_overall_rating")
     val averageOverallRating: AverageRating? = null,
     @SerialName("favorite_count")
-    val favoriteCount: Int = 0
+    val favoriteCount: Int = 0,
 )
 
 @Serializable
@@ -114,7 +114,7 @@ data class Price(
     @SerialName("minor_units")
     val minorUnits: Int = 0,
     @SerialName("decimals")
-    val decimals: Int = 0
+    val decimals: Int = 0,
 )
 
 @Serializable
@@ -122,7 +122,7 @@ data class SalesTax(
     @SerialName("tax_description")
     val taxDescription: String? = null,
     @SerialName("tax_percentage")
-    val taxPercentage: Double = 0.0
+    val taxPercentage: Double = 0.0,
 )
 
 @Serializable
@@ -132,7 +132,7 @@ data class CoverPicture(
     @SerialName("current_url")
     val currentUrl: String? = null,
     @SerialName("is_automatically_created")
-    val isAutomaticallyCreated: Boolean = false
+    val isAutomaticallyCreated: Boolean = false,
 )
 
 @Serializable
@@ -142,7 +142,7 @@ data class LogoPicture(
     @SerialName("current_url")
     val currentUrl: String? = null,
     @SerialName("is_automatically_created")
-    val isAutomaticallyCreated: Boolean = false
+    val isAutomaticallyCreated: Boolean = false,
 )
 
 @Serializable
@@ -156,7 +156,7 @@ data class Badge(
     @SerialName("user_count")
     val userCount: Int = 0,
     @SerialName("month_count")
-    val monthCount: Int = 0
+    val monthCount: Int = 0,
 )
 
 @Serializable
@@ -166,7 +166,7 @@ data class AverageRating(
     @SerialName("rating_count")
     val ratingCount: Int = 0,
     @SerialName("month_count")
-    val monthCount: Int = 0
+    val monthCount: Int = 0,
 )
 
 @Serializable
@@ -194,7 +194,7 @@ data class Store(
     @SerialName("favorite_count")
     val favoriteCount: Int = 0,
     @SerialName("we_care")
-    val weCare: Boolean = false
+    val weCare: Boolean = false,
 )
 
 @Serializable
@@ -202,7 +202,7 @@ data class StoreLocation(
     @SerialName("address")
     val address: Address? = null,
     @SerialName("location")
-    val location: Location? = null
+    val location: Location? = null,
 )
 
 @Serializable
@@ -214,7 +214,7 @@ data class Address(
     @SerialName("city")
     val city: String? = null,
     @SerialName("postal_code")
-    val postalCode: String? = null
+    val postalCode: String? = null,
 )
 
 @Serializable
@@ -222,7 +222,7 @@ data class Country(
     @SerialName("iso_code")
     val isoCode: String? = null,
     @SerialName("name")
-    val name: String? = null
+    val name: String? = null,
 )
 
 @Serializable
@@ -230,7 +230,7 @@ data class Location(
     @SerialName("longitude")
     val longitude: Double = 0.0,
     @SerialName("latitude")
-    val latitude: Double = 0.0
+    val latitude: Double = 0.0,
 )
 
 @Serializable
@@ -238,7 +238,7 @@ data class PickupInterval(
     @SerialName("start")
     val start: String? = null,
     @SerialName("end")
-    val end: String? = null
+    val end: String? = null,
 )
 
 @Serializable
@@ -246,5 +246,5 @@ data class PickupLocation(
     @SerialName("address")
     val address: Address? = null,
     @SerialName("location")
-    val location: Location? = null
+    val location: Location? = null,
 )

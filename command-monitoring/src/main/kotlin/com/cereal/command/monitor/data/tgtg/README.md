@@ -47,6 +47,7 @@ val config = TgtgConfig(email = "your-email@example.com")
 val apiClient = TgtgApiClient(
     logRepository = logRepository,
     config = config,
+    preferenceComponent = preferenceComponent,
     httpProxy = null // Optional proxy
 )
 
@@ -68,7 +69,7 @@ val businesses = apiClient.listFavoriteBusinesses()
 
 ```kotlin
 val config = TgtgConfig(email = "your-email@example.com")
-val apiClient = TgtgApiClient(logRepository, config)
+val apiClient = TgtgApiClient(logRepository, config, preferenceComponent)
 
 // Attempt login with stored refresh token
 val loginSuccess = apiClient.login()
