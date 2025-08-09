@@ -24,6 +24,7 @@ data class TgtgAuthState(
 class TgtgLoginCommand(
     private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
+    private val configuration: com.cereal.tgtg.TgtgConfiguration,
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         return RunDecision.RunOnce()
@@ -47,7 +48,7 @@ class TgtgLoginCommand(
             // Send authentication email
             logRepository.info("📧 Sending authentication email...")
 
-            val authResponse = tgtgAuthRepository.authByEmail()
+            val authResponse = tgtgAuthRepository.authByEmail(configuration.email())
             val pollingId = authResponse.pollingId
 
             if (pollingId.isNullOrEmpty()) {

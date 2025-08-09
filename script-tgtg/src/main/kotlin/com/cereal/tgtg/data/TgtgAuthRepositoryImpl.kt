@@ -15,8 +15,8 @@ class TgtgAuthRepositoryImpl(
         return tgtgApiClient.login()
     }
 
-    override suspend fun authByEmail(): AuthByEmailResponse {
-        return tgtgApiClient.authByEmail()
+    override suspend fun authByEmail(email: String): AuthByEmailResponse {
+        return tgtgApiClient.authByEmail(email)
     }
 
     override suspend fun authPoll(pollingId: String): AuthPollResponse {

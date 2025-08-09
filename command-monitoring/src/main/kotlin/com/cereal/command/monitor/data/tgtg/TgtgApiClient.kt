@@ -20,7 +20,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -36,9 +35,26 @@ class TgtgApiClient(
     private val json = defaultJson()
     private val sessionMutex = Mutex()
 
-    // Preference keys for persistent storage
-    private val correlationIdKey = "tgtg_correlation_id_${config.email}"
-    private val sessionKey = "tgtg_session_${config.email}"
+    private val configKey = "tgtg_config"
+
+    private suspend fun getTgtgConfig(): TgtgConfig {
+        val configJson = preferenceComponent.getString(configKey)
+        return if (configJson != null) {
+            try {
+                json.decodeFromString<TgtgConfig>(configJson)
+            } catch (e: Exception) {
+                logRepository.debug("Failed to deserialize stored config: ${e.message}")
+                config
+            }
+        } else {
+            config
+        }
+    }
+
+    private suspend fun storeTgtgConfig(config: TgtgConfig) {
+        val configJson = json.encodeToString(config)
+        preferenceComponent.setString(configKey, configJson)
+    }
 
     private val defaultHeaders =
         mapOf(
@@ -51,7 +67,7 @@ class TgtgApiClient(
 
     private suspend fun createHttpClient(): HttpClient {
         val headers = defaultHeaders.toMutableMap()
-        headers["x-correlation-id"] = getCorrelationId()
+        headers["x-correlation-id"] = getTgtgConfig().correlationId
 
         return defaultHttpClient(
             timeout = timeout,
@@ -61,45 +77,15 @@ class TgtgApiClient(
         )
     }
 
-    // Helper methods for persistent storage
-    private suspend fun getCorrelationId(): String {
-        return preferenceComponent.getString(correlationIdKey) ?: UUID.randomUUID().toString().also {
-            preferenceComponent.setString(correlationIdKey, it)
-        }
-    }
-
-    private suspend fun setCorrelationId(correlationId: String) {
-        preferenceComponent.setString(correlationIdKey, correlationId)
-    }
-
-    private suspend fun getStoredSession(): TgtgSession =
-        sessionMutex.withLock {
-            val sessionJson = preferenceComponent.getString(sessionKey)
-            if (sessionJson != null) {
-                try {
-                    json.decodeFromString<TgtgSession>(sessionJson)
-                } catch (e: Exception) {
-                    logRepository.debug("Failed to deserialize stored session: ${e.message}")
-                    TgtgSession()
-                }
-            } else {
-                TgtgSession()
-            }
-        }
-
-    private suspend fun storeSession(session: TgtgSession) =
-        sessionMutex.withLock {
-            val sessionJson = json.encodeToString(session)
-            preferenceComponent.setString(sessionKey, sessionJson)
-        }
-
-    suspend fun authByEmail(): AuthByEmailResponse {
-        setCorrelationId(UUID.randomUUID().toString())
+    suspend fun authByEmail(email: String): AuthByEmailResponse {
+        val currentConfig = getTgtgConfig()
+        val updatedConfig = currentConfig.copy(correlationId = UUID.randomUUID().toString())
+        storeTgtgConfig(updatedConfig)
 
         val request =
             AuthByEmailRequest(
-                deviceType = config.deviceType,
-                email = config.email,
+                deviceType = updatedConfig.deviceType,
+                email = email,
             )
 
         val httpClient = createHttpClient()
@@ -112,11 +98,15 @@ class TgtgApiClient(
         return json.decodeFromString(AuthByEmailResponse.serializer(), bodyText)
     }
 
-    suspend fun authPoll(pollingId: String): AuthPollResponse {
+    suspend fun authPoll(
+        pollingId: String,
+        email: String,
+    ): AuthPollResponse {
+        val currentConfig = getTgtgConfig()
         val request =
             AuthPollRequest(
-                deviceType = config.deviceType,
-                email = config.email,
+                deviceType = currentConfig.deviceType,
+                email = email,
                 requestPollingId = pollingId,
             )
 
@@ -140,10 +130,12 @@ class TgtgApiClient(
     }
 
     suspend fun login(): Boolean {
-        setCorrelationId(UUID.randomUUID().toString())
+        val currentConfig = getTgtgConfig()
+        val updatedConfig = currentConfig.copy(correlationId = UUID.randomUUID().toString())
+        storeTgtgConfig(updatedConfig)
 
-        val session = getStoredSession()
-        return if (session.refreshToken != null) {
+        val session = updatedConfig.session
+        return if (session?.refreshToken != null) {
             refreshToken()
         } else {
             logRepository.info("No refresh token available. Please authenticate first.")
@@ -152,8 +144,8 @@ class TgtgApiClient(
     }
 
     private suspend fun refreshToken(): Boolean {
-        val session = getStoredSession()
-        val refreshToken = session.refreshToken ?: return false
+        val config = getTgtgConfig()
+        val refreshToken = config.session?.refreshToken ?: return false
 
         val request = RefreshTokenRequest(refreshToken = refreshToken)
 
@@ -189,14 +181,15 @@ class TgtgApiClient(
     }
 
     suspend fun listFavoriteBusinesses(request: FavoriteBusinessesRequest): FavoriteBusinessesResponse? {
-        val session = getStoredSession()
-        if (session.refreshToken == null) {
+        val config = getTgtgConfig()
+        val session = config.session
+        if (session?.refreshToken == null) {
             logRepository.info("You are not logged in. Login via authByEmail and authPoll first.")
             return null
         }
 
         val headers = defaultHeaders.toMutableMap()
-        headers["x-correlation-id"] = getCorrelationId()
+        headers["x-correlation-id"] = config.correlationId
         headers[HttpHeaders.Authorization] = "Bearer ${session.accessToken}"
 
         val httpClient =
@@ -216,23 +209,27 @@ class TgtgApiClient(
         return json.decodeFromString(FavoriteBusinessesResponse.serializer(), bodyText)
     }
 
-    private suspend fun getSession(): TgtgSession = getStoredSession()
-
     private suspend fun createSession(
         accessToken: String,
         refreshToken: String,
     ) {
+        val currentConfig = getTgtgConfig()
         val session =
             TgtgSession(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
             )
-        storeSession(session)
+        val updatedConfig = currentConfig.copy(session = session)
+        storeTgtgConfig(updatedConfig)
     }
 
     private suspend fun updateSession(accessToken: String) {
-        val currentSession = getStoredSession()
-        val updatedSession = currentSession.copy(accessToken = accessToken)
-        storeSession(updatedSession)
+        val currentConfig = getTgtgConfig()
+        val currentSession = currentConfig.session
+        if (currentSession != null) {
+            val updatedSession = currentSession.copy(accessToken = accessToken)
+            val updatedConfig = currentConfig.copy(session = updatedSession)
+            storeTgtgConfig(updatedConfig)
+        }
     }
 }

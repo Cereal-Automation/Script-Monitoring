@@ -58,7 +58,7 @@ class TgtgScript : Script<TgtgConfiguration> {
         val notificationRepository = factory.notificationRepository("TGTG")
 
         // Create TGTG API client and repository
-        val tgtgConfig = TgtgConfig(email = configuration.email())
+        val tgtgConfig = TgtgConfig()
         val tgtgApiClient =
             TgtgApiClient(
                 logRepository = logRepository,
@@ -84,12 +84,14 @@ class TgtgScript : Script<TgtgConfiguration> {
             TgtgLoginCommand(
                 tgtgAuthRepository = tgtgAuthRepository,
                 logRepository = logRepository,
+                configuration = configuration,
             )
 
         val authPollCommand =
             TgtgAuthPollCommand(
                 tgtgAuthRepository = tgtgAuthRepository,
                 logRepository = logRepository,
+                configuration = configuration,
             )
 
         // Create monitor command

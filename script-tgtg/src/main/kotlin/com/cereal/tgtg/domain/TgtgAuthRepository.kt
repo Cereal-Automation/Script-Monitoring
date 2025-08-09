@@ -21,7 +21,7 @@ interface TgtgAuthRepository {
      * @return AuthByEmailResponse containing the polling ID needed for polling authentication status
      * @throws Exception if the authentication email could not be sent
      */
-    suspend fun authByEmail(): AuthByEmailResponse
+    suspend fun authByEmail(email: String): AuthByEmailResponse
 
     /**
      * Polls for authentication completion using the polling ID from authByEmail().

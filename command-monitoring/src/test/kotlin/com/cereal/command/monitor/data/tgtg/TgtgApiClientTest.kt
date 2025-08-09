@@ -14,9 +14,8 @@ class TgtgApiClientTest {
 
     @Test
     fun `should create TgtgConfig with default values`() {
-        val config = TgtgConfig(email = "test@example.com")
+        val config = TgtgConfig()
 
-        assertEquals("test@example.com", config.email)
         assertEquals("ANDROID", config.deviceType)
         assertEquals("23.2.1", config.appVersion)
         assertNotNull(config.correlationId)
@@ -25,7 +24,7 @@ class TgtgApiClientTest {
     @Test
     fun `should create TgtgApiClient successfully`() =
         runTest {
-            val config = TgtgConfig(email = "test@example.com")
+            val config = TgtgConfig()
             val apiClient =
                 TgtgApiClient(
                     logRepository = mockLogRepository,

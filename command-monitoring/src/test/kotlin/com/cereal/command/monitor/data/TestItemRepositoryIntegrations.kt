@@ -62,7 +62,7 @@ class TestItemRepositoryIntegrations {
                 TgtgItemRepository(
                     TgtgApiClient(
                         FakeLogRepository(),
-                        TgtgConfig(email = "test@example.com"),
+                        TgtgConfig(),
                         mockk<PreferenceComponent>(relaxed = true),
                         null,
                     ),

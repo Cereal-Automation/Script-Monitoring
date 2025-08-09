@@ -24,7 +24,7 @@ class TgtgExample(
 ) {
     suspend fun demonstrateFullFlow(email: String) {
         // 1. Create configuration
-        val config = TgtgConfig(email = email)
+        val config = TgtgConfig()
 
         // 2. Create API client
         val apiClient =
@@ -49,7 +49,7 @@ class TgtgExample(
 
             // 5. Start authentication process
             logRepository.info("Starting authentication for email: $email")
-            val authResponse = apiClient.authByEmail()
+            val authResponse = apiClient.authByEmail(email)
 
             val pollingId = authResponse.pollingId
             if (pollingId == null) {
@@ -70,7 +70,7 @@ class TgtgExample(
                 logRepository.info("Polling for authentication completion (attempt $attempts/$maxAttempts)...")
 
                 try {
-                    val pollResponse = apiClient.authPoll(pollingId)
+                    val pollResponse = apiClient.authPoll(pollingId, email)
 
                     if (pollResponse.accessToken != null && pollResponse.refreshToken != null) {
                         logRepository.info("Authentication successful!")
@@ -132,7 +132,7 @@ class TgtgExample(
     }
 
     suspend fun demonstrateLoginOnly(email: String) {
-        val config = TgtgConfig(email = email)
+        val config = TgtgConfig()
         val apiClient =
             TgtgApiClient(
                 logRepository = logRepository,
@@ -169,7 +169,7 @@ class TgtgExample(
         latitude: Double,
         longitude: Double,
     ) {
-        val config = TgtgConfig(email = email)
+        val config = TgtgConfig()
         val apiClient =
             TgtgApiClient(
                 logRepository = logRepository,
