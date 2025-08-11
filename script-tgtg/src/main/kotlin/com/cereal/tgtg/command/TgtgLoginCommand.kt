@@ -37,12 +37,12 @@ class TgtgLoginCommand(
         val loginSuccess = tgtgAuthRepository.login()
 
         if (loginSuccess) {
-            logRepository.info("✅ TGTG authentication successful using existing credentials!")
+            logRepository.info("TGTG authentication successful using existing credentials!")
             return
         }
 
         // Login failed - need to start interactive authentication
-        logRepository.info("🔐 TGTG login failed. Starting interactive authentication...")
+        logRepository.info("TGTG login failed. Starting interactive authentication...")
 
         try {
             // Send authentication email
@@ -55,7 +55,7 @@ class TgtgLoginCommand(
                 throw UnrecoverableException("Failed to get polling ID from TGTG. Authentication cannot continue.")
             }
 
-            logRepository.info("✅ Authentication email sent successfully!")
+            logRepository.info("Authentication email sent successfully!")
 
             // Store authentication state in context for the polling command
             val authState =
