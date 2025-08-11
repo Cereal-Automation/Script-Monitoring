@@ -10,6 +10,7 @@ import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
 import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
+import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
 import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
 import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
 import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
@@ -64,6 +65,7 @@ class TestItemRepositoryIntegrations {
                         FakeLogRepository(),
                         TgtgConfig(),
                         mockk<PreferenceComponent>(relaxed = true),
+                        mockk<PlayStoreApiClient>(relaxed = true),
                         null,
                     ),
                     latitude = 52.3676,

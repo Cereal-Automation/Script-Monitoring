@@ -7,7 +7,6 @@ import java.util.UUID
 data class TgtgConfig(
     var correlationId: String = UUID.randomUUID().toString(),
     val deviceType: String = "ANDROID",
-    var appVersion: String = "23.2.1",
     var session: TgtgSession? = null,
 )
 

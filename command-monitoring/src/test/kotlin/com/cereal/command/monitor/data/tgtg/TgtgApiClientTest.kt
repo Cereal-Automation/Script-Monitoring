@@ -14,13 +14,13 @@ import kotlin.test.assertNotNull
 class TgtgApiClientTest {
     private val mockLogRepository = mockk<LogRepository>(relaxed = true)
     private val mockPreferenceComponent = mockk<PreferenceComponent>(relaxed = true)
+    private val mockPlayStoreApiClient = mockk<PlayStoreApiClient>(relaxed = true)
 
     @Test
     fun `should create TgtgConfig with default values`() {
         val config = TgtgConfig()
 
         assertEquals("ANDROID", config.deviceType)
-        assertEquals("23.2.1", config.appVersion)
         assertNotNull(config.correlationId)
     }
 
@@ -33,6 +33,7 @@ class TgtgApiClientTest {
                     logRepository = mockLogRepository,
                     config = config,
                     preferenceComponent = mockPreferenceComponent,
+                    playStoreApiClient = mockPlayStoreApiClient,
                 )
 
             assertNotNull(apiClient)
