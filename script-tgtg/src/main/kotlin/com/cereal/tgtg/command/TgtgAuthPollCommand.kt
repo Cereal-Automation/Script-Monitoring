@@ -5,6 +5,7 @@ import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
+import com.cereal.tgtg.TgtgConfiguration
 import com.cereal.tgtg.domain.TgtgAuthRepository
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -16,7 +17,7 @@ import kotlinx.datetime.until
 class TgtgAuthPollCommand(
     private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
-    private val configuration: com.cereal.tgtg.TgtgConfiguration,
+    private val configuration: TgtgConfiguration,
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         val authState = context.get<TgtgAuthState>()
@@ -35,7 +36,7 @@ class TgtgAuthPollCommand(
             context.store.removeIf { it is TgtgAuthState }
             throw UnrecoverableException(
                 "Authentication timeout reached after 5 minutes. " +
-                    "Please restart the script and make sure to click the link in the email.",
+                        "Please restart the script and make sure to click the link in the email.",
             )
         }
 
@@ -58,13 +59,13 @@ class TgtgAuthPollCommand(
         val elapsedTime = authState.startTime.until(currentTime, DateTimeUnit.MINUTE)
 
         // Poll for authentication completion
-        logRepository.info("🔍 Checking authentication status... (${elapsedTime.toInt() + 1} minutes elapsed)")
+        logRepository.info("Checking authentication status... (${elapsedTime.toInt() + 1} minutes elapsed)")
 
         try {
             val pollResponse = tgtgAuthRepository.authPoll(authState.pollingId, configuration.email())
 
             if (pollResponse.accessToken != null && pollResponse.refreshToken != null) {
-                logRepository.info("🎉 Authentication successful! You are now logged in to TGTG.")
+                logRepository.info("Authentication successful! You are now logged in to TGTG.")
                 // Authentication successful - remove state from context
                 context.store.removeIf { it is TgtgAuthState }
                 return
@@ -86,7 +87,7 @@ class TgtgAuthPollCommand(
         val emailMessage =
             """
             |
-            |📧 AUTHENTICATION REQUIRED 📧
+            |AUTHENTICATION REQUIRED
             |
             |An authentication email has been sent to your TGTG account.
             |
