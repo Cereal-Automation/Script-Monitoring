@@ -37,7 +37,7 @@ class TgtgExample(
 
         // 3. Create app version data source
         val versionDataSource =
-            TgtgAppVersionDataSource(
+            PlayStoreApiClient(
                 logRepository = logRepository,
                 httpProxy = httpProxy,
             )

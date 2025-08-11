@@ -8,7 +8,7 @@ import io.ktor.client.statement.bodyAsText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class TgtgAppVersionDataSource(
+class PlayStoreApiClient(
     private val logRepository: LogRepository,
     private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,

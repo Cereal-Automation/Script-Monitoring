@@ -38,7 +38,7 @@ class TgtgApiClientTest {
     @Test
     fun `should create TgtgAppVersionDataSource successfully`() {
         val versionDataSource =
-            TgtgAppVersionDataSource(
+            PlayStoreApiClient(
                 logRepository = mockLogRepository,
             )
 
