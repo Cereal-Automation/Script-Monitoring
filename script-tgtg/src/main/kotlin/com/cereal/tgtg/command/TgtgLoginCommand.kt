@@ -46,7 +46,7 @@ class TgtgLoginCommand(
 
         try {
             // Send authentication email
-            logRepository.info("📧 Sending authentication email...")
+            logRepository.info("Sending authentication email...")
 
             val authResponse = tgtgAuthRepository.authByEmail(configuration.email())
             val pollingId = authResponse.pollingId
