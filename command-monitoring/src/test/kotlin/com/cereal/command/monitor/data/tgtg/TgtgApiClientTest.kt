@@ -36,13 +36,13 @@ class TgtgApiClientTest {
         }
 
     @Test
-    fun `should create TgtgAppVersionUpdater successfully`() {
-        val versionUpdater =
-            TgtgAppVersionUpdater(
+    fun `should create TgtgAppVersionDataSource successfully`() {
+        val versionDataSource =
+            TgtgAppVersionDataSource(
                 logRepository = mockLogRepository,
             )
 
-        assertNotNull(versionUpdater)
+        assertNotNull(versionDataSource)
     }
 
     @Test

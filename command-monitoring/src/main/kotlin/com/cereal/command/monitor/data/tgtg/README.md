@@ -25,8 +25,8 @@ Configuration class that stores:
 - Correlation ID (auto-generated UUID)
 - Session tokens
 
-### TgtgAppVersionUpdater
-Utility class to automatically fetch the latest TGTG app version from Google Play Store.
+### TgtgAppVersionDataSource
+Data source class to fetch the latest TGTG app version from Google Play Store.
 
 ### TgtgItemRepository
 Repository implementation that integrates with the monitoring system's ItemRepository interface. Converts TGTG business items into the standard Item format used by the monitoring system.
@@ -78,11 +78,18 @@ if (loginSuccess) {
 }
 ```
 
-### Update App Version
+### Get App Version
 
 ```kotlin
-val versionUpdater = TgtgAppVersionUpdater(logRepository)
-val success = versionUpdater.updateAppVersion(config)
+val versionDataSource = TgtgAppVersionDataSource(logRepository)
+try {
+    val appVersion = versionDataSource.getAppVersion()
+    config.appVersion = appVersion
+} catch (e: TgtgAppVersionException) {
+    // Handle the case where app version cannot be determined
+    // Will use the default app version from config
+    println("Failed to get app version: ${e.message}")
+}
 ```
 
 ### Using TgtgItemRepository

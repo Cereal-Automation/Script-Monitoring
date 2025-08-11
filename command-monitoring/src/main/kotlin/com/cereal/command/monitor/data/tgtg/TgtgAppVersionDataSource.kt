@@ -8,15 +8,15 @@ import io.ktor.client.statement.bodyAsText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class TgtgAppVersionUpdater(
+class TgtgAppVersionDataSource(
     private val logRepository: LogRepository,
     private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,
 ) {
     private val googlePlayUrl = "https://play.google.com/store/apps/details?id=com.app.tgtg"
 
-    suspend fun updateAppVersion(config: TgtgConfig): Boolean {
-        return try {
+    suspend fun getAppVersion(): String {
+        try {
             val httpClient =
                 defaultHttpClient(
                     timeout = timeout,
@@ -54,17 +54,19 @@ class TgtgAppVersionUpdater(
                     }
 
                 latestVersion?.let { version ->
-                    config.appVersion = version
-                    logRepository.info("Updated TGTG app version to: $version")
-                    return true
+                    logRepository.info("Found TGTG app version: $version")
+                    return version
                 }
             }
 
             logRepository.info("Could not find any version information on Google Play page")
-            false
+            throw TgtgAppVersionException("Could not find any version information on Google Play page")
         } catch (error: Exception) {
             logRepository.info("Error while retrieving latest version of TGTG on Google Play page: ${error.message}")
-            false
+            throw TgtgAppVersionException(
+                "Error while retrieving latest version of TGTG on Google Play page: ${error.message}",
+                error
+            )
         }
     }
 

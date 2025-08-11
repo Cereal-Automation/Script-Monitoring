@@ -35,17 +35,24 @@ class TgtgExample(
                 httpProxy = httpProxy,
             )
 
-        // 3. Create app version updater
-        val versionUpdater =
-            TgtgAppVersionUpdater(
+        // 3. Create app version data source
+        val versionDataSource =
+            TgtgAppVersionDataSource(
                 logRepository = logRepository,
                 httpProxy = httpProxy,
             )
 
         try {
-            // 4. Update app version (optional but recommended)
-            logRepository.info("Updating app version...")
-            versionUpdater.updateAppVersion(config)
+            // 4. Get and set app version (optional but recommended)
+            logRepository.info("Getting app version...")
+            try {
+                val appVersion = versionDataSource.getAppVersion()
+                config.appVersion = appVersion
+                logRepository.info("Successfully updated app version to: $appVersion")
+            } catch (e: TgtgAppVersionException) {
+                logRepository.info("Failed to get app version: ${e.message}")
+                logRepository.info("Using default app version: ${config.appVersion}")
+            }
 
             // 5. Start authentication process
             logRepository.info("Starting authentication for email: $email")
