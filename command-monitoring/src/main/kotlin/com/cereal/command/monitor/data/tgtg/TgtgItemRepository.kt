@@ -1,8 +1,10 @@
 package com.cereal.command.monitor.data.tgtg
 
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
-import com.cereal.command.monitor.data.tgtg.models.FavoriteBusinessesRequest
-import com.cereal.command.monitor.data.tgtg.models.TgtgItem
+import com.cereal.command.monitor.data.tgtg.apiclients.models.FavoriteBusinessesRequest
+import com.cereal.command.monitor.data.tgtg.apiclients.models.ItemDetails
+import com.cereal.command.monitor.data.tgtg.apiclients.models.Store
+import com.cereal.command.monitor.data.tgtg.apiclients.models.TgtgItem
 import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
@@ -102,8 +104,8 @@ class TgtgItemRepository(
      */
     private fun buildDescription(
         tgtgItem: TgtgItem,
-        itemDetails: com.cereal.command.monitor.data.tgtg.models.ItemDetails?,
-        store: com.cereal.command.monitor.data.tgtg.models.Store?,
+        itemDetails: ItemDetails?,
+        store: Store?,
     ): String {
         val parts = mutableListOf<String>()
 
@@ -147,7 +149,7 @@ class TgtgItemRepository(
      */
     private fun buildItemProperties(
         tgtgItem: TgtgItem,
-        itemDetails: com.cereal.command.monitor.data.tgtg.models.ItemDetails?,
+        itemDetails: ItemDetails?,
     ): List<ItemProperty> {
         val properties = mutableListOf<ItemProperty>()
 

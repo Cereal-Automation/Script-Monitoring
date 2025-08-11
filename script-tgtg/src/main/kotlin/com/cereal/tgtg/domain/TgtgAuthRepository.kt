@@ -1,7 +1,7 @@
 package com.cereal.tgtg.domain
 
-import com.cereal.command.monitor.data.tgtg.models.AuthByEmailResponse
-import com.cereal.command.monitor.data.tgtg.models.AuthPollResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
 
 /**
  * Repository interface for TGTG authentication operations.

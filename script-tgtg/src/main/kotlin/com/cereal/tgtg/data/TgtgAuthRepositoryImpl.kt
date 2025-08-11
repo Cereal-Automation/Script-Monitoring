@@ -1,8 +1,8 @@
 package com.cereal.tgtg.data
 
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
-import com.cereal.command.monitor.data.tgtg.models.AuthByEmailResponse
-import com.cereal.command.monitor.data.tgtg.models.AuthPollResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
 import com.cereal.tgtg.domain.TgtgAuthRepository
 
 /**

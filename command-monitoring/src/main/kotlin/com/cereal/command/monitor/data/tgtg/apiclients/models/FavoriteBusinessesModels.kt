@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.tgtg.models
+package com.cereal.command.monitor.data.tgtg.apiclients.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
