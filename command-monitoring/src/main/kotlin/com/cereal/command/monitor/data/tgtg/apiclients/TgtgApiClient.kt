@@ -1,7 +1,9 @@
-package com.cereal.command.monitor.data.tgtg
+package com.cereal.command.monitor.data.tgtg.apiclients
 
 import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
 import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.command.monitor.data.tgtg.TgtgConfig
+import com.cereal.command.monitor.data.tgtg.TgtgSession
 import com.cereal.command.monitor.data.tgtg.models.AuthByEmailRequest
 import com.cereal.command.monitor.data.tgtg.models.AuthByEmailResponse
 import com.cereal.command.monitor.data.tgtg.models.AuthPollRequest

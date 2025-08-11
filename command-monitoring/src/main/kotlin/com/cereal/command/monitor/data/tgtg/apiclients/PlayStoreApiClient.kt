@@ -1,8 +1,8 @@
-package com.cereal.command.monitor.data.tgtg
+package com.cereal.command.monitor.data.tgtg.apiclients
 
 import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
+import com.cereal.command.monitor.data.tgtg.apiclients.exception.TgtgAppVersionException
 import com.cereal.script.repository.LogRepository
-import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlin.time.Duration
@@ -10,7 +10,6 @@ import kotlin.time.Duration.Companion.seconds
 
 class PlayStoreApiClient(
     private val logRepository: LogRepository,
-    private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,
 ) {
     private val googlePlayUrl = "https://play.google.com/store/apps/details?id=com.app.tgtg"
@@ -20,7 +19,7 @@ class PlayStoreApiClient(
             val httpClient =
                 defaultHttpClient(
                     timeout = timeout,
-                    httpProxy = httpProxy,
+                    httpProxy = null,
                     logRepository = logRepository,
                 )
 

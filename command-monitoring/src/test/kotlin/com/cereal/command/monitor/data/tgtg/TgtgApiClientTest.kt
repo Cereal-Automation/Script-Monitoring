@@ -1,5 +1,7 @@
 package com.cereal.command.monitor.data.tgtg
 
+import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
+import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.preference.PreferenceComponent
 import io.mockk.mockk

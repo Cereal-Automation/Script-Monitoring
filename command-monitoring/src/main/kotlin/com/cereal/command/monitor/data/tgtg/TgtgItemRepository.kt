@@ -1,5 +1,6 @@
 package com.cereal.command.monitor.data.tgtg
 
+import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.data.tgtg.models.FavoriteBusinessesRequest
 import com.cereal.command.monitor.data.tgtg.models.TgtgItem
 import com.cereal.command.monitor.models.Currency

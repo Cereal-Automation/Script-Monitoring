@@ -7,9 +7,9 @@ import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.data.snkrs.Locale
 import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
-import com.cereal.command.monitor.data.tgtg.TgtgApiClient
 import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
+import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
 import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
 import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
