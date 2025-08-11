@@ -164,20 +164,6 @@ class TgtgApiClient(
         return false
     }
 
-    suspend fun listFavoriteBusinesses(): FavoriteBusinessesResponse? {
-        val request =
-            FavoriteBusinessesRequest(
-                favoritesOnly = true,
-                origin =
-                    FavoriteBusinessesRequest.Origin(
-                        latitude = 52.5170365,
-                        longitude = 13.3888599,
-                    ),
-                radius = 200,
-            )
-        return listFavoriteBusinesses(request)
-    }
-
     suspend fun listFavoriteBusinesses(request: FavoriteBusinessesRequest): FavoriteBusinessesResponse? {
         val config = getTgtgConfig()
         val session = config.session
