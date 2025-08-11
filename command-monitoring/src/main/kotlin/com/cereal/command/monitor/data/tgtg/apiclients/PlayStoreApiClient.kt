@@ -60,7 +60,7 @@ class PlayStoreApiClient(
                 // Find the highest version number
                 val latestVersion =
                     candidateVersions.maxWithOrNull { a, b ->
-                        compareVersions(a, b)
+                        a.compareVersions(b)
                     }
 
                 latestVersion?.let { version ->
@@ -81,27 +81,6 @@ class PlayStoreApiClient(
         }
     }
 
-    private fun compareVersions(
-        version1: String,
-        version2: String,
-    ): Int {
-        val parts1 = version1.split(".").map { it.toIntOrNull() ?: 0 }
-        val parts2 = version2.split(".").map { it.toIntOrNull() ?: 0 }
-
-        val maxLength = maxOf(parts1.size, parts2.size)
-
-        for (i in 0 until maxLength) {
-            val part1 = parts1.getOrNull(i) ?: 0
-            val part2 = parts2.getOrNull(i) ?: 0
-
-            when {
-                part1 < part2 -> return -1
-                part1 > part2 -> return 1
-            }
-        }
-
-        return 0
-    }
 
     companion object {
         private const val CACHE_KEY = "tgtg_app_version"
