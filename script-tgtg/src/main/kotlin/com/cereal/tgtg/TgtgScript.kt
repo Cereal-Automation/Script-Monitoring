@@ -1,9 +1,9 @@
 package com.cereal.tgtg
 
 import com.cereal.command.monitor.MonitorCommandFactory
-import com.cereal.command.monitor.data.tgtg.TgtgApiClient
 import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
+import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
