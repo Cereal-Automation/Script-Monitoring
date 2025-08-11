@@ -23,7 +23,7 @@ class TgtgAuthPollCommand(
 
         // Only run if we have authentication state (email was sent)
         if (authState == null) {
-            return RunDecision.Skip
+            throw UnrecoverableException("Authentication state not found. Please start authentication first.")
         }
 
         // Check for timeout (5 minutes)
