@@ -27,7 +27,6 @@ import kotlin.time.Duration.Companion.seconds
 
 class TgtgApiClient(
     private val logRepository: LogRepository,
-    private val config: TgtgConfig,
     private val preferenceComponent: PreferenceComponent,
     private val playStoreApiClient: PlayStoreApiClient,
     private val httpProxy: Proxy? = null,
@@ -45,10 +44,10 @@ class TgtgApiClient(
                 json.decodeFromString<TgtgConfig>(configJson)
             } catch (e: Exception) {
                 logRepository.debug("Failed to deserialize stored config: ${e.message}")
-                config
+                TgtgConfig()
             }
         } else {
-            config
+            TgtgConfig()
         }
     }
 

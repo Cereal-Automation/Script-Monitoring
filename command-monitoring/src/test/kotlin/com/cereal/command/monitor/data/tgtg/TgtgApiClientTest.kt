@@ -31,7 +31,6 @@ class TgtgApiClientTest {
             val apiClient =
                 TgtgApiClient(
                     logRepository = mockLogRepository,
-                    config = config,
                     preferenceComponent = mockPreferenceComponent,
                     playStoreApiClient = mockPlayStoreApiClient,
                 )

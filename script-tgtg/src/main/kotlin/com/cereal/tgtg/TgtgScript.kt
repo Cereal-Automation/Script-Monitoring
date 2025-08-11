@@ -1,8 +1,10 @@
 package com.cereal.tgtg
 
 import com.cereal.command.monitor.MonitorCommandFactory
+import com.cereal.command.monitor.data.common.cache.PreferenceCacheManager
 import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
+import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
@@ -58,12 +60,13 @@ class TgtgScript : Script<TgtgConfiguration> {
         val notificationRepository = factory.notificationRepository("TGTG")
 
         // Create TGTG API client and repository
-        val tgtgConfig = TgtgConfig()
+        val cacheManager = PreferenceCacheManager(provider.preference())
+        val playStoreApiClient = PlayStoreApiClient(logRepository, cacheManager)
         val tgtgApiClient =
             TgtgApiClient(
                 logRepository = logRepository,
-                config = tgtgConfig,
                 preferenceComponent = provider.preference(),
+                playStoreApiClient = playStoreApiClient,
                 httpProxy = configuration.proxy()?.invoke(),
             )
 

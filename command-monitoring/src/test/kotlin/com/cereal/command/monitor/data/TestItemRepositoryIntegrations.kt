@@ -63,7 +63,6 @@ class TestItemRepositoryIntegrations {
                 TgtgItemRepository(
                     TgtgApiClient(
                         FakeLogRepository(),
-                        TgtgConfig(),
                         mockk<PreferenceComponent>(relaxed = true),
                         mockk<PlayStoreApiClient>(relaxed = true),
                         null,
