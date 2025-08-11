@@ -1,8 +1,8 @@
 package com.cereal.tgtg.data
 
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
-import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
+import com.cereal.tgtg.domain.AuthByEmailResult
 import com.cereal.tgtg.domain.TgtgAuthRepository
 
 /**
@@ -15,8 +15,11 @@ class TgtgAuthRepositoryImpl(
         return tgtgApiClient.login()
     }
 
-    override suspend fun authByEmail(email: String): AuthByEmailResponse {
-        return tgtgApiClient.authByEmail(email)
+    override suspend fun authByEmail(email: String): AuthByEmailResult {
+        val response = tgtgApiClient.authByEmail(email)
+        val pollingId = response.pollingId
+            ?: throw Exception("No polling ID received from authentication request")
+        return AuthByEmailResult(pollingId = pollingId)
     }
 
     override suspend fun authPoll(

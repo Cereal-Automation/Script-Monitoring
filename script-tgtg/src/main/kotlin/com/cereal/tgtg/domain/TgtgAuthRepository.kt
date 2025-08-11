@@ -1,7 +1,5 @@
 package com.cereal.tgtg.domain
 
-import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
-
 /**
  * Repository interface for TGTG authentication operations.
  *
@@ -17,10 +15,10 @@ interface TgtgAuthRepository {
     /**
      * Initiates the email-based authentication process by sending an authentication email.
      *
-     * @return AuthByEmailResponse containing the polling ID needed for polling authentication status
+     * @return AuthByEmailResult containing the polling ID needed for polling authentication status
      * @throws Exception if the authentication email could not be sent
      */
-    suspend fun authByEmail(email: String): AuthByEmailResponse
+    suspend fun authByEmail(email: String): AuthByEmailResult
 
     /**
      * Polls for authentication completion using the polling ID from authByEmail().

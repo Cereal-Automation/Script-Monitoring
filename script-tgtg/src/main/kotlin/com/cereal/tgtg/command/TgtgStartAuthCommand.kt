@@ -48,12 +48,8 @@ class TgtgLoginCommand(
             // Send authentication email
             logRepository.info("Sending authentication email...")
 
-            val authResponse = tgtgAuthRepository.authByEmail(configuration.email())
-            val pollingId = authResponse.pollingId
-
-            if (pollingId.isNullOrEmpty()) {
-                throw UnrecoverableException("Failed to get polling ID from TGTG. Authentication cannot continue.")
-            }
+            val authResult = tgtgAuthRepository.authByEmail(configuration.email())
+            val pollingId = authResult.pollingId
 
             logRepository.info("Authentication email sent successfully!")
 
