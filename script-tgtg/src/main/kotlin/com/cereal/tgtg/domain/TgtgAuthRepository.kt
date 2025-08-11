@@ -1,7 +1,6 @@
 package com.cereal.tgtg.domain
 
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
-import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
 
 /**
  * Repository interface for TGTG authentication operations.
@@ -28,11 +27,11 @@ interface TgtgAuthRepository {
      *
      * @param pollingId The polling ID obtained from authByEmail()
      * @param email The email address used for authentication
-     * @return AuthPollResponse containing access and refresh tokens if authentication is complete
+     * @return true if authentication is complete with valid tokens, false otherwise
      * @throws Exception if polling fails
      */
     suspend fun authPoll(
         pollingId: String,
         email: String,
-    ): AuthPollResponse
+    ): Boolean
 }

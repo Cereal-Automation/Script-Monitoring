@@ -62,9 +62,9 @@ class TgtgAuthPollCommand(
         logRepository.info("Checking authentication status... (${elapsedTime.toInt() + 1} minutes elapsed)")
 
         try {
-            val pollResponse = tgtgAuthRepository.authPoll(authState.pollingId, configuration.email())
+            val isAuthenticated = tgtgAuthRepository.authPoll(authState.pollingId, configuration.email())
 
-            if (pollResponse.accessToken != null && pollResponse.refreshToken != null) {
+            if (isAuthenticated) {
                 logRepository.info("Authentication successful! You are now logged in to TGTG.")
                 // Authentication successful - remove state from context
                 context.store.removeIf { it is TgtgAuthState }
