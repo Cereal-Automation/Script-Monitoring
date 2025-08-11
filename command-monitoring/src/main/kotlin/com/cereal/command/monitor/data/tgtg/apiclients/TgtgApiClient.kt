@@ -58,14 +58,15 @@ class TgtgApiClient(
 
     private suspend fun createHttpClient(): HttpClient {
         val appVersion = playStoreApiClient.getAppVersion()
-        val headers = mapOf(
-            HttpHeaders.ContentType to ContentType.Application.Json.toString(),
-            HttpHeaders.Accept to "application/json",
-            HttpHeaders.AcceptLanguage to "en-US",
-            HttpHeaders.AcceptEncoding to "gzip",
-            HttpHeaders.UserAgent to "TGTG/${appVersion} Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
-            "x-correlation-id" to getTgtgConfig().correlationId,
-        )
+        val headers =
+            mapOf(
+                HttpHeaders.ContentType to ContentType.Application.Json.toString(),
+                HttpHeaders.Accept to "application/json",
+                HttpHeaders.AcceptLanguage to "en-US",
+                HttpHeaders.AcceptEncoding to "gzip",
+                HttpHeaders.UserAgent to "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
+                "x-correlation-id" to getTgtgConfig().correlationId,
+            )
 
         return defaultHttpClient(
             timeout = timeout,

@@ -49,5 +49,4 @@ class TgtgApiClientTest {
 
         assertNotNull(versionDataSource)
     }
-
 }

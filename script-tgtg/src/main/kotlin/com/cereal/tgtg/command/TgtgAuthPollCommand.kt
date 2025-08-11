@@ -36,7 +36,7 @@ class TgtgAuthPollCommand(
             context.store.removeIf { it is TgtgAuthState }
             throw UnrecoverableException(
                 "Authentication timeout reached after 5 minutes. " +
-                        "Please restart the script and make sure to click the link in the email.",
+                    "Please restart the script and make sure to click the link in the email.",
             )
         }
 

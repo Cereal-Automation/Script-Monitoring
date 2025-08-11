@@ -31,5 +31,8 @@ interface TgtgAuthRepository {
      * @return AuthPollResponse containing access and refresh tokens if authentication is complete
      * @throws Exception if polling fails
      */
-    suspend fun authPoll(pollingId: String, email: String): AuthPollResponse
+    suspend fun authPoll(
+        pollingId: String,
+        email: String,
+    ): AuthPollResponse
 }

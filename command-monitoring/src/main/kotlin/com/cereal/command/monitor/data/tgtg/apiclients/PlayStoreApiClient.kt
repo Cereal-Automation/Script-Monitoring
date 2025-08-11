@@ -76,11 +76,10 @@ class PlayStoreApiClient(
             logRepository.info("Error while retrieving latest version of TGTG on Google Play page: ${error.message}")
             throw TgtgAppVersionException(
                 "Error while retrieving latest version of TGTG on Google Play page: ${error.message}",
-                error
+                error,
             )
         }
     }
-
 
     companion object {
         private const val CACHE_KEY = "tgtg_app_version"
