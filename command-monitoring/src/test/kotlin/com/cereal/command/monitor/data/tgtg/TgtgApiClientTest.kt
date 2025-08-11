@@ -1,5 +1,6 @@
 package com.cereal.command.monitor.data.tgtg
 
+import com.cereal.command.monitor.data.common.cache.PreferenceCacheManager
 import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.script.repository.LogRepository
@@ -39,22 +40,14 @@ class TgtgApiClientTest {
 
     @Test
     fun `should create TgtgAppVersionDataSource successfully`() {
+        val cacheManager = PreferenceCacheManager(mockPreferenceComponent)
         val versionDataSource =
             PlayStoreApiClient(
                 logRepository = mockLogRepository,
+                cacheManager = cacheManager,
             )
 
         assertNotNull(versionDataSource)
     }
 
-    @Test
-    fun `should create TgtgExample successfully`() {
-        val example =
-            TgtgExample(
-                logRepository = mockLogRepository,
-                preferenceComponent = mockPreferenceComponent,
-            )
-
-        assertNotNull(example)
-    }
 }
