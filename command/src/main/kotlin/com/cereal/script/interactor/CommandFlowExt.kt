@@ -1,6 +1,7 @@
 package com.cereal.script.interactor
 
 import com.cereal.script.commands.ChainContext
+import com.cereal.script.exception.RestartableException
 import com.cereal.script.repository.LogRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -29,9 +30,10 @@ fun <T> Flow<T>.withRetry(
     logRepository: LogRepository,
 ): Flow<T> =
     this.retryWhen { cause, attempt ->
-        if (cause is RuntimeException || cause is UnrecoverableException) {
-            // Runtime exceptions are unrecoverable.
-            logRepository.info("Skip retrying '$action' due to unrecoverable exception '${cause.message}'")
+        if (cause is RuntimeException || cause is UnrecoverableException || cause is RestartableException) {
+            // Runtime exceptions, UnrecoverableExceptions, and RestartableExceptions are not retried at the command level.
+            // RestartableExceptions will be handled at the command chain level to restart the entire chain.
+            logRepository.info("Skip retrying '$action' due to unrecoverable or restartable exception '${cause.message}'")
             false
         } else if (attempt < RETRY_ATTEMPTS_TOTAL) {
             val delayTime =
