@@ -55,6 +55,8 @@ class ExecuteCommandsInteractor(
                         is RestartableException -> {
                             // Continue the loop (restart already set up)
                             logRepository.info("Caught RestartableException, continuing with restart")
+                            currentCommandIndex = 0
+                            continue
                         }
                         else -> throw e
                     }
@@ -115,14 +117,15 @@ class ExecuteCommandsInteractor(
     private suspend fun applyDecisionDelay(runDecision: RunDecision) {
         when (runDecision) {
             is RunDecision.RunOnce, is RunDecision.RunRepeat -> {
-                val delay =
+                val delayDuration =
                     when (runDecision) {
                         is RunDecision.RunOnce -> runDecision.startDelay
                         is RunDecision.RunRepeat -> runDecision.startDelay
                         else -> throw IllegalStateException("Unexpected RunDecision type")
                     }
-                if (delay.isPositive()) delay(delay)
+                if (delayDuration.isPositive()) delay(delayDuration)
             }
+
             is RunDecision.Skip -> { /* No delay needed */ }
         }
     }
