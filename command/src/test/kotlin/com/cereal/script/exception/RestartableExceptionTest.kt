@@ -90,7 +90,11 @@ class RestartableExceptionTest {
             val result = interactor(commands, startContext).toList()
 
             println(
-                "Test results: command1=$command1ExecutionCount, command2=$command2ExecutionCount, command3=$command3ExecutionCount, contexts=${result.size}",
+                "Test results: " +
+                    "command1=$command1ExecutionCount, " +
+                    "command2=$command2ExecutionCount, " +
+                    "command3=$command3ExecutionCount, " +
+                    "contexts=${result.size}",
             )
 
             // Verify execution counts
@@ -308,7 +312,11 @@ class RestartableExceptionTest {
             val result = interactor(commands, startContext).toList()
 
             println(
-                "Test results: command1=$command1ExecutionCount, command2=$command2ExecutionCount, command3=$command3ExecutionCount, contexts=${result.size}",
+                "Test results: " +
+                    "command1=$command1ExecutionCount, " +
+                    "command2=$command2ExecutionCount, " +
+                    "command3=$command3ExecutionCount, " +
+                    "contexts=${result.size}",
             )
 
             // Verify execution counts
