@@ -33,7 +33,14 @@ fun <T> Flow<T>.withRetry(
         if (cause is RuntimeException || cause is UnrecoverableException || cause is RestartableException) {
             // Runtime exceptions, UnrecoverableExceptions, and RestartableExceptions are not retried at the command level.
             // RestartableExceptions will be handled at the command chain level to restart the entire chain.
-            logRepository.info("Skip retrying '$action' due to unrecoverable or restartable exception '${cause.message}'")
+            val message =
+                when (cause) {
+                    is RestartableException -> "Restarting '$action' due to an invalid state"
+                    is UnrecoverableException -> "Skip retrying '$action' due to unrecoverable error"
+                    is RuntimeException -> "Skip retrying '$action' due to unhandled error"
+                    else -> "Skip retrying '$action'"
+                }
+            logRepository.info(message)
             false
         } else if (attempt < RETRY_ATTEMPTS_TOTAL) {
             val delayTime =

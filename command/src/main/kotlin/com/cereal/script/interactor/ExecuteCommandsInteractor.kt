@@ -7,9 +7,8 @@ import com.cereal.script.exception.RestartableException
 import com.cereal.script.repository.LogRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retryWhen
 
 /**
  * Interactor responsible for executing a chain of commands in sequence.
@@ -36,80 +35,31 @@ class ExecuteCommandsInteractor(
     ): Flow<ChainContext> =
         flow {
             var currentContext = startContext
-            var currentCommandIndex = 0
 
-            while (currentCommandIndex < commands.size) {
-                val command = commands[currentCommandIndex]
+            for (command in commands) {
+                var decision: RunDecision
+                do {
+                    decision = command.shouldRun(currentContext)
+                    if (decision is RunDecision.Skip) break
 
-                try {
-                    val result = processCommand(command, currentContext, currentCommandIndex)
-                    currentContext = result.updatedContext
-                    currentCommandIndex = result.nextIndex
+                    applyDecisionDelay(decision)
 
-                    // Only emit if the command was actually executed (not skipped)
-                    if (result.wasExecuted) {
-                        emit(currentContext)
-                    }
-                } catch (e: Exception) {
-                    when (e) {
-                        is RestartableException -> {
-                            // Continue the loop (restart already set up)
-                            logRepository.info("Caught RestartableException, continuing with restart")
-                            currentCommandIndex = 0
-                            continue
+                    // Execute the command and emit updates
+                    executeCommand(command, currentContext)
+                        .collect { emitted ->
+                            currentContext = emitted
+                            emit(currentContext)
                         }
-                        else -> throw e
-                    }
-                }
+                } while (decision is RunDecision.RunRepeat)
+            }
+        }.retryWhen { cause, _ ->
+            if (cause is RestartableException) {
+                logRepository.info("Restarting command chain due to an error")
+                true
+            } else {
+                false
             }
         }
-
-    /**
-     * Result of processing a command, containing the updated context, next command index,
-     * and whether the command was actually executed.
-     */
-    private data class CommandProcessingResult(
-        val updatedContext: ChainContext,
-        val nextIndex: Int,
-        val wasExecuted: Boolean,
-    )
-
-    /**
-     * Processes a single command, handling execution, repetition, and restart logic.
-     *
-     * @param command The command to process
-     * @param context The current chain context
-     * @param currentIndex The current command index
-     * @return A CommandProcessingResult with updated context and next index
-     */
-    private suspend fun FlowCollector<ChainContext>.processCommand(
-        command: Command,
-        context: ChainContext,
-        currentIndex: Int,
-    ): CommandProcessingResult {
-        var updatedContext = context
-        var shouldRestartChain = false
-        var wasExecuted = false
-
-        do {
-            val runDecision = command.shouldRun(updatedContext)
-
-            if (runDecision is RunDecision.Skip) break
-
-            applyDecisionDelay(runDecision)
-
-            updatedContext =
-                executeCommandWithRestartHandling(
-                    command,
-                    updatedContext,
-                    onRestartNeeded = { shouldRestartChain = true },
-                )
-            wasExecuted = true
-        } while (runDecision is RunDecision.RunRepeat)
-
-        val nextIndex = if (shouldRestartChain) 0 else currentIndex + 1
-        return CommandProcessingResult(updatedContext, nextIndex, wasExecuted)
-    }
 
     /**
      * Applies appropriate delay based on the run decision.
@@ -128,40 +78,6 @@ class ExecuteCommandsInteractor(
 
             is RunDecision.Skip -> { /* No delay needed */ }
         }
-    }
-
-    /**
-     * Executes a command with restart exception handling.
-     *
-     * @param command The command to execute
-     * @param context The current context
-     * @param onRestartNeeded Callback when restart is needed
-     * @return Updated context after command execution
-     */
-    private suspend fun FlowCollector<ChainContext>.executeCommandWithRestartHandling(
-        command: Command,
-        context: ChainContext,
-        onRestartNeeded: () -> Unit,
-    ): ChainContext {
-        var updatedContext = context
-
-        // Execute the command and collect the result without emitting to the outer flow
-        // This matches the original behavior where the context is only emitted in the main flow
-        executeCommand(command, context)
-            .catch { e ->
-                if (e is RestartableException) {
-                    logRepository.info("Restarting command chain due to: ${e.message}")
-                    onRestartNeeded()
-                    throw e
-                } else {
-                    throw e
-                }
-            }
-            .collect {
-                updatedContext = it
-            }
-
-        return updatedContext
     }
 
     /**

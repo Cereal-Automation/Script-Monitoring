@@ -112,7 +112,7 @@ class RestartableExceptionTest {
             assertTrue(result.isNotEmpty(), "Should have at least one context update")
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to: Test restart") }
+            coVerify { logRepository.info("Restarting command chain due to an error") }
         }
 
     /**
@@ -182,7 +182,7 @@ class RestartableExceptionTest {
             assertEquals(5, result.size)
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to: Test restart from last command") }
+            coVerify { logRepository.info("Restarting command chain due to an error") }
         }
 
     /**
@@ -253,7 +253,7 @@ class RestartableExceptionTest {
             assertEquals(3, result.size)
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to: Test restart from first command") }
+            coVerify { logRepository.info("Restarting command chain due to an error") }
         }
 
     /**
@@ -334,8 +334,8 @@ class RestartableExceptionTest {
             assertTrue(result.size > 0, "Should have at least one context update")
 
             // Verify that the restarts were logged
-            coVerify { logRepository.info("Restarting command chain due to: Test restart #1 from command2") }
-            coVerify { logRepository.info("Restarting command chain due to: Test restart #2 from command2") }
+            coVerify { logRepository.info("Restarting command chain due to an error") }
+            coVerify { logRepository.info("Restarting command chain due to an error") }
         }
 
     /**
@@ -364,7 +364,7 @@ class RestartableExceptionTest {
                 mockk<Command>(relaxed = true) {
                     every { getDescription() } returns "Test Command"
                     coEvery { shouldRun(any()) } returns RunDecision.RunOnce()
-                    coEvery { execute(any()) } answers {
+                    coEvery { execute(any()) } coAnswers {
                         executionCount++
                         if (executionCount == 1) {
                             throw TestRestartableException("Test restart")
@@ -382,7 +382,7 @@ class RestartableExceptionTest {
             assertEquals(2, executionCount)
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to: Test restart") }
+            coVerify { logRepository.info("Restarting command chain due to an error") }
         }
 
     /**
