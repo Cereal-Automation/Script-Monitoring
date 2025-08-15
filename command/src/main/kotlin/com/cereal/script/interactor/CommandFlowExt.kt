@@ -1,6 +1,7 @@
 package com.cereal.script.interactor
 
 import com.cereal.script.commands.ChainContext
+import com.cereal.script.exception.InvalidChainContextException
 import com.cereal.script.repository.LogRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -29,9 +30,19 @@ fun <T> Flow<T>.withRetry(
     logRepository: LogRepository,
 ): Flow<T> =
     this.retryWhen { cause, attempt ->
-        if (cause is RuntimeException || cause is UnrecoverableException) {
-            // Runtime exceptions are unrecoverable.
-            logRepository.info("Skip retrying '$action' due to unrecoverable exception '${cause.message}'")
+        // Propagate cooperative cancellation without logging or retrying
+        if (cause is CancellationException) return@retryWhen false
+        if (cause is RuntimeException || cause is UnrecoverableException || cause is InvalidChainContextException) {
+            // Runtime exceptions, UnrecoverableExceptions, and InvalidChainContextExceptions are not retried at the command level.
+            // InvalidChainContextExceptions will be handled at the command chain level to restart the entire chain.
+            val message =
+                when (cause) {
+                    is InvalidChainContextException -> "Restarting '$action' due to an invalid state"
+                    is UnrecoverableException -> "Skip retrying '$action' due to unrecoverable error"
+                    is RuntimeException -> "Skip retrying '$action' due to unhandled error"
+                    else -> "Skip retrying '$action'"
+                }
+            logRepository.info(message)
             false
         } else if (attempt < RETRY_ATTEMPTS_TOTAL) {
             val delayTime =

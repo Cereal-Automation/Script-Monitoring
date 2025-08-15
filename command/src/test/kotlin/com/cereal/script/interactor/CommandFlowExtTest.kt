@@ -46,7 +46,11 @@ class CommandFlowExtTest {
             // Then
             assertEquals(1, attemptCount)
             assertTrue(result.isFailure)
-            coVerify { logRepository.info("Skip retrying 'test action' due to unrecoverable exception 'Test runtime exception'") }
+            coVerify {
+                logRepository.info(
+                    "Skip retrying 'test action' due to unhandled error",
+                )
+            }
         }
 
     @Test
@@ -69,7 +73,11 @@ class CommandFlowExtTest {
             // Then
             assertEquals(1, attemptCount)
             assertTrue(result.isFailure)
-            coVerify { logRepository.info("Skip retrying 'test action' due to unrecoverable exception 'Test unrecoverable exception'") }
+            coVerify {
+                logRepository.info(
+                    "Skip retrying 'test action' due to unrecoverable error",
+                )
+            }
         }
 
     @Test
