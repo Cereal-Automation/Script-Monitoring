@@ -18,13 +18,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Test class for verifying the behavior of RestartableException.
+ * Test class for verifying the behavior of InvalidChainContextException.
  *
- * These tests ensure that when a RestartableException is thrown during command execution,
+ * These tests ensure that when an InvalidChainContextException is thrown during command execution,
  * the entire command chain is restarted from the beginning as expected.
  */
 @ExperimentalCoroutinesApi
-class RestartableExceptionTest {
+class InvalidChainContextExceptionTest {
     private lateinit var logRepository: LogRepository
     private lateinit var interactor: ExecuteCommandsInteractor
 
@@ -35,10 +35,10 @@ class RestartableExceptionTest {
     }
 
     /**
-     * Test that verifies the command chain restarts from the beginning when a RestartableException is thrown.
+     * Test that verifies the command chain restarts from the beginning when an InvalidChainContextException is thrown.
      */
     @Test
-    fun `when RestartableException is thrown, command chain restarts from beginning`() =
+    fun `when InvalidChainContextException is thrown, command chain restarts from beginning`() =
         runTest {
             // Track execution counts for each command
             var command1ExecutionCount = 0
@@ -56,7 +56,7 @@ class RestartableExceptionTest {
                     }
                 }
 
-            // Second command - throws RestartableException on first execution, then executes normally
+            // Second command - throws InvalidChainContextException on first execution, then executes normally
             val command2 =
                 mockk<Command>(relaxed = true) {
                     every { getDescription() } returns "Command 2"
@@ -65,9 +65,9 @@ class RestartableExceptionTest {
                         command2ExecutionCount++
                         println("Executing command 2 (execution #$command2ExecutionCount)")
 
-                        // Throw RestartableException only on first execution
+                        // Throw InvalidChainContextException only on first execution
                         if (command2ExecutionCount == 1) {
-                            throw TestRestartableException("Test restart")
+                            throw TestInvalidChainContextException("Test restart")
                         }
                     }
                 }
@@ -98,8 +98,8 @@ class RestartableExceptionTest {
             )
 
             // Verify execution counts
-            // In the actual implementation, when a RestartableException is thrown,
-            // the command chain is restarted but the execution counts may vary
+            // In the actual implementation, when an InvalidChainContextException is thrown,
+            // the command chain is restarted, but the execution counts may vary
             // depending on how the exception is handled.
             // The important thing is that all commands are executed successfully at least once.
             assertTrue(command1ExecutionCount >= 1, "Command 1 should execute at least once")
@@ -108,7 +108,7 @@ class RestartableExceptionTest {
 
             // Verify the number of context updates emitted
             // The number of context updates depends on how many commands execute successfully
-            // Note: Commands that throw RestartableException don't emit context updates
+            // Note: Commands that throw InvalidChainContextException don't emit context updates
             assertTrue(result.isNotEmpty(), "Should have at least one context update")
 
             // Verify that the restart was logged
@@ -116,10 +116,10 @@ class RestartableExceptionTest {
         }
 
     /**
-     * Test that verifies RestartableException behavior when thrown from the last command in the chain.
+     * Test that verifies InvalidChainContextException behavior when thrown from the last command in the chain.
      */
     @Test
-    fun `when RestartableException is thrown from last command, chain restarts from beginning`() =
+    fun `when InvalidChainContextException is thrown from last command, chain restarts from beginning`() =
         runTest {
             // Track execution counts for each command
             var command1ExecutionCount = 0
@@ -148,7 +148,7 @@ class RestartableExceptionTest {
                     }
                 }
 
-            // Third command - throws RestartableException on first execution, then executes normally
+            // Third command - throws InvalidChainContextException on first execution, then executes normally
             val command3 =
                 mockk<Command>(relaxed = true) {
                     every { getDescription() } returns "Command 3"
@@ -157,9 +157,9 @@ class RestartableExceptionTest {
                         command3ExecutionCount++
                         println("Executing command 3 (execution #$command3ExecutionCount)")
 
-                        // Throw RestartableException only on first execution
+                        // Throw InvalidChainContextException only on first execution
                         if (command3ExecutionCount == 1) {
-                            throw TestRestartableException("Test restart from last command")
+                            throw TestInvalidChainContextException("Test restart from last command")
                         }
                     }
                 }
@@ -178,7 +178,7 @@ class RestartableExceptionTest {
 
             // Verify the number of context updates emitted
             // We should have 5 context updates (one for each successful command execution)
-            // Note: The command that throws RestartableException doesn't emit a context update
+            // Note: The command that throws InvalidChainContextException doesn't emit a context update
             assertEquals(5, result.size)
 
             // Verify that the restart was logged
@@ -186,15 +186,15 @@ class RestartableExceptionTest {
         }
 
     /**
-     * Test that verifies RestartableException behavior when thrown from the first command in the chain.
+     * Test that verifies InvalidChainContextException behavior when thrown from the first command in the chain.
      */
     @Test
-    fun `when RestartableException is thrown from first command, chain restarts from beginning`() =
+    fun `when InvalidChainContextException is thrown from first command, chain restarts from beginning`() =
         runTest {
             // Execution counter to track how many times each command is executed
             val executionCounter = mutableMapOf<String, Int>()
 
-            // First command - throws RestartableException on first execution, then executes normally
+            // First command - throws InvalidChainContextException on first execution, then executes normally
             val command1 =
                 mockk<Command> {
                     coEvery { shouldRun(any()) } returns RunDecision.RunOnce()
@@ -203,9 +203,9 @@ class RestartableExceptionTest {
                         executionCounter["command1"] = count
                         println("Executing command 1 (execution #$count)")
 
-                        // Throw RestartableException only on first execution
+                        // Throw InvalidChainContextException only on first execution
                         if (count == 1) {
-                            throw TestRestartableException("Test restart from first command")
+                            throw TestInvalidChainContextException("Test restart from first command")
                         }
                     }
                     every { getDescription() } returns "Command 1"
@@ -257,10 +257,10 @@ class RestartableExceptionTest {
         }
 
     /**
-     * Test that verifies behavior when multiple RestartableExceptions are thrown in sequence.
+     * Test that verifies behavior when multiple InvalidChainContextException are thrown in sequence.
      */
     @Test
-    fun `when multiple RestartableExceptions are thrown, chain restarts multiple times`() =
+    fun `when multiple InvalidChainContextExceptions are thrown, chain restarts multiple times`() =
         runTest {
             // Track execution counts for each command
             var command1ExecutionCount = 0
@@ -278,7 +278,7 @@ class RestartableExceptionTest {
                     }
                 }
 
-            // Second command - throws RestartableException on first and second executions, then executes normally
+            // Second command - throws InvalidChainContextException on first and second executions, then executes normally
             val command2 =
                 mockk<Command>(relaxed = true) {
                     every { getDescription() } returns "Command 2"
@@ -287,9 +287,9 @@ class RestartableExceptionTest {
                         command2ExecutionCount++
                         println("Executing command 2 (execution #$command2ExecutionCount)")
 
-                        // Throw RestartableException on first and second executions
+                        // Throw InvalidChainContextException on first and second executions
                         if (command2ExecutionCount <= 2) {
-                            throw TestRestartableException("Test restart #$command2ExecutionCount from command2")
+                            throw TestInvalidChainContextException("Test restart #$command2ExecutionCount from command2")
                         }
                     }
                 }
@@ -320,8 +320,8 @@ class RestartableExceptionTest {
             )
 
             // Verify execution counts
-            // In the actual implementation, when a RestartableException is thrown,
-            // the command chain is restarted but the execution counts may vary
+            // In the actual implementation, when an InvalidChainContextException is thrown,
+            // the command chain is restarted, but the execution counts may vary
             // depending on how the exception is handled.
             // The important thing is that all commands are executed successfully at least once.
             assertTrue(command1ExecutionCount >= 1, "Command 1 should execute at least once")
@@ -330,8 +330,8 @@ class RestartableExceptionTest {
 
             // Verify the number of context updates emitted
             // The number of context updates depends on how many commands execute successfully
-            // Note: Commands that throw RestartableException don't emit context updates
-            assertTrue(result.size > 0, "Should have at least one context update")
+            // Note: Commands that throw InvalidChainContextException don't emit context updates
+            assertTrue(result.isNotEmpty(), "Should have at least one context update")
 
             // Verify that the restarts were logged
             coVerify { logRepository.info("Restarting command chain due to an error") }
@@ -339,25 +339,25 @@ class RestartableExceptionTest {
         }
 
     /**
-     * Simple test that verifies RestartableException is properly recognized and handled.
+     * A simple test that verifies InvalidChainContextException is properly recognized and handled.
      */
     @Test
-    fun `RestartableException is properly recognized`() {
-        // Create a test exception that implements RestartableException
-        val exception = TestRestartableException("Test restart exception")
+    fun `InvalidChainContextException is properly recognized`() {
+        // Create a test exception that implements InvalidChainContextException
+        val exception = TestInvalidChainContextException("Test restart exception")
 
-        // Verify it implements the RestartableException interface
-        assertTrue(exception is RestartableException)
+        // Verify it implements the InvalidChainContextException interface
+        assertTrue(exception is InvalidChainContextException)
         assertEquals("Test restart exception", exception.message)
     }
 
     /**
-     * Simple test that verifies a command chain with a RestartableException.
+     * Simple test that verifies a command chain with an InvalidChainContextException.
      */
     @Test
-    fun `when RestartableException is thrown, command chain restarts - simple case`() =
+    fun `when InvalidChainContextException is thrown, command chain restarts - simple case`() =
         runTest {
-            // Create a simple test command that throws RestartableException on first execution
+            // Create a simple test command that throws InvalidChainContextException on first execution
             var executionCount = 0
 
             val command =
@@ -367,7 +367,7 @@ class RestartableExceptionTest {
                     coEvery { execute(any()) } coAnswers {
                         executionCount++
                         if (executionCount == 1) {
-                            throw TestRestartableException("Test restart")
+                            throw TestInvalidChainContextException("Test restart")
                         }
                     }
                 }
@@ -386,7 +386,7 @@ class RestartableExceptionTest {
         }
 
     /**
-     * Test implementation of RestartableException for testing purposes.
+     * Test implementation of InvalidChainContextException for testing purposes.
      */
-    class TestRestartableException(message: String) : Exception(message), RestartableException
+    class TestInvalidChainContextException(message: String) : Exception(message), InvalidChainContextException
 }

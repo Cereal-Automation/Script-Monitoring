@@ -3,7 +3,7 @@ package com.cereal.script.interactor
 import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
-import com.cereal.script.exception.RestartableException
+import com.cereal.script.exception.InvalidChainContextException
 import com.cereal.script.repository.LogRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -66,7 +66,7 @@ class ExecuteCommandsInteractor(
         }.retryWhen { cause, _ ->
             when (cause) {
                 is CancellationException -> false
-                is RestartableException -> {
+                is InvalidChainContextException -> {
                     if (attemptIndex < CHAIN_RESTART_MAX_ATTEMPTS) {
                         logRepository.info("Restarting command chain due to an error")
                         attemptIndex += 1
