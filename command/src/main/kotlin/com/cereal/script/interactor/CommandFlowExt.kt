@@ -30,6 +30,8 @@ fun <T> Flow<T>.withRetry(
     logRepository: LogRepository,
 ): Flow<T> =
     this.retryWhen { cause, attempt ->
+        // Propagate cooperative cancellation without logging or retrying
+        if (cause is CancellationException) return@retryWhen false
         if (cause is RuntimeException || cause is UnrecoverableException || cause is RestartableException) {
             // Runtime exceptions, UnrecoverableExceptions, and RestartableExceptions are not retried at the command level.
             // RestartableExceptions will be handled at the command chain level to restart the entire chain.

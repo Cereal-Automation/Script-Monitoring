@@ -5,6 +5,7 @@ import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.exception.RestartableException
 import com.cereal.script.repository.LogRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -22,6 +23,10 @@ import kotlinx.coroutines.flow.retryWhen
 class ExecuteCommandsInteractor(
     private val logRepository: LogRepository,
 ) {
+    companion object {
+        private const val CHAIN_RESTART_MAX_ATTEMPTS = 5
+    }
+
     /**
      * Executes a list of commands in sequence, propagating context between them.
      *
@@ -32,9 +37,15 @@ class ExecuteCommandsInteractor(
     operator fun invoke(
         commands: List<Command>,
         startContext: ChainContext,
-    ): Flow<ChainContext> =
-        flow {
-            var currentContext = startContext
+    ): Flow<ChainContext> {
+        // Snapshot the initial context state at invocation time to avoid retaining mutations on restarts
+        val initialSnapshot = copyContext(startContext)
+        var attemptIndex = 0
+
+        return flow {
+            // For the first attempt, use the original startContext instance (preserves existing expectations/tests)
+            // For subsequent attempts (after a restart), use a fresh copy of the initial snapshot
+            var currentContext = if (attemptIndex == 0) startContext else copyContext(initialSnapshot)
 
             for (command in commands) {
                 var decision: RunDecision
@@ -53,13 +64,22 @@ class ExecuteCommandsInteractor(
                 } while (decision is RunDecision.RunRepeat)
             }
         }.retryWhen { cause, _ ->
-            if (cause is RestartableException) {
-                logRepository.info("Restarting command chain due to an error")
-                true
-            } else {
-                false
+            when (cause) {
+                is CancellationException -> false
+                is RestartableException -> {
+                    if (attemptIndex < CHAIN_RESTART_MAX_ATTEMPTS) {
+                        logRepository.info("Restarting command chain due to an error")
+                        attemptIndex += 1
+                        true
+                    } else {
+                        logRepository.info("Maximum restarts reached ($CHAIN_RESTART_MAX_ATTEMPTS). Aborting.")
+                        false
+                    }
+                }
+                else -> false
             }
         }
+    }
 
     /**
      * Applies appropriate delay based on the run decision.
@@ -99,4 +119,14 @@ class ExecuteCommandsInteractor(
             emit(context)
         }.withRetry(command.getDescription(), logRepository)
             .withLogging(command.getDescription(), logRepository)
+
+    /**
+     * Create a shallow copy of the given ChainContext.
+     * We copy the store list into a new ChainContext to avoid retaining mutations across restarts.
+     */
+    private fun copyContext(from: ChainContext): ChainContext {
+        val copy = ChainContext()
+        copy.store.addAll(from.store)
+        return copy
+    }
 }
