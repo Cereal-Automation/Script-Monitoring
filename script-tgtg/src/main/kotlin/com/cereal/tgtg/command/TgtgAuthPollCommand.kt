@@ -18,6 +18,26 @@ class TgtgAuthPollCommand(
     private val configuration: TgtgConfiguration,
     private val userInteractionComponent: UserInteractionComponent,
 ) : Command {
+
+    companion object {
+        // Public constant so other components/tests can reference the instructions directly
+        const val AUTHENTICATION_INSTRUCTIONS: String = """
+
+AUTHENTICATION REQUIRED
+
+An authentication email has been sent to your TGTG account.
+
+IMPORTANT INSTRUCTIONS:
+1. Check your email inbox for a message from Too Good To Go
+2. Open the email on your PC/computer (NOT on your phone)
+3. Click the authentication link in the email
+4. Do NOT open the email on a phone with the TGTG app installed
+
+Press Continue here after you clicked the link.
+
+"""
+    }
+
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         val authState = context.get<TgtgAuthState>()
 
@@ -38,7 +58,7 @@ class TgtgAuthPollCommand(
 
         // Show instructions on first attempt; on subsequent attempts show a shorter prompt.
         if (!authState.instructionsShown) {
-            val message = authenticationInstructions()
+            val message = AUTHENTICATION_INSTRUCTIONS
             // Log as well, so the instructions are visible in logs
             logRepository.info(message)
             context.put(authState.copy(instructionsShown = true))
@@ -71,27 +91,4 @@ class TgtgAuthPollCommand(
     }
 
     override fun getDescription(): String = "Awaiting user confirmation for TGTG authentication"
-
-    /**
-     * Returns authentication instructions to show the user.
-     */
-    private fun authenticationInstructions(): String {
-        return (
-                """
-            |
-            |AUTHENTICATION REQUIRED
-            |
-            |An authentication email has been sent to your TGTG account.
-            |
-            |IMPORTANT INSTRUCTIONS:
-            |1. Check your email inbox for a message from Too Good To Go
-            |2. Open the email on your PC/computer (NOT on your phone)
-            |3. Click the authentication link in the email
-            |4. Do NOT open the email on a phone with the TGTG app installed
-            |
-            |Press Continue here after you clicked the link.
-            |
-            """.trimMargin()
-                )
-    }
 }
