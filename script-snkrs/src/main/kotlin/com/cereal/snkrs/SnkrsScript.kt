@@ -64,7 +64,7 @@ class SnkrsScript : Script<SnkrsConfiguration> {
         val notificationRepository = factory.notificationRepository("Nike SNKRS")
         val nikeRepository =
             SnkrsItemRepository(
-                snkrsApiClient = SnkrsApiClient(logRepository),
+                snkrsApiClient = SnkrsApiClient(),
                 locale = configuration.locale(),
             )
 

@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    api("com.cereal-automation:cereal-sdk:1.6.0:all")
-    api("com.cereal-automation:cereal-licensing:1.6.0")
+    api("com.cereal-automation:cereal-sdk:1.7.0:all")
+    api("com.cereal-automation:cereal-licensing:1.7.0")
 
     api("com.prof18.rssparser:rssparser:6.0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
@@ -28,6 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.2.3")
     implementation("io.ktor:ktor-client-auth:3.2.3")
     implementation("io.ktor:ktor-client-encoding:3.2.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation(project(":command"))
     api(project(":stockx-api-client"))

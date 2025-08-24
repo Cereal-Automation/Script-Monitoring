@@ -1,7 +1,6 @@
 package com.cereal.tgtg.data
 
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
-import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
 import com.cereal.tgtg.domain.AuthByEmailResult
 import com.cereal.tgtg.domain.TgtgAuthRepository
 
@@ -27,6 +26,6 @@ class TgtgAuthRepositoryImpl(
         email: String,
     ): Boolean {
         val response = tgtgApiClient.authPoll(pollingId, email)
-        return response.accessToken != null && response.refreshToken != null
+        return response?.accessToken != null && response.refreshToken != null
     }
 }

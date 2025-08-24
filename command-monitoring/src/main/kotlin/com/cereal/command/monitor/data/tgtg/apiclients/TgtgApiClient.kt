@@ -19,7 +19,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import java.util.UUID
 import kotlin.time.Duration
@@ -71,7 +70,6 @@ class TgtgApiClient(
         return defaultHttpClient(
             timeout = timeout,
             httpProxy = httpProxy,
-            logRepository = logRepository,
             defaultHeaders = headers,
         )
     }
@@ -100,7 +98,7 @@ class TgtgApiClient(
     suspend fun authPoll(
         pollingId: String,
         email: String,
-    ): AuthPollResponse {
+    ): AuthPollResponse? {
         val currentConfig = getTgtgConfig()
         val request =
             AuthPollRequest(
@@ -114,6 +112,11 @@ class TgtgApiClient(
             httpClient.post("${baseUrl}auth/v5/authByRequestPollingId") {
                 setBody(json.encodeToString(AuthPollRequest.serializer(), request))
             }
+
+        // If status code is 202, there's no response body - return null
+        if (response.status.value == 202) {
+            return null
+        }
 
         val bodyText = response.bodyAsText()
         val authResponse = json.decodeFromString(AuthPollResponse.serializer(), bodyText)

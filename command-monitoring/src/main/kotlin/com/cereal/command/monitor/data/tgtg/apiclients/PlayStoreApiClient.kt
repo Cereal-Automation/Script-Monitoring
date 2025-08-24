@@ -31,7 +31,6 @@ class PlayStoreApiClient(
                 defaultHttpClient(
                     timeout = timeout,
                     httpProxy = null,
-                    logRepository = logRepository,
                 )
 
             val response = httpClient.get(googlePlayUrl)
