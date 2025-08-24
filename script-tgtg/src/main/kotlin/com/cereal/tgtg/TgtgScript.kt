@@ -94,6 +94,7 @@ class TgtgScript : Script<TgtgConfiguration> {
                 tgtgAuthRepository = tgtgAuthRepository,
                 logRepository = logRepository,
                 configuration = configuration,
+                userInteractionComponent = provider.userInteraction(),
             )
 
         // Create monitor command

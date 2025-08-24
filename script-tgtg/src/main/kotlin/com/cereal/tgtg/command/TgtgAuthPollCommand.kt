@@ -5,42 +5,29 @@ import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
+import com.cereal.sdk.component.userinteraction.UserInteractionComponent
 import com.cereal.tgtg.TgtgConfiguration
 import com.cereal.tgtg.domain.TgtgAuthRepository
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.until
 
 /**
- * Command that polls for TGTG authentication completion.
+ * Command that waits for the user to complete TGTG authentication.
  */
 class TgtgAuthPollCommand(
     private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
     private val configuration: TgtgConfiguration,
+    private val userInteractionComponent: UserInteractionComponent,
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         val authState = context.get<TgtgAuthState>()
 
         // Only run if we have authentication state (email was sent)
         if (authState == null) {
-            throw UnrecoverableException("Authentication state not found. Please start authentication first.")
+            // No auth state means either auth never started or already completed. Skip running.
+            return RunDecision.Skip
         }
 
-        // Check for timeout (5 minutes)
-        val currentTime = Clock.System.now()
-        val elapsedTime = authState.startTime.until(currentTime, DateTimeUnit.MINUTE)
-
-        if (elapsedTime >= 5) {
-            // Remove auth state and throw unrecoverable exception
-            context.store.removeIf { it is TgtgAuthState }
-            throw UnrecoverableException(
-                "Authentication timeout reached after 5 minutes. " +
-                    "Please restart the script and make sure to click the link in the email.",
-            )
-        }
-
-        // Continue polling
+        // Allow the user to try again by repeating until authentication succeeds.
         return RunDecision.RunRepeat()
     }
 
@@ -49,43 +36,48 @@ class TgtgAuthPollCommand(
             context.get<TgtgAuthState>()
                 ?: throw UnrecoverableException("Authentication state not found")
 
-        // Show instructions on first poll attempt
+        // Show instructions on first attempt; on subsequent attempts show a shorter prompt.
         if (!authState.instructionsShown) {
-            showAuthenticationInstructions()
+            val message = authenticationInstructions()
+            // Log as well, so the instructions are visible in logs
+            logRepository.info(message)
             context.put(authState.copy(instructionsShown = true))
         }
 
-        val currentTime = Clock.System.now()
-        val elapsedTime = authState.startTime.until(currentTime, DateTimeUnit.MINUTE)
+        // Wait for the user to confirm they clicked the email link
+        try {
+            userInteractionComponent.showContinueButton()
+        } catch (e: Exception) {
+            throw UnrecoverableException("Failed to show continue button: ${e.message}", e)
+        }
 
-        // Poll for authentication completion
-        logRepository.info("Checking authentication status... (${elapsedTime.toInt() + 1} minutes elapsed)")
-
+        // After the user pressed continue, check authentication status
         try {
             val isAuthenticated = tgtgAuthRepository.authPoll(authState.pollingId, configuration.email())
-
             if (isAuthenticated) {
                 logRepository.info("Authentication successful! You are now logged in to TGTG.")
-                // Authentication successful - remove state from context
                 context.store.removeIf { it is TgtgAuthState }
                 return
+            } else {
+                // Let the user try again on the next iteration.
+                logRepository.info("Authentication not completed. If you did not click the email link yet, please do so and press Continue to try again.")
+                return
             }
-
-            // Authentication not yet complete - will be retried by RunDecision.RunRepeat()
-            logRepository.info("Authentication not yet completed, continuing to poll...")
+        } catch (e: UnrecoverableException) {
+            throw e
         } catch (e: Exception) {
-            throw UnrecoverableException("Failed to poll for authentication: ${e.message}", e)
+            throw UnrecoverableException("Failed to check authentication: ${e.message}", e)
         }
     }
 
-    override fun getDescription(): String = "Polling for TGTG authentication completion"
+    override fun getDescription(): String = "Awaiting user confirmation for TGTG authentication"
 
     /**
-     * Shows authentication instructions to the user.
+     * Returns authentication instructions to show the user.
      */
-    private suspend fun showAuthenticationInstructions() {
-        val emailMessage =
-            """
+    private fun authenticationInstructions(): String {
+        return (
+                """
             |
             |AUTHENTICATION REQUIRED
             |
@@ -97,11 +89,9 @@ class TgtgAuthPollCommand(
             |3. Click the authentication link in the email
             |4. Do NOT open the email on a phone with the TGTG app installed
             |
-            |The script will automatically continue once you click the link.
-            |Waiting for authentication...
+            |Press Continue here after you clicked the link.
             |
             """.trimMargin()
-
-        logRepository.info(emailMessage)
+                )
     }
 }
