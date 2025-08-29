@@ -72,6 +72,7 @@ class TgtgApiClient(
             timeout = timeout,
             httpProxy = httpProxy,
             defaultHeaders = headers,
+            enableRetryPlugin = true,
         )
     }
 

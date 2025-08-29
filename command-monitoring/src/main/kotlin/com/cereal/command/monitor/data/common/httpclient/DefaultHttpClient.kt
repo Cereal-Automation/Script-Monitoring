@@ -27,6 +27,7 @@ fun defaultHttpClient(
     httpProxy: Proxy?,
     defaultHeaders: Map<String, Any> = emptyMap(),
     cookieStorage: CookiesStorage = AcceptAllCookiesStorage(),
+    enableRetryPlugin: Boolean = false,
 ): HttpClient =
     HttpClient(OkHttp) {
         engine {
@@ -79,13 +80,14 @@ fun defaultHttpClient(
             gzip()
             deflate()
         }
-        install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = 2)
-            retryIf(maxRetries = 2) { request, response ->
-                // Retry 403 requests because on first request cookies might get set.
-                response.status.value == 403
+        if (enableRetryPlugin) {
+            install(HttpRequestRetry) {
+                retryOnServerErrors(maxRetries = 2)
+                retryIf(maxRetries = 2) { request, response ->
+                    // Retry 403 requests because on first request cookies might get set.
+                    response.status.value == 403
+                }
             }
-            exponentialDelay()
         }
         defaultRequest {
             defaultHeaders.forEach { (key, value) -> header(key, value) }

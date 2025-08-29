@@ -8,6 +8,7 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.userinteraction.UserInteractionComponent
 import com.cereal.tgtg.TgtgConfiguration
 import com.cereal.tgtg.domain.TgtgAuthRepository
+import java.lang.Thread.sleep
 
 /**
  * Command that waits for the user to complete TGTG authentication.
@@ -58,9 +59,8 @@ Press Continue here after you clicked the link.
 
         // Show instructions on first attempt; on subsequent attempts show a shorter prompt.
         if (!authState.instructionsShown) {
-            val message = AUTHENTICATION_INSTRUCTIONS
             // Log as well, so the instructions are visible in logs
-            logRepository.info(message)
+            logRepository.info(AUTHENTICATION_INSTRUCTIONS)
             context.put(authState.copy(instructionsShown = true))
         }
 
