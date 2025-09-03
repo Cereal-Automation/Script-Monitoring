@@ -16,8 +16,9 @@ class TgtgAuthRepositoryImpl(
 
     override suspend fun authByEmail(email: String): AuthByEmailResult {
         val response = tgtgApiClient.authByEmail(email)
-        val pollingId = response.pollingId
-            ?: throw Exception("No polling ID received from authentication request")
+        val pollingId =
+            response.pollingId
+                ?: throw Exception("No polling ID received from authentication request")
         return AuthByEmailResult(pollingId = pollingId)
     }
 

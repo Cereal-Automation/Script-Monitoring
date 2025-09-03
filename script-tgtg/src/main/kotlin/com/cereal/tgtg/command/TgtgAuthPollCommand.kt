@@ -8,7 +8,6 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.userinteraction.UserInteractionComponent
 import com.cereal.tgtg.TgtgConfiguration
 import com.cereal.tgtg.domain.TgtgAuthRepository
-import java.lang.Thread.sleep
 
 /**
  * Command that waits for the user to complete TGTG authentication.
@@ -19,7 +18,6 @@ class TgtgAuthPollCommand(
     private val configuration: TgtgConfiguration,
     private val userInteractionComponent: UserInteractionComponent,
 ) : Command {
-
     companion object {
         // Public constant so other components/tests can reference the instructions directly
         const val AUTHENTICATION_INSTRUCTIONS: String = """
@@ -80,7 +78,9 @@ Press Continue here after you clicked the link.
                 return
             } else {
                 // Let the user try again on the next iteration.
-                logRepository.info("Authentication not completed. If you did not click the email link yet, please do so and press Continue to try again.")
+                logRepository.info(
+                    "Authentication not completed. If you did not click the email link yet, please do so and press Continue to try again.",
+                )
                 return
             }
         } catch (e: UnrecoverableException) {

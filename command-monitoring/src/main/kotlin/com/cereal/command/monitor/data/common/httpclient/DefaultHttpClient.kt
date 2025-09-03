@@ -35,10 +35,11 @@ fun defaultHttpClient(
                 followRedirects(true)
 
                 httpProxy?.let { cerealProxy ->
-                    val proxy = java.net.Proxy(
-                        java.net.Proxy.Type.HTTP,
-                        InetSocketAddress(cerealProxy.address, cerealProxy.port)
-                    )
+                    val proxy =
+                        java.net.Proxy(
+                            java.net.Proxy.Type.HTTP,
+                            InetSocketAddress(cerealProxy.address, cerealProxy.port),
+                        )
                     proxy(proxy)
 
                     cerealProxy.username?.let { username ->
