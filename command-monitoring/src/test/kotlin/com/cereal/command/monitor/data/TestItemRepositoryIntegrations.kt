@@ -52,11 +52,10 @@ class TestItemRepositoryIntegrations {
                     ScrapeCategory.MEN_ALL_SHOES,
                 ),
                 SnkrsItemRepository(
-                    SnkrsApiClient(FakeLogRepository(), null),
+                    SnkrsApiClient(null),
                     Locale.BE_NL,
                 ),
                 ShopifyItemRepository(
-                    FakeLogRepository(),
                     ShopifyWebsite("Test", "https://www.fillingpieces.com/collections/men-new-arrivals"),
                 ),
                 TgtgItemRepository(
