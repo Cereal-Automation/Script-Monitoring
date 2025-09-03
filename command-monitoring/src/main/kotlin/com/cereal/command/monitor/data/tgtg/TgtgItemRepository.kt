@@ -76,7 +76,7 @@ class TgtgItemRepository(
         // Create properties list
         val properties = buildItemProperties(tgtgItem, itemDetails)
 
-        // Create variants (TGTG items typically don't have variants, but we create one for consistency)
+        // Create variants
         val variants =
             listOf(
                 Variant(
@@ -110,23 +110,23 @@ class TgtgItemRepository(
         val parts = mutableListOf<String>()
 
         // Add item description
-        itemDetails?.description?.let { parts.add(it) }
+        itemDetails?.description?.let { if (it.isNotEmpty()) parts.add(it) }
 
         // Add store information
         store?.let { s ->
-            s.storeName?.let { parts.add("Store: $it") }
-            s.branch?.let { parts.add("Branch: $it") }
-            s.description?.let { parts.add("Store Description: $it") }
+            s.storeName?.let { if (it.isNotEmpty()) parts.add("Store: $it") }
+            s.branch?.let { if (it.isNotEmpty()) parts.add("Branch: $it") }
+            s.description?.let { if (it.isNotEmpty()) parts.add("Store Description: $it") }
         }
 
         // Add food handling instructions
         itemDetails?.foodHandlingInstructions?.let {
-            parts.add("Food Handling: $it")
+            if (it.isNotEmpty()) parts.add("Food Handling: $it")
         }
 
         // Add collection info
         itemDetails?.collectionInfo?.let {
-            parts.add("Collection Info: $it")
+            if (it.isNotEmpty()) parts.add("Collection Info: $it")
         }
 
         // Add diet categories
