@@ -62,19 +62,17 @@ class ScriptNotificationRepository(
         notificationComponent.sendNotification(notification)
     }
 
-    private fun ItemProperty.getDiscordFieldNameIcon(): String? {
-        return when (this) {
+    private fun ItemProperty.getDiscordFieldNameIcon(): String? =
+        when (this) {
             is ItemProperty.Price -> ":moneybag:"
             is ItemProperty.Custom -> null
             is ItemProperty.PublishDate -> ":alarm_clock:"
             is ItemProperty.Stock -> ":bar_chart:"
         }
-    }
 
-    private fun ItemProperty.getDiscordFieldValue(): String {
-        return when (this) {
+    private fun ItemProperty.getDiscordFieldValue(): String =
+        when (this) {
             is ItemProperty.Stock -> if (this.isInStock) "✅" else "❌"
             else -> this.toString()
         }
-    }
 }

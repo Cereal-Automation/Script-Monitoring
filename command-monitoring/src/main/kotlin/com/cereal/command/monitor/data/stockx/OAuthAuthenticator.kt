@@ -22,7 +22,8 @@ class OAuthAuthenticator(
             } else {
                 // Try to refresh the token using the refresh token
                 tokenProvider.refreshToken()?.let {
-                    response.request.newBuilder()
+                    response.request
+                        .newBuilder()
                         .header("Authorization", "Bearer $it")
                         .build()
                 }
