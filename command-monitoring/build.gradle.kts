@@ -28,6 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-client-auth")
     implementation("io.ktor:ktor-client-encoding")
     implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
+    testImplementation("io.ktor:ktor-client-mock")
 
     implementation(project(":command"))
     api(project(":stockx-api-client"))
