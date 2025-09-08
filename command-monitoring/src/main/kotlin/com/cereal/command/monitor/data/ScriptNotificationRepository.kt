@@ -5,8 +5,9 @@ import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.repository.NotificationRepository
 import com.cereal.sdk.component.notification.NotificationComponent
 import com.cereal.sdk.component.notification.notification
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * Repository responsible for handling the notification creation and dispatch process.
@@ -18,6 +19,7 @@ import kotlinx.datetime.Instant
  * @param discordAvatarUrl The optional avatar URL for the Discord user.
  * @param discordColor The color of the message embed in Discord, expressed as a stringified integer. Defaults to white.
  */
+@OptIn(ExperimentalTime::class)
 class ScriptNotificationRepository(
     private val notificationComponent: NotificationComponent,
     private val discordUsername: String,

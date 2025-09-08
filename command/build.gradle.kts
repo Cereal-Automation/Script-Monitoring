@@ -7,15 +7,13 @@ dependencies {
     api("com.cereal-automation:cereal-sdk:1.6.0:all")
     api("com.cereal-automation:cereal-licensing:1.6.0")
 
-    api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("io.mockk:mockk:1.14.5")
     testImplementation("com.cereal-automation:cereal-test-utils:1.6.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 }
 

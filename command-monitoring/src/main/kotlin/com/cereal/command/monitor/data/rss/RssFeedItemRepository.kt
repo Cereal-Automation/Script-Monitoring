@@ -7,10 +7,12 @@ import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.sdk.component.logger.LoggerComponent
 import com.prof18.rssparser.RssParser
 import com.prof18.rssparser.model.RssItem
-import kotlinx.datetime.toKotlinInstant
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.time.ExperimentalTime
+import kotlin.time.toKotlinInstant
 
+@OptIn(ExperimentalTime::class)
 class RssFeedItemRepository(
     private val rssFeedUrl: String,
     private val logger: LoggerComponent,
