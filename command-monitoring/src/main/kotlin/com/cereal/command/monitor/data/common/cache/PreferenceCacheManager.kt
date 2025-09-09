@@ -1,10 +1,12 @@
 package com.cereal.command.monitor.data.common.cache
 
 import com.cereal.sdk.component.preference.PreferenceComponent
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 class PreferenceCacheManager(
     private val preferenceComponent: PreferenceComponent,
 ) : CacheManager {

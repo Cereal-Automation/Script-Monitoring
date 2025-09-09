@@ -16,8 +16,9 @@ import com.cereal.sdk.component.ComponentProvider
 import com.cereal.tgtg.command.TgtgAuthPollCommand
 import com.cereal.tgtg.command.TgtgLoginCommand
 import com.cereal.tgtg.data.TgtgAuthRepositoryImpl
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
 
 class TgtgScript : Script<TgtgConfiguration> {
     private val commandExecutionScript =
@@ -115,6 +116,7 @@ class TgtgScript : Script<TgtgConfiguration> {
         )
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun buildMonitorStrategies(configuration: TgtgConfiguration): List<MonitorStrategy> {
         val strategies = mutableListOf<MonitorStrategy>()
 

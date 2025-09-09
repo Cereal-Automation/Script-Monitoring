@@ -8,10 +8,12 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.userinteraction.UserInteractionComponent
 import com.cereal.tgtg.TgtgConfiguration
 import com.cereal.tgtg.domain.TgtgAuthRepository
+import kotlin.time.ExperimentalTime
 
 /**
  * Command that waits for the user to complete TGTG authentication.
  */
+@OptIn(ExperimentalTime::class)
 class TgtgAuthPollCommand(
     private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
