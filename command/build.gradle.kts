@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    api("com.cereal-automation:cereal-sdk:1.6.0:all")
-    api("com.cereal-automation:cereal-licensing:1.6.0")
+    implementation("com.cereal-automation:cereal-sdk:1.7.0:all")
+    implementation("com.cereal-automation:cereal-licensing:1.7.1")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
