@@ -17,9 +17,11 @@ import io.ktor.http.HttpHeaders
 import java.net.URL
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
 
 private const val PRODUCTS_JSON_PATH = "products.json"
 
+@OptIn(ExperimentalTime::class)
 class ShopifyItemRepository(
     private val website: ShopifyWebsite,
     private val randomProxy: RandomProxy? = null,
