@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "2.2.0"
-    kotlin("plugin.serialization") version "2.2.0"
-    id("com.gradleup.shadow") version "8.3.8"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
-    id("org.openapi.generator") version "7.15.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.gradleup.shadow)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.openapi.generator)
 }
 
 allprojects {
@@ -17,7 +17,7 @@ allprojects {
 
 buildscript {
     dependencies {
-        classpath("com.guardsquare:proguard-gradle:7.7.0")
+        classpath(libs.proguard)
     }
 }
 
