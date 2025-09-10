@@ -1,9 +1,11 @@
 package com.cereal.command.monitor.data.shopify.models
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 @Serializable
 data class Product(
     @SerialName("body_html")

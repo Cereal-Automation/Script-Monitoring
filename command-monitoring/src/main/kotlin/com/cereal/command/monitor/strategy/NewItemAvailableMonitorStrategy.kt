@@ -3,8 +3,9 @@ package com.cereal.command.monitor.strategy
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.getValue
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * A monitoring strategy that notifies when a new item is detected since a specific point in time.
@@ -19,6 +20,7 @@ import kotlinx.datetime.Instant
  * Provides a [requiresBaseline] method which indicates that the strategy requires an initial baseline
  * or previous item for consistent notification behavior.
  */
+@OptIn(ExperimentalTime::class)
 class NewItemAvailableMonitorStrategy(
     private val since: Instant = Clock.System.now(),
 ) : MonitorStrategy {

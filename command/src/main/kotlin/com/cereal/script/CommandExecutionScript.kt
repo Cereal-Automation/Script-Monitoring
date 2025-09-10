@@ -10,12 +10,13 @@ import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
 import kotlinx.datetime.until
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * The Monitor class handles monitoring of items using specified strategies and repositories.
@@ -23,6 +24,7 @@ import kotlin.time.Duration.Companion.seconds
  * @property scriptId Unique identifier of the script.
  * @property scriptPublicKey Optional public key for license validation.
  */
+@OptIn(ExperimentalTime::class)
 class CommandExecutionScript(
     private val scriptId: String,
     private val scriptPublicKey: String?,
