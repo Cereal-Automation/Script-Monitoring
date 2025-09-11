@@ -15,7 +15,9 @@ import java.math.BigDecimal
  * Repository implementation for retrieving market item data from StockX.
  * @param catalogApi The StockX API client.
  */
-class StockXMarketItemRepository(private val catalogApi: CatalogApi) : MarketItemRepository {
+class StockXMarketItemRepository(
+    private val catalogApi: CatalogApi,
+) : MarketItemRepository {
     override suspend fun search(criteria: SearchCriteria): MarketItem? {
         val result = catalogApi.search(criteria.styleId, pageNumber = null, pageSize = 10)
 
@@ -23,44 +25,47 @@ class StockXMarketItemRepository(private val catalogApi: CatalogApi) : MarketIte
             return null
         }
 
-        return result.body().products.firstOrNull {
-            it.styleId != null && it.styleId == criteria.styleId
-        }?.let { stockxProduct ->
-            val variants = catalogApi.getVariants(stockxProduct.productId)
-            val itemUrl = "https://stockx.com/${stockxProduct.urlKey}"
+        return result
+            .body()
+            .products
+            .firstOrNull {
+                it.styleId != null && it.styleId == criteria.styleId
+            }?.let { stockxProduct ->
+                val variants = catalogApi.getVariants(stockxProduct.productId)
+                val itemUrl = "https://stockx.com/${stockxProduct.urlKey}"
 
-            val marketItemVariants =
-                variants.body().mapNotNull { stockxVariant ->
-                    val marketData =
-                        catalogApi.getVariantMarketData(
-                            productId = stockxVariant.productId,
-                            variantId = stockxVariant.variantId,
-                            currencyCode = CurrencyCode.decode(criteria.currency.code),
-                            country = null,
-                        )
+                val marketItemVariants =
+                    variants.body().mapNotNull { stockxVariant ->
+                        val marketData =
+                            catalogApi.getVariantMarketData(
+                                productId = stockxVariant.productId,
+                                variantId = stockxVariant.variantId,
+                                currencyCode = CurrencyCode.decode(criteria.currency.code),
+                                country = null,
+                            )
 
-                    val highestBid = marketData.body().highestBidAmount ?: return@mapNotNull null
-                    val highestBidAmountItem = BigDecimal(highestBid)
-                    val currencyCode = marketData.body().currencyCode
-                    val currency = Currency.fromCode(currencyCode) ?: throw UnknownCurrencyException(currencyCode)
+                        val highestBid = marketData.body().highestBidAmount ?: return@mapNotNull null
+                        val highestBidAmountItem = BigDecimal(highestBid)
+                        val currencyCode = marketData.body().currencyCode
+                        val currency = Currency.fromCode(currencyCode) ?: throw UnknownCurrencyException(currencyCode)
 
-                    MarketItemVariant(
-                        id = stockxVariant.variantId,
-                        properties =
-                            listOf(
-                                ItemProperty.Price(
-                                    highestBidAmountItem,
-                                    currency,
+                        MarketItemVariant(
+                            id = stockxVariant.variantId,
+                            properties =
+                                listOf(
+                                    ItemProperty.Price(
+                                        highestBidAmountItem,
+                                        currency,
+                                    ),
                                 ),
-                            ),
-                    )
-                }
+                        )
+                    }
 
-            MarketItem(
-                id = stockxProduct.productId,
-                url = itemUrl,
-                variants = marketItemVariants,
-            )
-        }
+                MarketItem(
+                    id = stockxProduct.productId,
+                    url = itemUrl,
+                    variants = marketItemVariants,
+                )
+            }
     }
 }
