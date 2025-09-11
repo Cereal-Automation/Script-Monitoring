@@ -3,12 +3,17 @@ plugins {
 }
 
 dependencies {
+    implementation("com.cereal-automation:cereal-sdk:1.7.0:all")
+    implementation("com.cereal-automation:cereal-licensing:1.7.1")
+
     implementation(project(":script-common"))
+    implementation(project(":command"))
+    implementation(project(":command-monitoring"))
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("io.mockk:mockk:1.14.5")
-    testImplementation("com.cereal-automation:cereal-test-utils:1.6.0")
+    testImplementation("com.cereal-automation:cereal-test-utils:1.7.0")
 }
 
 tasks.test {

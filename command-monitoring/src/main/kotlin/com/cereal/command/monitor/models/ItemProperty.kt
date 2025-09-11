@@ -1,6 +1,7 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.cereal.command.monitor.models
 
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -9,6 +10,8 @@ import java.text.NumberFormat
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 sealed class ItemProperty(
     val commonName: String,

@@ -3,11 +3,13 @@ package com.cereal.command.monitor.strategy
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 class NewItemAvailableCommandExecutionScriptStrategyTest {
     @Test
     fun `shouldNotify returns true for item with publish date after since`() {

@@ -7,9 +7,11 @@ import com.cereal.script.CommandExecutionScript
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class SampleScript : Script<SampleConfiguration> {
     private val commandExecutionScript =
         CommandExecutionScript(
