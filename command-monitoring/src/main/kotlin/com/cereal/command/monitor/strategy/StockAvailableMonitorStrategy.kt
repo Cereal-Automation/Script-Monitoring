@@ -6,15 +6,14 @@ import com.cereal.command.monitor.models.getValue
 import com.cereal.command.monitor.models.requireValue
 
 /**
- * A monitoring strategy to notify when an item becomes available in stock or when there are changes to its variants.
+ * A monitoring strategy to notify only on availability increases (restocks and new in-stock variants).
  *
- * This strategy checks the stock status and variant details of the current item against its previous state:
- * - If the item had no stock previously and now has stock, a notification is triggered.
- * - If the item's variants have new additions that are in stock, or previously out-of-stock variants are restocked,
- *   a corresponding message is generated.
+ * Use this when you only want positive signals and to avoid noise from stock decreases or out-of-stock events.
+ * - Notifies when an item transitions from not-in-stock to in-stock.
+ * - Notifies when a new variant appears in stock.
+ * - Notifies when an existing variant transitions from out-of-stock to in-stock.
  *
- * Implements the [MonitorStrategy] interface, defining the logic for generating notifications and indicating
- * a requirement for a baseline (a previous state) to function properly.
+ * Requires a baseline so that the first scraping cycle does not notify spuriously.
  */
 class StockAvailableMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(

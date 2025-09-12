@@ -21,17 +21,13 @@ import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
 object MonitorStrategyFactory {
-    fun priceDropMonitorStrategy(): MonitorStrategy {
-        return PriceDropMonitorStrategy()
-    }
+    fun priceDropMonitorStrategy(): MonitorStrategy = PriceDropMonitorStrategy()
 
-    fun stockAvailableMonitorStrategy(): MonitorStrategy {
-        return StockAvailableMonitorStrategy()
-    }
+    fun stockAvailableMonitorStrategy(): MonitorStrategy = StockAvailableMonitorStrategy()
 
-    fun newItemAvailableMonitorStrategy(since: Instant): MonitorStrategy {
-        return NewItemAvailableMonitorStrategy(since)
-    }
+    fun stockChangedMonitorStrategy(): MonitorStrategy = StockChangedMonitorStrategy()
+
+    fun newItemAvailableMonitorStrategy(since: Instant): MonitorStrategy = NewItemAvailableMonitorStrategy(since)
 
     fun marketPriceComparisonStrategy(
         userInteractionComponent: UserInteractionComponent,

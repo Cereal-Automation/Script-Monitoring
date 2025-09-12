@@ -12,7 +12,9 @@ class OAuthInterceptor(
             val token = tokenProvider.getToken()
 
             val newRequest =
-                chain.request().newBuilder()
+                chain
+                    .request()
+                    .newBuilder()
                     .addHeader("Authorization", "Bearer $token")
                     .build()
 

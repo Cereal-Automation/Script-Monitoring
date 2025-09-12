@@ -387,5 +387,8 @@ class InvalidChainContextExceptionTest {
     /**
      * Test implementation of InvalidChainContextException for testing purposes.
      */
-    class TestInvalidChainContextException(message: String) : Exception(message), InvalidChainContextException
+    class TestInvalidChainContextException(
+        message: String,
+    ) : Exception(message),
+        InvalidChainContextException
 }

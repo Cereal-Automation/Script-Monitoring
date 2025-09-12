@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class BaseConfigurationTest {
-    private class TestBaseConfiguration(private val interval: Int?) : BaseConfiguration {
+    private class TestBaseConfiguration(
+        private val interval: Int?,
+    ) : BaseConfiguration {
         override fun monitorInterval(): Int? = interval
     }
 

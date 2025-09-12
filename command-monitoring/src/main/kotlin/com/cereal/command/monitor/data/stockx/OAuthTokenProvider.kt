@@ -33,7 +33,8 @@ class OAuthTokenProvider(
     suspend fun fetchTokenWithAuthorizationCode(code: String): String =
         withContext(Dispatchers.IO) {
             val body =
-                FormBody.Builder()
+                FormBody
+                    .Builder()
                     .add("client_id", clientId)
                     .add("client_secret", clientSecret)
                     .add("code", code)
@@ -42,7 +43,8 @@ class OAuthTokenProvider(
                     .build()
 
             val tokenRequest =
-                Request.Builder()
+                Request
+                    .Builder()
                     .url(tokenUrl)
                     .post(body)
                     .build()
@@ -64,7 +66,8 @@ class OAuthTokenProvider(
     suspend fun refreshToken(): String? =
         withContext(Dispatchers.IO) {
             val body =
-                FormBody.Builder()
+                FormBody
+                    .Builder()
                     .add("client_id", clientId)
                     .add("client_secret", clientSecret)
                     .add("refresh_token", refreshToken ?: "")
@@ -72,7 +75,8 @@ class OAuthTokenProvider(
                     .build()
 
             val tokenRequest =
-                Request.Builder()
+                Request
+                    .Builder()
                     .url(tokenUrl)
                     .post(body)
                     .build()
