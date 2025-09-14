@@ -12,18 +12,56 @@ import com.cereal.command.monitor.models.requireValue
  * - Notifies when an item transitions from not-in-stock to in-stock.
  * - Notifies when a new variant appears in stock.
  * - Notifies when an existing variant transitions from out-of-stock to in-stock.
+ * - Optionally notifies on initial run when items are found in stock (when notifyOnInitialRun is true).
  *
- * Requires a baseline so that the first scraping cycle does not notify spuriously.
+ * @param notifyOnInitialRun If true, will notify on the first run when items are found in stock.
+ *                          If false, requires a baseline so that the first scraping cycle does not notify spuriously.
  */
-class StockAvailableMonitorStrategy : MonitorStrategy {
+class StockAvailableMonitorStrategy(
+    private val notifyOnInitialRun: Boolean = false,
+) : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
     ): String? {
+        // Handle initial run case when notifyOnInitialRun is enabled
+        if (notifyOnInitialRun && previousItem == null) {
+            return generateInitialRunMessage(item)
+        }
+
+        // If notifyOnInitialRun is false and there's no previous item, don't notify
+        if (!notifyOnInitialRun && previousItem == null) {
+            return null
+        }
+
         val availableStockMessage = generateAvailableStockMessage(item, previousItem)
         if (availableStockMessage != null) return availableStockMessage
 
         return generateVariantChangesMessage(item, previousItem)
+    }
+
+    private fun generateInitialRunMessage(item: Item): String? {
+        val currentStock = item.getValue<ItemProperty.Stock>()
+        
+        // Check if the item itself is in stock
+        if (currentStock?.isInStock == true) {
+            return "${item.name} is in stock (${currentStock.stockValue()})!"
+        }
+        
+        // Check if any variants are in stock
+        val inStockVariants = item.variants.filter { 
+            it.requireValue<ItemProperty.Stock>().isInStock 
+        }
+        
+        return if (inStockVariants.isNotEmpty()) {
+            val variantMessages = inStockVariants.map { variant ->
+                val stockLevelString = variant.getValue<ItemProperty.Stock>()?.stockValue()
+                listOfNotNull("Variant ${variant.name} is in stock", stockLevelString).joinToString(": ")
+            }
+            variantMessages.joinToString("\n")
+        } else {
+            null
+        }
     }
 
     private fun generateAvailableStockMessage(
@@ -85,5 +123,5 @@ class StockAvailableMonitorStrategy : MonitorStrategy {
         return if (combinedMessages.isNotEmpty()) combinedMessages.joinToString("\n") else null
     }
 
-    override fun requiresBaseline(): Boolean = true
+    override fun requiresBaseline(): Boolean = !notifyOnInitialRun
 }
