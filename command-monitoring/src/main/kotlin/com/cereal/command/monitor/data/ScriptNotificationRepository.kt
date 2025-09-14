@@ -34,6 +34,7 @@ class ScriptNotificationRepository(
 
         val notification =
             notification(message) {
+                title = item.name
                 discordMessage {
                     username = discordUsername
                     avatarUrl = discordAvatarUrl
