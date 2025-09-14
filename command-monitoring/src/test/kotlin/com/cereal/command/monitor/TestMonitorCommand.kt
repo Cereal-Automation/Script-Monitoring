@@ -148,56 +148,56 @@ class TestMonitorCommand {
     fun `test with strategies and verify notifications`(data: TestData) =
         runBlocking {
             coEvery { itemRepository.getItems(null) } returns
-                    Page(
-                        items =
-                            listOf(
-                                Item(
-                                    id = "foo",
-                                    url = "http://cereal-automation.com",
-                                    name = "Foo",
-                                    properties =
-                                        listOf(
-                                            ItemProperty.PublishDate(Clock.System.now()),
-                                            ItemProperty.Stock(isInStock = true, amount = 1, null),
-                                            ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
-                                        ),
-                                ),
-                                Item(
-                                    id = "bar",
-                                    url = "http://cereal-automation.com",
-                                    name = "Bar",
-                                    properties =
-                                        listOf(
-                                            ItemProperty.PublishDate(Clock.System.now()),
-                                            ItemProperty.Stock(isInStock = false, amount = 0, null),
-                                            ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
-                                        ),
-                                ),
-                                Item(
-                                    id = "baz",
-                                    url = "http://cereal-automation.com",
-                                    name = "Baz",
-                                    properties =
-                                        listOf(
-                                            ItemProperty.PublishDate(Clock.System.now().minus(60.seconds)),
-                                            ItemProperty.Stock(isInStock = false, amount = 0, null),
-                                            ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
-                                        ),
-                                ),
-                                Item(
-                                    id = "cux",
-                                    url = "http://cereal-automation.com",
-                                    name = "Foo",
-                                    properties =
-                                        listOf(
-                                            ItemProperty.PublishDate(Clock.System.now()),
-                                            ItemProperty.Stock(isInStock = true, amount = 1, null),
-                                            ItemProperty.Price(BigDecimal("50.00"), Currency.EUR),
-                                        ),
-                                ),
+                Page(
+                    items =
+                        listOf(
+                            Item(
+                                id = "foo",
+                                url = "http://cereal-automation.com",
+                                name = "Foo",
+                                properties =
+                                    listOf(
+                                        ItemProperty.PublishDate(Clock.System.now()),
+                                        ItemProperty.Stock(isInStock = true, amount = 1, null),
+                                        ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
+                                    ),
                             ),
-                        nextPageToken = null,
-                    )
+                            Item(
+                                id = "bar",
+                                url = "http://cereal-automation.com",
+                                name = "Bar",
+                                properties =
+                                    listOf(
+                                        ItemProperty.PublishDate(Clock.System.now()),
+                                        ItemProperty.Stock(isInStock = false, amount = 0, null),
+                                        ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
+                                    ),
+                            ),
+                            Item(
+                                id = "baz",
+                                url = "http://cereal-automation.com",
+                                name = "Baz",
+                                properties =
+                                    listOf(
+                                        ItemProperty.PublishDate(Clock.System.now().minus(60.seconds)),
+                                        ItemProperty.Stock(isInStock = false, amount = 0, null),
+                                        ItemProperty.Price(BigDecimal("10.00"), Currency.EUR),
+                                    ),
+                            ),
+                            Item(
+                                id = "cux",
+                                url = "http://cereal-automation.com",
+                                name = "Foo",
+                                properties =
+                                    listOf(
+                                        ItemProperty.PublishDate(Clock.System.now()),
+                                        ItemProperty.Stock(isInStock = true, amount = 1, null),
+                                        ItemProperty.Price(BigDecimal("50.00"), Currency.EUR),
+                                    ),
+                            ),
+                        ),
+                    nextPageToken = null,
+                )
 
             val monitorCommand =
                 MonitorCommand(

@@ -9,4 +9,7 @@ package com.cereal.command.monitor.models
  * This data class is utilized in scenarios where filtering or searching for specific items
  * is required, primarily through attributes such as the style ID and currency.
  */
-data class SearchCriteria(val styleId: String, val currency: Currency)
+data class SearchCriteria(
+    val styleId: String,
+    val currency: Currency,
+)
