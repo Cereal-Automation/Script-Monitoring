@@ -54,7 +54,7 @@ class TgtgScript : Script<TgtgConfiguration> {
         statusUpdate: suspend (message: String) -> Unit,
     ): List<Command> {
         val factory = MonitorCommandFactory(provider)
-        val monitorStrategies = buildMonitorStrategies(configuration)
+        val monitorStrategies = buildMonitorStrategies()
 
         val logRepository = factory.logRepository(statusUpdate)
         val notificationRepository = factory.notificationRepository("TGTG")
@@ -117,17 +117,9 @@ class TgtgScript : Script<TgtgConfiguration> {
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun buildMonitorStrategies(configuration: TgtgConfiguration): List<MonitorStrategy> {
-        val strategies = mutableListOf<MonitorStrategy>()
-
-        if (configuration.monitorNewItems()) {
-            strategies.add(NewItemAvailableMonitorStrategy(Clock.System.now()))
-        }
-
-        if (configuration.monitorStockChanges()) {
-            strategies.add(StockAvailableMonitorStrategy(notifyOnInitialRun = true))
-        }
-
-        return strategies
-    }
+    private fun buildMonitorStrategies(): List<MonitorStrategy> =
+        listOf(
+            NewItemAvailableMonitorStrategy(Clock.System.now()),
+            StockAvailableMonitorStrategy(notifyOnInitialRun = true),
+        )
 }

@@ -41,20 +41,6 @@ interface TgtgConfiguration : BaseConfiguration {
     fun favoritesOnly(): Boolean
 
     @ScriptConfigurationItem(
-        keyName = KEY_MONITOR_NEW_ITEMS,
-        name = "Monitor New Items",
-        description = "If enabled, send a notification when new items become available.",
-    )
-    fun monitorNewItems(): Boolean
-
-    @ScriptConfigurationItem(
-        keyName = KEY_MONITOR_STOCK_CHANGES,
-        name = "Monitor Stock Changes",
-        description = "If enabled, send a notification when item stock levels change.",
-    )
-    fun monitorStockChanges(): Boolean
-
-    @ScriptConfigurationItem(
         keyName = KEY_RANDOM_PROXY,
         name = "Proxies",
         description =
@@ -69,8 +55,6 @@ interface TgtgConfiguration : BaseConfiguration {
         const val KEY_LONGITUDE = "longitude"
         const val KEY_RADIUS = "radius"
         const val KEY_FAVORITES_ONLY = "favorites_only"
-        const val KEY_MONITOR_NEW_ITEMS = "monitor_new_items"
-        const val KEY_MONITOR_STOCK_CHANGES = "monitor_stock_changes"
         const val KEY_RANDOM_PROXY = "random_proxy"
     }
 }

@@ -10,9 +10,7 @@ import com.cereal.tgtg.domain.TgtgAuthRepository
 class TgtgAuthRepositoryImpl(
     private val tgtgApiClient: TgtgApiClient,
 ) : TgtgAuthRepository {
-    override suspend fun login(): Boolean {
-        return tgtgApiClient.login()
-    }
+    override suspend fun login(): Boolean = tgtgApiClient.login()
 
     override suspend fun authByEmail(email: String): AuthByEmailResult {
         val response = tgtgApiClient.authByEmail(email)

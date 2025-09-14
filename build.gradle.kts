@@ -47,9 +47,9 @@ subprojects {
                 // kotlinx-coroutines-core isn't excluded for that reason.
                 exclude { dependency ->
                     (
-                            dependency.moduleGroup == "com.cereal-automation" &&
-                                    (dependency.moduleName == "cereal-sdk" || dependency.moduleName == "cereal-chrome-driver")
-                            )
+                        dependency.moduleGroup == "com.cereal-automation" &&
+                            (dependency.moduleName == "cereal-sdk" || dependency.moduleName == "cereal-chrome-driver")
+                    )
                 }
 
                 // Kotlin is included in the Cereal client by default so leave it out to make the script binary smaller and to

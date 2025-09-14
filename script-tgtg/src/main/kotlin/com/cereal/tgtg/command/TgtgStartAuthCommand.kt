@@ -29,9 +29,7 @@ class TgtgLoginCommand(
     private val logRepository: LogRepository,
     private val configuration: com.cereal.tgtg.TgtgConfiguration,
 ) : Command {
-    override suspend fun shouldRun(context: ChainContext): RunDecision {
-        return RunDecision.RunOnce()
-    }
+    override suspend fun shouldRun(context: ChainContext): RunDecision = RunDecision.RunOnce()
 
     override suspend fun execute(context: ChainContext) {
         logRepository.info("Checking TGTG authentication status...")
