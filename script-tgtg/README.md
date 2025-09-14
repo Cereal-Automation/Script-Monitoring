@@ -1,60 +1,49 @@
 # TGTG (Too Good To Go) Monitoring Script
 
-This script monitors TGTG (Too Good To Go) businesses for new items and stock changes in your specified location.
+This script monitors TGTG (Too Good To Go) businesses for new items and stock changes in your specified location using the Cereal Automation platform.
 
 ## Features
 
 - **Location-based Monitoring**: Monitor businesses within a specified radius of your coordinates
-- **New Item Alerts**: Get notified when new items become available
-- **Stock Change Monitoring**: Track when items go in/out of stock or change availability
+- **New Item Detection**: Get notified when new items are published to TGTG
+- **Stock Availability Monitoring**: Track when items become available or restock
 - **Favorites Support**: Option to monitor only your favorite businesses
-- **Automatic Authentication**: Handles TGTG API authentication and token refresh
+- **Interactive Authentication**: User-friendly email-based authentication flow
 - **Proxy Support**: Optional proxy support for API requests
+- **Cereal Integration**: Built on the Cereal Automation platform with advanced monitoring strategies
 
 ## Configuration
 
 ### Required Settings
 
-- **Email**: Your TGTG account email address
+- **Email**: Your TGTG account email address for authentication
 - **Latitude**: Your location's latitude coordinate (e.g., 52.3676 for Amsterdam)
 - **Longitude**: Your location's longitude coordinate (e.g., 4.9041 for Amsterdam)
 
 ### Optional Settings
 
-- **Search Radius**: Search radius in meters around your location (default: 50000 = 50km)
+- **Search Radius (meters)**: Search radius in meters around your location (default: 50000 = 50km)
 - **Favorites Only**: Only monitor businesses you've marked as favorites (default: false)
-- **Monitor New Items**: Send notifications for new items (default: true)
-- **Monitor Stock Changes**: Send notifications for stock changes (default: true)
-- **Monitor Interval**: How often to check for updates in seconds (default: 15-30 seconds)
 - **Proxies**: Optional proxy configuration for API requests
 
 ## Setup
 
 ### 1. Authentication
 
-The script automatically handles TGTG authentication:
+The script uses an interactive authentication flow that automatically handles TGTG login:
 
-1. **First Run**: The script will automatically send an authentication email to your TGTG account
-2. **Email Instructions**: Check your email for a message from Too Good To Go
-3. **Click Link**: Open the email on your PC/computer (NOT on your phone) and click the authentication link
-4. **Auto-Continue**: The script will automatically detect authentication and continue monitoring
-5. **Subsequent Runs**: The script will use stored credentials for future runs
+1. **Automatic Login Check**: The script first attempts to login using stored credentials
+2. **Email Authentication**: If login fails, an authentication email is sent to your TGTG account
+3. **User Interaction**: The script displays clear instructions and waits for your confirmation
+4. **Email Link**: Open the email on your PC/computer (NOT on your phone) and click the authentication link
+5. **Continue Button**: Press the "Continue" button in the script interface after clicking the email link
+6. **Automatic Monitoring**: Once authenticated, monitoring begins automatically
 
 #### Important Authentication Notes
 - Always open the authentication email on a PC/computer, not on a phone with the TGTG app
-- The script will wait up to 5 minutes for you to click the authentication link
+- The script will wait for you to click the "Continue" button after authentication
 - Authentication tokens are automatically stored and refreshed as needed
-
-#### Manual Authentication (Optional)
-If you prefer manual setup, you can authenticate beforehand:
-
-```kotlin
-// Run this once to authenticate manually
-val example = TgtgExample(logRepository, httpProxy)
-example.demonstrateFullFlow("your-email@example.com")
-```
-
-**Interactive authentication is recommended** as it's more user-friendly and handles the entire flow automatically.
+- The authentication flow is handled by `TgtgLoginCommand` and `TgtgAuthPollCommand`
 
 ### 2. Script Configuration
 
@@ -74,23 +63,21 @@ To find your latitude and longitude:
 
 ## How It Works
 
-The script:
+The script uses a command-based architecture with the following flow:
 
-1. **Authenticates** with the TGTG API (automatically if interactive auth is enabled)
-2. **Fetches** businesses within your specified radius
-3. **Converts** TGTG data to the standard monitoring format
-4. **Compares** current items with previous runs to detect changes
-5. **Sends notifications** when new items appear or stock changes
+1. **Authentication** (`TgtgLoginCommand`): Checks existing credentials or initiates email authentication
+2. **User Interaction** (`TgtgAuthPollCommand`): Waits for user to complete email authentication
+3. **Monitoring** (`MonitorCommand`): Continuously monitors TGTG for changes using advanced strategies
+4. **Data Processing**: Converts TGTG API data to standardized monitoring format
+5. **Change Detection**: Compares current state with previous runs to identify changes
+6. **Notifications**: Sends alerts when new items or stock changes are detected
 
-### Interactive Authentication Flow
+### Monitoring Strategies
 
-When interactive authentication is enabled and login fails:
+The script uses two sophisticated monitoring strategies:
 
-1. **Email Sent**: Authentication email is sent to your TGTG account
-2. **User Notification**: Script displays clear instructions
-3. **Waiting Period**: Script waits up to 5 minutes for you to click the email link
-4. **Auto-Continue**: Once authenticated, monitoring begins automatically
-5. **Error Handling**: Clear error messages if authentication fails
+- **New Item Detection**: Identifies items published since the last monitoring cycle
+- **Stock Availability Monitoring**: Tracks when items become available or restock, including variant changes
 
 ## Monitored Information
 
@@ -103,23 +90,27 @@ For each TGTG item, the script tracks:
 - **Pickup Time**: When you can collect the item
 - **Store Information**: Business name, address, and description
 - **Item Details**: Food category, dietary information, handling instructions
+- **Variants**: Different sizes or types of the same item
 
 ## Notifications
 
-The script can send notifications for:
+The script sends notifications for:
 
-- **New Items**: When a business adds new items to TGTG
-- **Stock Changes**: When items become available or go out of stock
-- **Sales Window**: When items enter or leave their sales window
+- **New Items**: When new items are published to TGTG (based on publish date)
+- **Stock Availability**: When items become available or restock
+- **Variant Changes**: When new variants appear in stock or existing variants restock
+- **Initial Run**: Optionally notifies about items already in stock on first run
 
 ## Error Handling
 
 The script handles common issues gracefully:
 
-- **Authentication Failures**: Logs clear messages if login fails
-- **Network Issues**: Retries failed requests automatically
+- **Authentication Failures**: Clear error messages and retry mechanisms for login issues
+- **User Interaction**: Proper handling of user interaction failures during authentication
+- **Network Issues**: Automatic retries for failed API requests
 - **Missing Data**: Continues monitoring even if some data is unavailable
-- **API Limits**: Respects TGTG API rate limits
+- **API Limits**: Respects TGTG API rate limits and implements proper error handling
+- **Unrecoverable Exceptions**: Clear error messages for critical failures that require user intervention
 
 ## Tips
 
@@ -151,12 +142,19 @@ The script handles common issues gracefully:
 Email: your-email@example.com
 Latitude: 52.3676 (Amsterdam)
 Longitude: 4.9041 (Amsterdam)
-Search Radius: 25000 (25km)
+Search Radius (meters): 25000 (25km)
 Favorites Only: false
-Monitor New Items: true
-Monitor Stock Changes: true
-Enable Interactive Authentication: true
-Monitor Interval: 30 (seconds)
+Proxies: (optional)
 ```
 
-This configuration will monitor all TGTG businesses within 25km of Amsterdam city center, checking every 30 seconds for new items and stock changes.
+This configuration will monitor all TGTG businesses within 25km of Amsterdam city center using the default monitoring strategies for new items and stock availability.
+
+## Technical Implementation
+
+The script is built using:
+
+- **Cereal Automation Platform**: Provides the monitoring framework and command execution
+- **Kotlin**: Primary programming language with coroutines for async operations
+- **Command Pattern**: Modular command-based architecture for authentication and monitoring
+- **Monitoring Strategies**: Pluggable strategies for different types of change detection
+- **TGTG API Integration**: Direct integration with TGTG's API for real-time data
