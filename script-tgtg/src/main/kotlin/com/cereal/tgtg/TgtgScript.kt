@@ -125,7 +125,7 @@ class TgtgScript : Script<TgtgConfiguration> {
         }
 
         if (configuration.monitorStockChanges()) {
-            strategies.add(StockAvailableMonitorStrategy())
+            strategies.add(StockAvailableMonitorStrategy(notifyOnInitialRun = true))
         }
 
         return strategies
