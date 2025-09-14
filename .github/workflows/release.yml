@@ -25,12 +25,12 @@ jobs:
             # Extract module name (everything before the last slash)
             MODULE_NAME=$(echo "$TAG_NAME" | sed 's|/.*||')
             echo "Module-specific release for: $MODULE_NAME"
-            echo "modules=$MODULE_NAME" >> $GITHUB_OUTPUT
+            echo "modules=[\"$MODULE_NAME\"]" >> $GITHUB_OUTPUT
             echo "all-modules=false" >> $GITHUB_OUTPUT
           else
             # Version-only tag, build all script modules
             echo "Full release - building all script modules"
-            echo "modules=script-nike,script-snkrs,script-bdga-store,script-tgtg,script-sample,script-zalando" >> $GITHUB_OUTPUT
+            echo "modules=[\"script-nike\",\"script-snkrs\",\"script-bdga-store\",\"script-tgtg\",\"script-sample\",\"script-zalando\"]" >> $GITHUB_OUTPUT
             echo "all-modules=true" >> $GITHUB_OUTPUT
           fi
 
@@ -41,7 +41,7 @@ jobs:
     if: needs.determine-modules.outputs.modules != ''
     strategy:
       matrix:
-        module: ${{ fromJson(format('["{0}"]', join(split(needs.determine-modules.outputs.modules, ','), '","'))) }}
+        module: ${{ fromJson(needs.determine-modules.outputs.modules) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
