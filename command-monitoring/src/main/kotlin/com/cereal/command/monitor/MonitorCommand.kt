@@ -40,6 +40,8 @@ class MonitorCommand(
             logRepository.info(message)
 
             val page = itemRepository.getItems(nextPageToken)
+            logRepository.debug("Retrieved ${page.items.size} items.")
+
             tryExecuteStrategies(page.items, monitorStatus.monitorItems)
             page.items.forEach { item -> items[item.id] = item }
             totalNumberOfItems += page.items.size
@@ -51,7 +53,10 @@ class MonitorCommand(
         )
 
         return context.put(
-            monitorStatus.copy(monitorItems = items, monitorRunSequenceNumber = monitorStatus.monitorRunSequenceNumber + 1),
+            monitorStatus.copy(
+                monitorItems = items,
+                monitorRunSequenceNumber = monitorStatus.monitorRunSequenceNumber + 1,
+            ),
         )
     }
 
@@ -62,6 +67,7 @@ class MonitorCommand(
         existingItems: Map<String, Item>?,
     ) {
         items.forEach { item ->
+            logRepository.debug("Processing item: ${item.id} - ${item.name}")
             strategies.forEach { strategy ->
                 if (!strategy.requiresBaseline() || existingItems != null) {
                     ExecuteStrategyCommand(
@@ -71,6 +77,10 @@ class MonitorCommand(
                         item,
                         existingItems?.get(item.id),
                     ).execute()
+                } else {
+                    logRepository.debug(
+                        "Skipping strategy ${strategy::class.simpleName} for item ${item.id} - requires baseline but none available",
+                    )
                 }
             }
         }
