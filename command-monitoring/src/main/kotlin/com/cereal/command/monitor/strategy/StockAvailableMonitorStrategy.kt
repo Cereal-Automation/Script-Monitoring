@@ -42,22 +42,24 @@ class StockAvailableMonitorStrategy(
 
     private fun generateInitialRunMessage(item: Item): String? {
         val currentStock = item.getValue<ItemProperty.Stock>()
-        
+
         // Check if the item itself is in stock
         if (currentStock?.isInStock == true) {
             return "${item.name} is in stock (${currentStock.stockValue()})!"
         }
-        
+
         // Check if any variants are in stock
-        val inStockVariants = item.variants.filter { 
-            it.requireValue<ItemProperty.Stock>().isInStock 
-        }
-        
-        return if (inStockVariants.isNotEmpty()) {
-            val variantMessages = inStockVariants.map { variant ->
-                val stockLevelString = variant.getValue<ItemProperty.Stock>()?.stockValue()
-                listOfNotNull("Variant ${variant.name} is in stock", stockLevelString).joinToString(": ")
+        val inStockVariants =
+            item.variants.filter {
+                it.requireValue<ItemProperty.Stock>().isInStock
             }
+
+        return if (inStockVariants.isNotEmpty()) {
+            val variantMessages =
+                inStockVariants.map { variant ->
+                    val stockLevelString = variant.getValue<ItemProperty.Stock>()?.stockValue()
+                    listOfNotNull("Variant ${variant.name} is in stock", stockLevelString).joinToString(": ")
+                }
             variantMessages.joinToString("\n")
         } else {
             null

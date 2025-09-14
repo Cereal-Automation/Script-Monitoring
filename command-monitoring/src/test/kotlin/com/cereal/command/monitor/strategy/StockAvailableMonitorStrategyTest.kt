@@ -223,12 +223,13 @@ class StockAvailableMonitorStrategyTest {
 
     @Test
     fun `should notify on initial run when item is in stock with notifyOnInitialRun enabled`() {
-        val item = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
+            )
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
@@ -237,12 +238,13 @@ class StockAvailableMonitorStrategyTest {
 
     @Test
     fun `should not notify on initial run when item is not in stock with notifyOnInitialRun enabled`() {
-        val item = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
+            )
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
@@ -251,26 +253,28 @@ class StockAvailableMonitorStrategyTest {
 
     @Test
     fun `should notify on initial run when variants are in stock with notifyOnInitialRun enabled`() {
-        val item = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
-            variants = listOf(
-                Variant(
-                    id = "variant1",
-                    name = "Size M",
-                    styleId = null,
-                    properties = listOf(ItemProperty.Stock(isInStock = true, amount = 3, "LOW")),
-                ),
-                Variant(
-                    id = "variant2",
-                    name = "Size L",
-                    styleId = null,
-                    properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
-                ),
-            ),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
+                variants =
+                    listOf(
+                        Variant(
+                            id = "variant1",
+                            name = "Size M",
+                            styleId = null,
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = 3, "LOW")),
+                        ),
+                        Variant(
+                            id = "variant2",
+                            name = "Size L",
+                            styleId = null,
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = null, "HIGH")),
+                        ),
+                    ),
+            )
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
@@ -279,20 +283,22 @@ class StockAvailableMonitorStrategyTest {
 
     @Test
     fun `should not notify on initial run when no variants are in stock with notifyOnInitialRun enabled`() {
-        val item = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
-            variants = listOf(
-                Variant(
-                    id = "variant1",
-                    name = "Size M",
-                    styleId = null,
-                    properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
-                ),
-            ),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
+                variants =
+                    listOf(
+                        Variant(
+                            id = "variant1",
+                            name = "Size M",
+                            styleId = null,
+                            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
+                        ),
+                    ),
+            )
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
@@ -304,12 +310,13 @@ class StockAvailableMonitorStrategyTest {
         // This test verifies that the default strategy requires a baseline
         // In practice, the monitoring system won't call shouldNotify with null previousItem
         // for strategies that require baseline, but we test the behavior directly here
-        val item = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
+            )
 
         // The default strategy should not notify on initial run even if called directly
         // This is a defensive test - in practice this won't happen due to requiresBaseline check
@@ -331,20 +338,22 @@ class StockAvailableMonitorStrategyTest {
 
     @Test
     fun `should handle mixed scenario with item and variants in stock on initial run`() {
-        val item = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = true, amount = 2, "LOW")),
-            variants = listOf(
-                Variant(
-                    id = "variant1",
-                    name = "Size M",
-                    styleId = null,
-                    properties = listOf(ItemProperty.Stock(isInStock = true, amount = 1, "LOW")),
-                ),
-            ),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 2, "LOW")),
+                variants =
+                    listOf(
+                        Variant(
+                            id = "variant1",
+                            name = "Size M",
+                            styleId = null,
+                            properties = listOf(ItemProperty.Stock(isInStock = true, amount = 1, "LOW")),
+                        ),
+                    ),
+            )
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
@@ -354,18 +363,20 @@ class StockAvailableMonitorStrategyTest {
 
     @Test
     fun `should work normally with previous item when notifyOnInitialRun is enabled`() {
-        val previousItem = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
-        )
-        val currentItem = Item(
-            id = "1",
-            url = "http://example.com/item/1",
-            name = "Test Item",
-            properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
-        )
+        val previousItem =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = false, amount = 0, "OOS")),
+            )
+        val currentItem =
+            Item(
+                id = "1",
+                url = "http://example.com/item/1",
+                name = "Test Item",
+                properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
+            )
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(currentItem, previousItem) }
 
