@@ -33,7 +33,9 @@ class ExecuteStrategyCommand(
 
         if (message != null) {
             try {
-                logRepository.info(message)
+                logRepository.info(
+                    "Notification triggered for item '${item.name}': $message",
+                )
 
                 notificationRepository.notify(message, item)
             } catch (e: Exception) {
