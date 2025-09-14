@@ -138,23 +138,20 @@ class TgtgScriptTest {
         monitorNewItems: Boolean = true,
         monitorStockChanges: Boolean = true,
         proxy: RandomProxy? = null,
-    ): TgtgConfiguration {
-        return mockk<TgtgConfiguration>().apply {
+    ): TgtgConfiguration =
+        mockk<TgtgConfiguration>().apply {
             coEvery { email() } returns email
             coEvery { latitude() } returns latitude
             coEvery { longitude() } returns longitude
             coEvery { radius() } returns radius
             coEvery { favoritesOnly() } returns favoritesOnly
-            coEvery { monitorNewItems() } returns monitorNewItems
-            coEvery { monitorStockChanges() } returns monitorStockChanges
             coEvery { proxy() } returns proxy
             coEvery { monitorInterval() } returns 60 // seconds
         }
-    }
 
-    private fun createMockComponentProvider(): ComponentProvider {
-        return mockk<ComponentProvider>(relaxed = true).apply {
+    private fun createMockComponentProvider(): ComponentProvider =
+        mockk<ComponentProvider>(relaxed = true).apply {
             coEvery { preference() } returns mockk(relaxed = true)
+            coEvery { userInteraction() } returns mockk(relaxed = true)
         }
-    }
 }

@@ -9,7 +9,6 @@ import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
-import com.cereal.command.monitor.models.Variant
 import com.cereal.command.monitor.repository.ItemRepository
 import java.math.BigDecimal
 
@@ -76,17 +75,6 @@ class TgtgItemRepository(
         // Create properties list
         val properties = buildItemProperties(tgtgItem, itemDetails)
 
-        // Create variants
-        val variants =
-            listOf(
-                Variant(
-                    id = itemId,
-                    name = "Default",
-                    styleId = null,
-                    properties = buildVariantProperties(tgtgItem),
-                ),
-            )
-
         return Item(
             id = itemId,
             // TGTG doesn't provide direct item URLs
@@ -94,7 +82,7 @@ class TgtgItemRepository(
             name = itemName,
             description = description,
             imageUrl = imageUrl,
-            variants = variants,
+            variants = emptyList(),
             properties = properties,
         )
     }
@@ -160,6 +148,22 @@ class TgtgItemRepository(
             properties.add(ItemProperty.Price(value, currency))
         }
 
+        // Add stock information
+        val isInStock = tgtgItem.itemsAvailable > 0 && tgtgItem.inSalesWindow
+        properties.add(
+            ItemProperty.Stock(
+                isInStock = isInStock,
+                amount = if (tgtgItem.itemsAvailable > 0) tgtgItem.itemsAvailable else null,
+                level =
+                    when {
+                        !tgtgItem.inSalesWindow -> "Not in sales window"
+                        tgtgItem.itemsAvailable == 0 -> "Out of stock"
+                        tgtgItem.itemsAvailable <= 3 -> "Low stock"
+                        else -> "In stock"
+                    },
+            ),
+        )
+
         // Add distance as custom property
         if (tgtgItem.distance > 0) {
             val distanceKm = String.format("%.2f", tgtgItem.distance / 1000.0)
@@ -180,31 +184,6 @@ class TgtgItemRepository(
         itemDetails?.itemCategory?.let { category ->
             properties.add(ItemProperty.Custom("Category", category))
         }
-
-        return properties
-    }
-
-    /**
-     * Builds variant-level properties from TGTG data.
-     */
-    private fun buildVariantProperties(tgtgItem: TgtgItem): List<ItemProperty> {
-        val properties = mutableListOf<ItemProperty>()
-
-        // Add stock information
-        val isInStock = tgtgItem.itemsAvailable > 0 && tgtgItem.inSalesWindow
-        properties.add(
-            ItemProperty.Stock(
-                isInStock = isInStock,
-                amount = if (tgtgItem.itemsAvailable > 0) tgtgItem.itemsAvailable else null,
-                level =
-                    when {
-                        !tgtgItem.inSalesWindow -> "Not in sales window"
-                        tgtgItem.itemsAvailable == 0 -> "Out of stock"
-                        tgtgItem.itemsAvailable <= 3 -> "Low stock"
-                        else -> "In stock"
-                    },
-            ),
-        )
 
         return properties
     }
