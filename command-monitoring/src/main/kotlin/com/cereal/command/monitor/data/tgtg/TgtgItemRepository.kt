@@ -79,7 +79,7 @@ class TgtgItemRepository(
             id = itemId,
             // TGTG doesn't provide direct item URLs
             url = store?.website,
-            name = itemName,
+            name = if (store?.storeName != null) "${store.storeName}: $itemName" else itemName,
             description = description,
             imageUrl = imageUrl,
             variants = emptyList(),
