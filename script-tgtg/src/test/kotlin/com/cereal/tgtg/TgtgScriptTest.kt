@@ -110,8 +110,6 @@ class TgtgScriptTest {
             val script = TgtgScript()
             val configuration =
                 createMockConfiguration(
-                    monitorNewItems = true,
-                    monitorStockChanges = false,
                     favoritesOnly = true,
                     radius = 25000,
                 )
@@ -153,8 +151,6 @@ class TgtgScriptTest {
             val script = TgtgScript()
             val configuration =
                 createMockConfiguration(
-                    monitorNewItems = false,
-                    monitorStockChanges = false,
                     favoritesOnly = false,
                     radius = null,
                 )
@@ -176,8 +172,6 @@ class TgtgScriptTest {
         longitude: Double = 4.9041,
         radius: Int? = 50000,
         favoritesOnly: Boolean = false,
-        monitorNewItems: Boolean = true,
-        monitorStockChanges: Boolean = true,
         proxy: RandomProxy? = null,
     ): TgtgConfiguration =
         mockk<TgtgConfiguration>().apply {
