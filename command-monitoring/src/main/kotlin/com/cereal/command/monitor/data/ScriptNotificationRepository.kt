@@ -55,7 +55,8 @@ class ScriptNotificationRepository(
                         item.properties.forEach {
                             field {
                                 val icon = it.getDiscordFieldNameIcon()
-                                name = if (icon != null) "$icon ${it.commonName}" else it.commonName
+                                val capitalizedCommonName = it.commonName.replaceFirstChar { char -> char.uppercaseChar() }
+                                name = if (icon != null) "$icon $capitalizedCommonName" else capitalizedCommonName
                                 value = it.getDiscordFieldValue()
                             }
                         }
