@@ -161,7 +161,7 @@ class TgtgItemRepository(
         val properties = mutableListOf<ItemProperty>()
 
         // Add price if available
-        itemDetails?.priceIncludingTaxes?.let { price ->
+        itemDetails?.price?.let { price ->
             val currency = Currency.fromCode(price.code ?: "EUR") ?: Currency.EUR
             val value = BigDecimal(price.minorUnits).divide(BigDecimal(100)) // Convert minor units to major units
             properties.add(ItemProperty.Price(value, currency))
