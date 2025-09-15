@@ -11,6 +11,9 @@ import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
 import java.math.BigDecimal
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * Repository implementation for fetching TGTG (Too Good To Go) items using the TgtgApiClient.
@@ -98,38 +101,55 @@ class TgtgItemRepository(
         val parts = mutableListOf<String>()
 
         // Add item description
-        itemDetails?.description?.let { if (it.isNotEmpty()) parts.add(it) }
+        itemDetails?.description?.let { if (it.isNotEmpty()) parts.add("$it\n") }
 
         // Add store information
         store?.let { s ->
-            s.storeName?.let { if (it.isNotEmpty()) parts.add("Store: $it") }
-            s.branch?.let { if (it.isNotEmpty()) parts.add("Branch: $it") }
-            s.description?.let { if (it.isNotEmpty()) parts.add("Store Description: $it") }
+            s.storeName?.let { if (it.isNotEmpty()) parts.add("**Store:** $it") }
+            s.branch?.let { if (it.isNotEmpty()) parts.add("**Location:** $it") }
         }
 
         // Add food handling instructions
         itemDetails?.foodHandlingInstructions?.let {
-            if (it.isNotEmpty()) parts.add("Food Handling: $it")
+            if (it.isNotEmpty()) parts.add("**Food Handling**: $it")
         }
 
         // Add collection info
         itemDetails?.collectionInfo?.let {
-            if (it.isNotEmpty()) parts.add("Collection Info: $it")
+            if (it.isNotEmpty()) parts.add("**Collection Info**: $it")
         }
 
         // Add diet categories
         if (itemDetails?.dietCategories?.isNotEmpty() == true) {
-            parts.add("Diet Categories: ${itemDetails.dietCategories.joinToString(", ")}")
+            parts.add("**Diet Categories**: ${itemDetails.dietCategories.joinToString(", ")}")
         }
 
         // Add pickup interval
         tgtgItem.pickupInterval?.let { interval ->
-            val start = interval.start ?: "Unknown"
-            val end = interval.end ?: "Unknown"
-            parts.add("Pickup Time: $start - $end")
+            val start = formatDateTime(interval.start)
+            val end = formatDateTime(interval.end)
+            parts.add("**Pickup Time**: $start - $end")
         }
 
         return parts.joinToString("\n")
+    }
+
+    /**
+     * Formats a datetime string from TGTG API into a readable format.
+     * TGTG typically provides ISO 8601 datetime strings.
+     */
+    private fun formatDateTime(dateTimeString: String?): String {
+        if (dateTimeString.isNullOrEmpty()) return "Unknown"
+
+        return try {
+            val instant = Instant.parse(dateTimeString)
+            val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm")
+                .withZone(ZoneId.systemDefault())
+            formatter.format(instant)
+        } catch (e: Exception) {
+            // If parsing fails, return the original string
+            dateTimeString
+        }
     }
 
     /**
