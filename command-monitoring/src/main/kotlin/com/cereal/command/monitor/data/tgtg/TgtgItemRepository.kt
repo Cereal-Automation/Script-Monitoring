@@ -201,6 +201,20 @@ class TgtgItemRepository(
             properties.add(ItemProperty.Custom("Category", category))
         }
 
+        // Add original value (savings information)
+        itemDetails?.itemValue?.let { value ->
+            val originalValue = BigDecimal(value.minorUnits).divide(BigDecimal(100))
+            val currencyCode = value.code ?: "EUR"
+            properties.add(ItemProperty.Custom("Original Value", "${originalValue} ${currencyCode}"))
+        }
+
+        // Add rating information
+        itemDetails?.averageOverallRating?.let { rating ->
+            if (rating.averageOverallRating > 0) {
+                properties.add(ItemProperty.Custom("Rating", "${String.format("%.1f", rating.averageOverallRating)}/5 (${rating.ratingCount} reviews)"))
+            }
+        }
+
         return properties
     }
 }
