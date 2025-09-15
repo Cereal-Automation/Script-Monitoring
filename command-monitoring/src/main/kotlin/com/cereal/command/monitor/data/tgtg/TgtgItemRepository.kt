@@ -194,11 +194,6 @@ class TgtgItemRepository(
             properties.add(ItemProperty.Custom("Favorite", "Yes"))
         }
 
-        // Add new item indicator
-        if (tgtgItem.newItem) {
-            properties.add(ItemProperty.Custom("New Item", "Yes"))
-        }
-
         // Add item category
         itemDetails?.itemCategory?.let { category ->
             properties.add(ItemProperty.Custom("Category", category))
