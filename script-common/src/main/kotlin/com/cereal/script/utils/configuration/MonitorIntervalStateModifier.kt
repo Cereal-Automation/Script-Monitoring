@@ -1,6 +1,5 @@
-package com.cereal.script.configuration
+package com.cereal.script.utils.configuration
 
-import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.statemodifier.ScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue
 import com.cereal.sdk.statemodifier.StateModifier

@@ -1,7 +1,7 @@
 package com.cereal.script.utuls.configuration
 
-import com.cereal.script.configuration.MonitorIntervalStateModifier
 import com.cereal.script.utils.configuration.BaseConfiguration
+import com.cereal.script.utils.configuration.MonitorIntervalStateModifier
 import com.cereal.script.utuls.configuration.fixtures.InMemoryScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue
 import com.cereal.sdk.statemodifier.Visibility
@@ -40,7 +40,8 @@ class MonitorIntervalStateModifierTest {
     @Test
     fun `getError returns null when interval is a different type`() =
         runTest {
-            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.StringScriptConfigValue("invalid")))
+            val config =
+                InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.StringScriptConfigValue("invalid")))
             val error = MonitorIntervalStateModifier.getError(config)
             assertNull(error)
         }

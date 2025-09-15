@@ -1,6 +1,5 @@
 package com.cereal.script.utils.configuration
 
-import com.cereal.script.configuration.MonitorIntervalStateModifier
 import com.cereal.sdk.ScriptConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 

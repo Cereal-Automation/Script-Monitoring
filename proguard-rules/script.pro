@@ -62,10 +62,11 @@
     @com.cereal.sdk.TaskConfigurationItem *;
 }
 
+# Keep all classes that implement com.cereal.sdk.statemodifier.StateModifier
+-keep class * implements com.cereal.sdk.statemodifier.StateModifier {
+    <init>(...);
+    *;
+}
+
 # Keep the enum class so that annotations are preserved.
 -keep enum * {}
-
-# Needed for the state modifiers objects.
--keepclassmembers class * {
-    public static final *** INSTANCE;
-}

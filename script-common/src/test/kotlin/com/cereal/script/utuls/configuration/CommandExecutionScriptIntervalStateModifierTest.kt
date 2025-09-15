@@ -1,7 +1,7 @@
 package com.cereal.script.utuls.configuration
 
-import com.cereal.script.configuration.MonitorIntervalStateModifier
 import com.cereal.script.utils.configuration.BaseConfiguration
+import com.cereal.script.utils.configuration.MonitorIntervalStateModifier
 import com.cereal.script.utuls.configuration.fixtures.InMemoryScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue
 import kotlinx.coroutines.test.runTest
