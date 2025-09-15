@@ -142,8 +142,10 @@ class TgtgItemRepository(
 
         return try {
             val instant = Instant.parse(dateTimeString)
-            val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm")
-                .withZone(ZoneId.systemDefault())
+            val formatter =
+                DateTimeFormatter
+                    .ofPattern("MMM dd, yyyy 'at' HH:mm")
+                    .withZone(ZoneId.systemDefault())
             formatter.format(instant)
         } catch (e: Exception) {
             // If parsing fails, return the original string
@@ -161,7 +163,7 @@ class TgtgItemRepository(
         val properties = mutableListOf<ItemProperty>()
 
         // Add price if available
-        itemDetails?.price?.let { price ->
+        itemDetails?.itemPrice?.let { price ->
             val currency = Currency.fromCode(price.code ?: "EUR") ?: Currency.EUR
             val value = BigDecimal(price.minorUnits).divide(BigDecimal(100)) // Convert minor units to major units
             properties.add(ItemProperty.Price(value, currency))

@@ -25,6 +25,8 @@ data class FavoriteBusinessesRequest(
 data class FavoriteBusinessesResponse(
     @SerialName("items")
     val items: List<TgtgItem> = emptyList(),
+    @SerialName("items_expanded_radius")
+    val itemsExpandedRadius: List<TgtgItem> = emptyList(),
 )
 
 @Serializable
@@ -47,34 +49,32 @@ data class TgtgItem(
     val distance: Double = 0.0,
     @SerialName("favorite")
     val favorite: Boolean = false,
+    @SerialName("subscribed_to_notification")
+    val subscribedToNotification: Boolean = false,
     @SerialName("in_sales_window")
     val inSalesWindow: Boolean = false,
     @SerialName("new_item")
     val newItem: Boolean = false,
+    @SerialName("item_type")
+    val itemType: String? = null,
+    @SerialName("matches_filters")
+    val matchesFilters: Boolean = false,
+    @SerialName("item_tags")
+    val itemTags: List<ItemTag> = emptyList(),
+    @SerialName("item_card")
+    val itemCard: ItemCard? = null,
+    @SerialName("sold_out_at")
+    val soldOutAt: String? = null,
 )
 
 @Serializable
 data class ItemDetails(
     @SerialName("item_id")
     val itemId: String? = null,
-    @SerialName("price")
-    val price: Price? = null,
-    @SerialName("sales_taxes")
-    val salesTaxes: List<SalesTax> = emptyList(),
-    @SerialName("tax_amount")
-    val taxAmount: Price? = null,
-    @SerialName("price_excluding_taxes")
-    val priceExcludingTaxes: Price? = null,
-    @SerialName("price_including_taxes")
-    val priceIncludingTaxes: Price? = null,
-    @SerialName("value_excluding_taxes")
-    val valueExcludingTaxes: Price? = null,
-    @SerialName("value_including_taxes")
-    val valueIncludingTaxes: Price? = null,
-    @SerialName("taxation_policy")
-    val taxationPolicy: String? = null,
-    @SerialName("show_sales_taxes")
-    val showSalesTaxes: Boolean = false,
+    @SerialName("item_price")
+    val itemPrice: Price? = null,
+    @SerialName("item_value")
+    val itemValue: Price? = null,
     @SerialName("cover_picture")
     val coverPicture: CoverPicture? = null,
     @SerialName("logo_picture")
@@ -83,6 +83,8 @@ data class ItemDetails(
     val name: String? = null,
     @SerialName("description")
     val description: String? = null,
+    @SerialName("subtitle")
+    val subtitle: String? = null,
     @SerialName("food_handling_instructions")
     val foodHandlingInstructions: String? = null,
     @SerialName("can_user_supply_packaging")
@@ -97,12 +99,12 @@ data class ItemDetails(
     val itemCategory: String? = null,
     @SerialName("buffet")
     val buffet: Boolean = false,
-    @SerialName("badges")
-    val badges: List<Badge> = emptyList(),
     @SerialName("positive_rating_reasons")
     val positiveRatingReasons: List<String> = emptyList(),
     @SerialName("average_overall_rating")
     val averageOverallRating: AverageRating? = null,
+    @SerialName("price_info")
+    val priceInfo: PriceInfo? = null,
     @SerialName("favorite_count")
     val favoriteCount: Int = 0,
 )
@@ -167,6 +169,14 @@ data class AverageRating(
     val ratingCount: Int = 0,
     @SerialName("month_count")
     val monthCount: Int = 0,
+    @SerialName("average_collection_experience_rating")
+    val averageCollectionExperienceRating: Double = 0.0,
+    @SerialName("average_food_quality_rating")
+    val averageFoodQualityRating: Double = 0.0,
+    @SerialName("average_contents_variety_rating")
+    val averageContentsVarietyRating: Double = 0.0,
+    @SerialName("average_food_quantity_rating")
+    val averageFoodQuantityRating: Double = 0.0,
 )
 
 @Serializable
@@ -179,8 +189,6 @@ data class Store(
     val branch: String? = null,
     @SerialName("description")
     val description: String? = null,
-    @SerialName("tax_identifier")
-    val taxIdentifier: String? = null,
     @SerialName("website")
     val website: String? = null,
     @SerialName("store_location")
@@ -193,8 +201,12 @@ data class Store(
     val hidden: Boolean = false,
     @SerialName("favorite_count")
     val favoriteCount: Int = 0,
-    @SerialName("we_care")
-    val weCare: Boolean = false,
+    @SerialName("distance")
+    val distance: Double = 0.0,
+    @SerialName("cover_picture")
+    val coverPicture: CoverPicture? = null,
+    @SerialName("is_manufacturer")
+    val isManufacturer: Boolean = false,
 )
 
 @Serializable
@@ -247,4 +259,38 @@ data class PickupLocation(
     val address: Address? = null,
     @SerialName("location")
     val location: Location? = null,
+)
+
+@Serializable
+data class ItemTag(
+    @SerialName("id")
+    val id: String? = null,
+    @SerialName("short_text")
+    val shortText: String? = null,
+    @SerialName("long_text")
+    val longText: String? = null,
+    @SerialName("variant")
+    val variant: String? = null,
+    @SerialName("description")
+    val description: String? = null,
+    @SerialName("description_heading")
+    val descriptionHeading: String? = null,
+)
+
+@Serializable
+data class ItemCard(
+    @SerialName("item_card_type")
+    val itemCardType: String? = null,
+    @SerialName("item_card_text")
+    val itemCardText: String? = null,
+)
+
+@Serializable
+data class PriceInfo(
+    @SerialName("type")
+    val type: String? = null,
+    @SerialName("is_recurring")
+    val isRecurring: Boolean = false,
+    @SerialName("is_personal")
+    val isPersonal: Boolean = false,
 )
