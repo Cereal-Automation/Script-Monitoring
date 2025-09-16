@@ -16,14 +16,14 @@ This project publishes Maven artifacts for the `command` and `command-monitoring
 
 ### Publishing to Local Maven Repository
 
-To create Maven artifacts in your local Maven repository (`~/.m2/repository`):
+To create Maven artifacts in your local Maven repository (`~/.m2/repository`) with `SNAPSHOT` as version:
 
 #### Publish Both Modules
 ```bash
 ./gradlew publishToMavenLocal
 ```
 
-#### Publish Individual Modules (with `SNAPSHOT` as version)
+#### Publish Individual Modules
 ```bash
 # Publish command module only
 ./gradlew :command:publishToMavenLocal
