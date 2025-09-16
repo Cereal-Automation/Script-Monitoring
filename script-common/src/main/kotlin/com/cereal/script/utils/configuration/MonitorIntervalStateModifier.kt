@@ -9,8 +9,8 @@ object MonitorIntervalStateModifier : StateModifier {
     override fun getError(scriptConfig: ScriptConfig): String? {
         val value = scriptConfig.valueForKey(BaseConfiguration.KEY_MONITOR_INTERVAL)
 
-        return if (value is ScriptConfigValue.IntScriptConfigValue && value.value < 1) {
-            "Interval must be at least 1 second."
+        return if (value is ScriptConfigValue.IntScriptConfigValue && value.value < 15) {
+            "Interval must be at least 15 second."
         } else {
             null
         }
