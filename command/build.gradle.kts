@@ -36,3 +36,5 @@ tasks.register<Test>("integrationTest") {
 kotlin {
     jvmToolchain(17)
 }
+
+apply(from = "${rootProject.projectDir}/gradle/publishing.gradle.kts")
