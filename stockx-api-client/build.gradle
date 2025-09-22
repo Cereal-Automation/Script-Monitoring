@@ -52,3 +52,5 @@ dependencies {
     implementation libs.ktor.client.content.negotiation
     testImplementation libs.kotlintest
 }
+
+apply from: "${rootProject.projectDir}/gradle/publishing.gradle.kts"
