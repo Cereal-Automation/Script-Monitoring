@@ -1,6 +1,5 @@
-package com.cereal.script.utuls.configuration
+package com.cereal.script.utils.configuration
 
-import com.cereal.script.utils.configuration.BaseConfiguration
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

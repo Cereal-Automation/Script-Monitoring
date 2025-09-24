@@ -1,12 +1,9 @@
-package com.cereal.script.utuls.configuration
+package com.cereal.script.utils.configuration
 
-import com.cereal.script.utils.configuration.BaseConfiguration
-import com.cereal.script.utils.configuration.MonitorIntervalStateModifier
-import com.cereal.script.utuls.configuration.fixtures.InMemoryScriptConfig
+import com.cereal.script.utils.configuration.fixtures.InMemoryScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class CommandExecutionScriptIntervalStateModifierTest {
@@ -25,7 +22,7 @@ class CommandExecutionScriptIntervalStateModifierTest {
         runTest {
             val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(2)))
             val error = MonitorIntervalStateModifier.getError(config)
-            assertNull(error)
+            Assertions.assertNull(error)
         }
 
     @Test
@@ -33,7 +30,7 @@ class CommandExecutionScriptIntervalStateModifierTest {
         runTest {
             val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(0)))
             val error = MonitorIntervalStateModifier.getError(config)
-            assertEquals("Interval must be at least 1 second.", error)
+            Assertions.assertEquals("Interval must be at least 1 second.", error)
         }
 
     @Test
@@ -41,6 +38,6 @@ class CommandExecutionScriptIntervalStateModifierTest {
         runTest {
             val config = InMemoryScriptConfig(mapOf())
             val error = MonitorIntervalStateModifier.getError(config)
-            assertNull(error)
+            Assertions.assertNull(error)
         }
 }
