@@ -5,9 +5,9 @@ import java.util.UUID
 
 @Serializable
 data class TgtgConfig(
-    var correlationId: String = UUID.randomUUID().toString(),
+    val correlationId: String = UUID.randomUUID().toString(),
     val deviceType: String = "ANDROID",
-    var session: TgtgSession? = null,
+    val session: TgtgSession? = null,
 )
 
 @Serializable
