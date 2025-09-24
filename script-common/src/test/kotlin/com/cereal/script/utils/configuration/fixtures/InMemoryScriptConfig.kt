@@ -6,6 +6,5 @@ import com.cereal.sdk.statemodifier.ScriptConfigValue
 class InMemoryScriptConfig(
     private val configuration: Map<String, ScriptConfigValue>,
 ) : ScriptConfig {
-    override fun valueForKey(key: String): ScriptConfigValue =
-        configuration[key] ?: ScriptConfigValue.NullScriptConfigValue
+    override fun valueForKey(key: String): ScriptConfigValue = configuration[key] ?: ScriptConfigValue.NullScriptConfigValue
 }
