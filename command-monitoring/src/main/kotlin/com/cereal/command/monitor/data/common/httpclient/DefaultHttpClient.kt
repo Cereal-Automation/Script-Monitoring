@@ -72,7 +72,7 @@ fun defaultHttpClient(
                         println(message)
                     }
                 }
-            level = LogLevel.ALL
+            level = LogLevel.INFO
         }
         install(HttpTimeout) {
             requestTimeoutMillis = timeout.inWholeMilliseconds
