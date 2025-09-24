@@ -1,20 +1,22 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation("com.cereal-automation:cereal-sdk:1.7.0:all")
-    implementation("com.cereal-automation:cereal-licensing:1.7.1")
+    implementation(libs.cereal.sdk) {
+        artifact {
+            classifier = "all"
+        }
+    }
+    implementation(libs.bundles.cereal.base)
+    implementation(libs.bundles.kotlin.coroutines)
 
-    testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("io.mockk:mockk:1.14.5")
-    testImplementation("com.cereal-automation:cereal-test-utils:1.7.0")
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.cereal.test.utils)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.coroutines.core)
 }
 
 tasks.test {
@@ -34,3 +36,5 @@ tasks.register<Test>("integrationTest") {
 kotlin {
     jvmToolchain(17)
 }
+
+apply(from = "${rootProject.projectDir}/gradle/publishing.gradle.kts")

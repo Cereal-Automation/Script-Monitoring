@@ -1,19 +1,21 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
 
 dependencies {
-    implementation("com.cereal-automation:cereal-sdk:1.7.0:all")
-    implementation("com.cereal-automation:cereal-licensing:1.7.1")
+    implementation(libs.cereal.sdk) {
+        artifact {
+            classifier = "all"
+        }
+    }
+    implementation(libs.bundles.cereal.base)
 
     implementation(project(":script-common"))
     implementation(project(":command"))
     implementation(project(":command-monitoring"))
 
-    testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("io.mockk:mockk:1.14.5")
-    testImplementation("com.cereal-automation:cereal-test-utils:1.7.0")
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.cereal.test.utils)
 }
 
 tasks.test {
