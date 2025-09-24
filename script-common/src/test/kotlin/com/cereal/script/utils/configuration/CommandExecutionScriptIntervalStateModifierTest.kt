@@ -20,7 +20,7 @@ class CommandExecutionScriptIntervalStateModifierTest {
     @Test
     fun `getError returns null when interval is greater than zero`() =
         runTest {
-            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(2)))
+            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(20)))
             val error = MonitorIntervalStateModifier.getError(config)
             Assertions.assertNull(error)
         }
@@ -30,7 +30,7 @@ class CommandExecutionScriptIntervalStateModifierTest {
         runTest {
             val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(0)))
             val error = MonitorIntervalStateModifier.getError(config)
-            Assertions.assertEquals("Interval must be at least 1 second.", error)
+            Assertions.assertEquals("Interval must be at least 15 second.", error)
         }
 
     @Test
