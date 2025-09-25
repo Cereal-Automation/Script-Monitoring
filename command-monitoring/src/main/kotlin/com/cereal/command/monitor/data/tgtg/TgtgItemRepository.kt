@@ -46,7 +46,7 @@ class TgtgItemRepository(
             )
 
         val items =
-            itemsResponse?.items?.mapNotNull { tgtgItem ->
+            itemsResponse?.items?.map { tgtgItem ->
                 convertTgtgItemToItem(tgtgItem)
             } ?: emptyList()
 
@@ -57,28 +57,27 @@ class TgtgItemRepository(
     /**
      * Converts a TgtgItem from the API response to the standard Item format.
      */
-    private fun convertTgtgItemToItem(tgtgItem: TgtgItem): Item? {
+    private fun convertTgtgItemToItem(tgtgItem: TgtgItem): Item {
         val itemDetails = tgtgItem.item
         val store = tgtgItem.store
 
         // Skip items without essential information
-        val itemId = itemDetails?.itemId ?: store?.storeId ?: return null
-        val itemName = itemDetails?.name ?: tgtgItem.displayName ?: store?.storeName ?: "Unknown Item"
+        val itemName = itemDetails.name ?: tgtgItem.displayName ?: store?.storeName ?: "Unknown Item"
 
         // Build description from available information
         val description = buildDescription(tgtgItem, itemDetails, store)
 
         // Get image URL from item or store
         val imageUrl =
-            itemDetails?.coverPicture?.currentUrl
-                ?: itemDetails?.logoPicture?.currentUrl
+            itemDetails.coverPicture?.currentUrl
+                ?: itemDetails.logoPicture?.currentUrl
                 ?: store?.logoPicture?.currentUrl
 
         // Create properties list
         val properties = buildItemProperties(tgtgItem, itemDetails)
 
         return Item(
-            id = itemId,
+            id = itemDetails.itemId,
             url = null,
             name = if (store?.storeName != null) "${store.storeName}: $itemName" else itemName,
             description = description,
@@ -146,7 +145,7 @@ class TgtgItemRepository(
                     .ofPattern("MMM dd, yyyy 'at' HH:mm")
                     .withZone(ZoneId.systemDefault())
             formatter.format(instant)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // If parsing fails, return the original string
             dateTimeString
         }

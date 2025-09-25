@@ -32,7 +32,7 @@ data class ListItemsResponse(
 @Serializable
 data class TgtgItem(
     @SerialName("item")
-    val item: ItemDetails? = null,
+    val item: ItemDetails,
     @SerialName("store")
     val store: Store? = null,
     @SerialName("display_name")
@@ -70,7 +70,7 @@ data class TgtgItem(
 @Serializable
 data class ItemDetails(
     @SerialName("item_id")
-    val itemId: String? = null,
+    val itemId: String,
     @SerialName("item_price")
     val itemPrice: Price? = null,
     @SerialName("item_value")
