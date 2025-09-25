@@ -183,7 +183,7 @@ class TgtgItemRepository(
             ),
         )
 
-        // Add distance as custom property
+        // Add distance
         if (tgtgItem.distance > 0) {
             val distanceKm = String.format("%.2f", tgtgItem.distance / 1000.0)
             properties.add(ItemProperty.Custom("Distance", "${distanceKm}km"))
