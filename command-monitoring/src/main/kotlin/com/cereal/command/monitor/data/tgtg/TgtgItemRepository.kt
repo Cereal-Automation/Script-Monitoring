@@ -32,7 +32,7 @@ class TgtgItemRepository(
         // TGTG API doesn't support pagination in the traditional sense
         // The nextPageToken is ignored as the API returns all items in one call
 
-        val favoriteBusinesses =
+        val itemsResponse =
             tgtgApiClient.listItems(
                 ListItemsRequest(
                     favoritesOnly = true,
@@ -46,7 +46,7 @@ class TgtgItemRepository(
             )
 
         val items =
-            favoriteBusinesses?.items?.mapNotNull { tgtgItem ->
+            itemsResponse?.items?.mapNotNull { tgtgItem ->
                 convertTgtgItemToItem(tgtgItem)
             } ?: emptyList()
 
