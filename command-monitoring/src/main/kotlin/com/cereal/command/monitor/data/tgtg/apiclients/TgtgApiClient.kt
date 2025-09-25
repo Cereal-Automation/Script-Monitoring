@@ -174,7 +174,7 @@ class TgtgApiClient(
         val config = getTgtgConfig()
         val session = config.session
         if (session?.refreshToken == null) {
-            logRepository.info("You are not logged in. Login via authByEmail and authPoll first.")
+            logRepository.info("You are not logged in.")
             return null
         }
 
