@@ -68,7 +68,6 @@ class TestItemRepositoryIntegrations {
                     latitude = 52.3676,
                     longitude = 4.9041,
                     radius = 10000,
-                    favoritesOnly = false,
                 ),
                 ZalandoItemRepository(
                     FakeLogRepository(),

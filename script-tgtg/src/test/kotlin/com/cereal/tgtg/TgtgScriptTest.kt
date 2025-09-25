@@ -56,7 +56,6 @@ class TgtgScriptTest {
                     every { latitude() } returns 52.3676
                     every { longitude() } returns 4.9041
                     every { radius() } returns 50000
-                    every { favoritesOnly() } returns true
                 }
             val componentProviderFactory = TestComponentProviderFactory()
 
@@ -110,7 +109,6 @@ class TgtgScriptTest {
             val script = TgtgScript()
             val configuration =
                 createMockConfiguration(
-                    favoritesOnly = true,
                     radius = 25000,
                 )
             val componentProvider = createMockComponentProvider()
@@ -151,7 +149,6 @@ class TgtgScriptTest {
             val script = TgtgScript()
             val configuration =
                 createMockConfiguration(
-                    favoritesOnly = false,
                     radius = null,
                 )
             val componentProvider = createMockComponentProvider()
@@ -171,7 +168,6 @@ class TgtgScriptTest {
         latitude: Double = 52.3676,
         longitude: Double = 4.9041,
         radius: Int? = 50000,
-        favoritesOnly: Boolean = false,
         proxy: RandomProxy? = null,
     ): TgtgConfiguration =
         mockk<TgtgConfiguration>().apply {
@@ -179,7 +175,6 @@ class TgtgScriptTest {
             coEvery { latitude() } returns latitude
             coEvery { longitude() } returns longitude
             coEvery { radius() } returns radius
-            coEvery { favoritesOnly() } returns favoritesOnly
             coEvery { proxy() } returns proxy
             coEvery { monitorInterval() } returns 60 // seconds
         }

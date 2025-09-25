@@ -1,8 +1,8 @@
 package com.cereal.command.monitor.data.tgtg
 
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
-import com.cereal.command.monitor.data.tgtg.apiclients.models.FavoriteBusinessesRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.ItemDetails
+import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.Store
 import com.cereal.command.monitor.data.tgtg.apiclients.models.TgtgItem
 import com.cereal.command.monitor.models.Currency
@@ -27,18 +27,17 @@ class TgtgItemRepository(
     private val latitude: Double,
     private val longitude: Double,
     private val radius: Int = 50000,
-    private val favoritesOnly: Boolean = false,
 ) : ItemRepository {
     override suspend fun getItems(nextPageToken: String?): Page {
         // TGTG API doesn't support pagination in the traditional sense
         // The nextPageToken is ignored as the API returns all items in one call
 
         val favoriteBusinesses =
-            tgtgApiClient.listFavoriteBusinesses(
-                FavoriteBusinessesRequest(
-                    favoritesOnly = favoritesOnly,
+            tgtgApiClient.listItems(
+                ListItemsRequest(
+                    favoritesOnly = true,
                     origin =
-                        FavoriteBusinessesRequest.Origin(
+                        ListItemsRequest.Origin(
                             latitude = latitude,
                             longitude = longitude,
                         ),

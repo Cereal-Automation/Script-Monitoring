@@ -76,7 +76,6 @@ class TgtgScript : Script<TgtgConfiguration> {
                 latitude = configuration.latitude(),
                 longitude = configuration.longitude(),
                 radius = configuration.radius() ?: 50000,
-                favoritesOnly = configuration.favoritesOnly(),
             )
 
         // Create auth repository

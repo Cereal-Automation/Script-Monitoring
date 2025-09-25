@@ -34,13 +34,6 @@ interface TgtgConfiguration : BaseConfiguration {
     fun radius(): Int?
 
     @ScriptConfigurationItem(
-        keyName = KEY_FAVORITES_ONLY,
-        name = "Favorites Only",
-        description = "If enabled, only fetch businesses you have marked as favorites.",
-    )
-    fun favoritesOnly(): Boolean
-
-    @ScriptConfigurationItem(
         keyName = KEY_RANDOM_PROXY,
         name = "Proxies",
         description =
@@ -54,7 +47,6 @@ interface TgtgConfiguration : BaseConfiguration {
         const val KEY_LATITUDE = "latitude"
         const val KEY_LONGITUDE = "longitude"
         const val KEY_RADIUS = "radius"
-        const val KEY_FAVORITES_ONLY = "favorites_only"
         const val KEY_RANDOM_PROXY = "random_proxy"
     }
 }

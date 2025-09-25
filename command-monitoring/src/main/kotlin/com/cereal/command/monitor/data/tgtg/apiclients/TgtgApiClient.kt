@@ -8,8 +8,8 @@ import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
-import com.cereal.command.monitor.data.tgtg.apiclients.models.FavoriteBusinessesRequest
-import com.cereal.command.monitor.data.tgtg.apiclients.models.FavoriteBusinessesResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsRequest
+import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.RefreshTokenRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.RefreshTokenResponse
 import com.cereal.script.repository.LogRepository
@@ -170,7 +170,7 @@ class TgtgApiClient(
         return false
     }
 
-    suspend fun listFavoriteBusinesses(request: FavoriteBusinessesRequest): FavoriteBusinessesResponse? {
+    suspend fun listItems(request: ListItemsRequest): ListItemsResponse? {
         val config = getTgtgConfig()
         val session = config.session
         if (session?.refreshToken == null) {
@@ -182,11 +182,11 @@ class TgtgApiClient(
         val response =
             httpClient.post("${baseUrl}item/v8/") {
                 headers[HttpHeaders.Authorization] = "Bearer ${session.accessToken}"
-                setBody(json.encodeToString(FavoriteBusinessesRequest.serializer(), request))
+                setBody(json.encodeToString(ListItemsRequest.serializer(), request))
             }
 
         val bodyText = response.bodyAsText()
-        return json.decodeFromString(FavoriteBusinessesResponse.serializer(), bodyText)
+        return json.decodeFromString(ListItemsResponse.serializer(), bodyText)
     }
 
     private suspend fun createSession(

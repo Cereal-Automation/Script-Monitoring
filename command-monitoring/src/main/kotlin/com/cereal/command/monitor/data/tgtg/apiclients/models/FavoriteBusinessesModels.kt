@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FavoriteBusinessesRequest(
+data class ListItemsRequest(
     @SerialName("favorites_only")
     val favoritesOnly: Boolean,
     @SerialName("origin")
@@ -22,7 +22,7 @@ data class FavoriteBusinessesRequest(
 }
 
 @Serializable
-data class FavoriteBusinessesResponse(
+data class ListItemsResponse(
     @SerialName("items")
     val items: List<TgtgItem> = emptyList(),
     @SerialName("items_expanded_radius")
