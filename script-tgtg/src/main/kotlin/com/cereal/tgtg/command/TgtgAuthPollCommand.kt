@@ -7,7 +7,9 @@ import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.userinteraction.UserInteractionComponent
 import com.cereal.tgtg.TgtgConfiguration
+import com.cereal.tgtg.command.context.TgtgAuthState
 import com.cereal.tgtg.domain.TgtgAuthRepository
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 /**
@@ -21,7 +23,6 @@ class TgtgAuthPollCommand(
     private val userInteractionComponent: UserInteractionComponent,
 ) : Command {
     companion object {
-        // Public constant so other components/tests can reference the instructions directly
         const val AUTHENTICATION_INSTRUCTIONS: String = """
 
 AUTHENTICATION REQUIRED
@@ -40,16 +41,13 @@ Press Continue here after you clicked the link.
     }
 
     override suspend fun shouldRun(context: ChainContext): RunDecision {
-        val authState = context.get<TgtgAuthState>()
-
         // Only run if we have authentication state (email was sent)
-        if (authState == null) {
-            // No auth state means either auth never started or already completed. Skip running.
+        context.get<TgtgAuthState>()
+            ?: // No auth state means either auth never started or already completed. Skip running.
             return RunDecision.Skip
-        }
 
-        // Allow the user to try again by repeating until authentication succeeds.
-        return RunDecision.RunRepeat()
+        // Allow the user to try again by repeating until authentication succeeds. Add some delay to prevent spamming the API.
+        return RunDecision.RunRepeat(startDelay = 15.seconds)
     }
 
     override suspend fun execute(context: ChainContext) {
@@ -57,9 +55,7 @@ Press Continue here after you clicked the link.
             context.get<TgtgAuthState>()
                 ?: throw UnrecoverableException("Authentication state not found")
 
-        // Show instructions on first attempt; on subsequent attempts show a shorter prompt.
         if (!authState.instructionsShown) {
-            // Log as well, so the instructions are visible in logs
             logRepository.info(AUTHENTICATION_INSTRUCTIONS)
             context.put(authState.copy(instructionsShown = true))
         }

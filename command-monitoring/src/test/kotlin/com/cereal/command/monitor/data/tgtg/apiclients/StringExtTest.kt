@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class StringExtTest {
-
     @Test
     fun `compareVersions should return 0 for identical versions`() {
         // Given

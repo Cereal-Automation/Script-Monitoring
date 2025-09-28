@@ -5,26 +5,16 @@ import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.interactor.UnrecoverableException
 import com.cereal.script.repository.LogRepository
+import com.cereal.tgtg.command.context.TgtgAuthState
 import com.cereal.tgtg.domain.TgtgAuthRepository
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
-
-/**
- * Data class to store authentication state in ChainContext between commands.
- */
-@OptIn(ExperimentalTime::class)
-data class TgtgAuthState(
-    val pollingId: String,
-    val startTime: Instant,
-    val instructionsShown: Boolean = false,
-)
 
 /**
  * Command that checks existing TGTG authentication and initiates email authentication if needed.
  */
 @OptIn(ExperimentalTime::class)
-class TgtgLoginCommand(
+class TgtgAuthCommand(
     private val tgtgAuthRepository: TgtgAuthRepository,
     private val logRepository: LogRepository,
     private val configuration: com.cereal.tgtg.TgtgConfiguration,
