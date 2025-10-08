@@ -9,7 +9,6 @@ import com.cereal.sdk.component.userinteraction.UserInteractionComponent
 import com.cereal.tgtg.TgtgConfiguration
 import com.cereal.tgtg.command.context.TgtgAuthState
 import com.cereal.tgtg.domain.TgtgAuthRepository
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 /**
@@ -46,8 +45,8 @@ Press Continue here after you clicked the link.
             ?: // No auth state means either auth never started or already completed. Skip running.
             return RunDecision.Skip
 
-        // Allow the user to try again by repeating until authentication succeeds. Add some delay to prevent spamming the API.
-        return RunDecision.RunRepeat(startDelay = 15.seconds)
+        // Allow the user to try again by repeating until authentication succeeds.
+        return RunDecision.RunRepeat()
     }
 
     override suspend fun execute(context: ChainContext) {
