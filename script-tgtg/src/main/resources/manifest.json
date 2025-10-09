@@ -1,5 +1,5 @@
 {
-  "package_name": "com.cereal-automation.monitor.tgtg",
+  "package_name": "com.cereal.monitor.tgtg",
   "name": "TGTG Monitor",
   "version_code": 1,
   "script": "com.cereal.tgtg.TgtgScript"
