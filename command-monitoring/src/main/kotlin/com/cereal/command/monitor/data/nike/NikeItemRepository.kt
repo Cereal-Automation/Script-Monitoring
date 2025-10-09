@@ -89,7 +89,7 @@ class NikeItemRepository(
     private suspend fun createNextPageFlow(next: String): Page =
         createPage {
             val response =
-                defaultHttpClient(timeout, randomProxy?.invoke(), logRepository, defaultHeaders = defaultHeaders).get(next)
+                defaultHttpClient(timeout, randomProxy?.invoke(), defaultHeaders = defaultHeaders).get(next)
 
             // Use this method of reading json instead of `response.body<Wall>()` because when proguard is applied
             // that will raise a runtime error saying that the serializer couldn't be loaded. Most likely because proguard

@@ -7,12 +7,17 @@ import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.data.snkrs.Locale
 import com.cereal.command.monitor.data.snkrs.SnkrsApiClient
 import com.cereal.command.monitor.data.snkrs.SnkrsItemRepository
+import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
+import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
+import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
 import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
 import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
 import com.cereal.command.monitor.data.zalando.ZalandoWebsite
 import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import com.cereal.command.monitor.repository.ItemRepository
+import com.cereal.sdk.component.preference.PreferenceComponent
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
@@ -47,12 +52,22 @@ class TestItemRepositoryIntegrations {
                     ScrapeCategory.MEN_ALL_SHOES,
                 ),
                 SnkrsItemRepository(
-                    SnkrsApiClient(FakeLogRepository(), null),
+                    SnkrsApiClient(null),
                     Locale.BE_NL,
                 ),
                 ShopifyItemRepository(
-                    FakeLogRepository(),
                     ShopifyWebsite("Test", "https://www.fillingpieces.com/collections/men-new-arrivals"),
+                ),
+                TgtgItemRepository(
+                    TgtgApiClient(
+                        FakeLogRepository(),
+                        mockk<PreferenceComponent>(relaxed = true),
+                        mockk<PlayStoreApiClient>(relaxed = true),
+                        null,
+                    ),
+                    latitude = 52.3676,
+                    longitude = 4.9041,
+                    radius = 10000,
                 ),
                 ZalandoItemRepository(
                     FakeLogRepository(),

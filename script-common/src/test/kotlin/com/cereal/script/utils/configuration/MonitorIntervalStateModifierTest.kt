@@ -1,8 +1,6 @@
-package com.cereal.script.utuls.configuration
+package com.cereal.script.utils.configuration
 
-import com.cereal.script.configuration.MonitorIntervalStateModifier
-import com.cereal.script.utils.configuration.BaseConfiguration
-import com.cereal.script.utuls.configuration.fixtures.InMemoryScriptConfig
+import com.cereal.script.utils.configuration.fixtures.InMemoryScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue
 import com.cereal.sdk.statemodifier.Visibility
 import kotlinx.coroutines.test.runTest
@@ -16,17 +14,17 @@ class MonitorIntervalStateModifierTest {
     @Test
     fun `getError returns null when interval is greater than zero`() =
         runTest {
-            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(2)))
+            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(15)))
             val error = MonitorIntervalStateModifier.getError(config)
             assertNull(error)
         }
 
     @Test
-    fun `getError returns error message when interval is less than one`() =
+    fun `getError returns error message when interval is less than 15`() =
         runTest {
             val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.IntScriptConfigValue(0)))
             val error = MonitorIntervalStateModifier.getError(config)
-            assertEquals("Interval must be at least 1 second.", error)
+            assertEquals("Interval must be at least 15 second.", error)
         }
 
     @Test
@@ -40,7 +38,8 @@ class MonitorIntervalStateModifierTest {
     @Test
     fun `getError returns null when interval is a different type`() =
         runTest {
-            val config = InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.StringScriptConfigValue("invalid")))
+            val config =
+                InMemoryScriptConfig(mapOf(intervalKey to ScriptConfigValue.StringScriptConfigValue("invalid")))
             val error = MonitorIntervalStateModifier.getError(config)
             assertNull(error)
         }

@@ -55,7 +55,8 @@ class ScriptNotificationRepository(
                         item.properties.forEach {
                             field {
                                 val icon = it.getDiscordFieldNameIcon()
-                                name = if (icon != null) "$icon ${it.commonName}" else it.commonName
+                                val capitalizedCommonName = it.commonName.replaceFirstChar { char -> char.uppercaseChar() }
+                                name = if (icon != null) "$icon $capitalizedCommonName" else capitalizedCommonName
                                 value = it.getDiscordFieldValue()
                             }
                         }
@@ -70,12 +71,12 @@ class ScriptNotificationRepository(
             is ItemProperty.Price -> ":moneybag:"
             is ItemProperty.Custom -> null
             is ItemProperty.PublishDate -> ":alarm_clock:"
-            is ItemProperty.Stock -> ":bar_chart:"
+            is ItemProperty.Stock -> null
         }
 
     private fun ItemProperty.getDiscordFieldValue(): String =
         when (this) {
-            is ItemProperty.Stock -> if (this.isInStock) "✅" else "❌"
+            is ItemProperty.Stock -> this.stockValue() ?: "N/A"
             else -> this.toString()
         }
 }

@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.bundles.kotlin.coroutines)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.bundles.ktor.client)
+    implementation(libs.logging.interceptor)
 
     testImplementation(libs.bundles.testing)
     testImplementation(libs.ktor.client.mock)

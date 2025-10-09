@@ -1,6 +1,5 @@
 package com.cereal.script.utils.configuration
 
-import com.cereal.script.configuration.MonitorIntervalStateModifier
 import com.cereal.sdk.ScriptConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 
@@ -9,7 +8,7 @@ interface BaseConfiguration : ScriptConfiguration {
         keyName = KEY_MONITOR_INTERVAL,
         name = "Interval",
         description =
-            "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 1" +
+            "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 15" +
                 "second, defaults to a random value between 15 and 30 seconds.",
         stateModifier = MonitorIntervalStateModifier::class,
     )

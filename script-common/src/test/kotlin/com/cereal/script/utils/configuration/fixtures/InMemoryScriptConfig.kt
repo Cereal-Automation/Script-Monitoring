@@ -1,4 +1,4 @@
-package com.cereal.script.utuls.configuration.fixtures
+package com.cereal.script.utils.configuration.fixtures
 
 import com.cereal.sdk.statemodifier.ScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue

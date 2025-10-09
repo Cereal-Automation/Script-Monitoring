@@ -24,6 +24,7 @@ cereal-test-utils = "1.7.0"
 
 # HTTP Client
 ktor = "3.2.3"
+logging-interceptor = "5.1.0"
 
 # Web Scraping & Parsing
 htmlunit = "4.7.0"
@@ -68,6 +69,7 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "logging-interceptor" }
 
 # Web Scraping & Parsing
 htmlunit = { module = "org.htmlunit:htmlunit", version.ref = "htmlunit" }
@@ -108,7 +110,7 @@ testing = ["kotlin-test", "junit-jupiter", "kotlinx-coroutines-test", "mockk"]
 # Ktor client
 ktor-client = [
     "ktor-client-core",
-    "ktor-client-okhttp", 
+    "ktor-client-okhttp",
     "ktor-client-logging",
     "ktor-client-content-negotiation",
     "ktor-serialization-kotlinx-json",

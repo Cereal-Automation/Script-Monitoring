@@ -83,6 +83,8 @@ subprojects {
                     "${rootDir.absolutePath}/proguard-rules/coroutines.pro",
                     "${rootDir.absolutePath}/proguard-rules/kotlinx-serialization.pro",
                     "${rootDir.absolutePath}/proguard-rules/ktor.pro",
+                    "${rootDir.absolutePath}/proguard-rules/okhttp.pro",
+                    "${rootDir.absolutePath}/proguard-rules/okio.pro",
                 ),
             )
         }
