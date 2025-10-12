@@ -79,7 +79,7 @@ class TgtgScript : Script<TgtgConfiguration> {
             )
 
         // Create auth repository
-        val tgtgAuthRepository = TgtgAuthRepositoryImpl(tgtgApiClient)
+        val tgtgAuthRepository = TgtgAuthRepositoryImpl(tgtgApiClient, provider.userInteraction())
 
         // Create login commands
         val loginCommand =

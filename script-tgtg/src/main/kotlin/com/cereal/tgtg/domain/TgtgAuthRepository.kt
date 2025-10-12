@@ -14,11 +14,18 @@ interface TgtgAuthRepository {
 
     /**
      * Initiates the email-based authentication process by sending an authentication email.
+     * May return a captchaUrl instead of a pollingId if a captcha challenge must be solved first.
      *
-     * @return AuthByEmailResult containing the polling ID needed for polling authentication status
-     * @throws Exception if the authentication email could not be sent
+     * @return AuthByEmailResult containing pollingId OR captchaUrl
+     * @throws Exception if the authentication request fails
      */
     suspend fun authByEmail(email: String): AuthByEmailResult
+
+    /**
+     * Executes the captcha check URL after intercepting navigation to the captcha/check endpoint.
+     * Stores any returned cookie for subsequent requests.
+     */
+    suspend fun captchaCheck(fullUrl: String): Boolean
 
     /**
      * Polls for authentication completion using the polling ID from authByEmail().

@@ -17,6 +17,9 @@ data class AuthByEmailResponse(
     val pollingId: String? = null,
     @SerialName("state")
     val state: String? = null,
+    // Added for 403 captcha challenge response
+    @SerialName("url")
+    val captchaUrl: String? = null,
 )
 
 @Serializable
@@ -65,4 +68,11 @@ data class RefreshTokenRequest(
 data class RefreshTokenResponse(
     @SerialName("access_token")
     val accessToken: String? = null,
+)
+
+// Response returned after executing captcha check URL
+@Serializable
+data class CaptchaCookieResponse(
+    @SerialName("cookie")
+    val cookie: String? = null,
 )

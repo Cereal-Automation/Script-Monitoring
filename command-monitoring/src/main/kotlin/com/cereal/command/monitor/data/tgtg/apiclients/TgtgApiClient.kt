@@ -1,5 +1,6 @@
 package com.cereal.command.monitor.data.tgtg.apiclients
 
+import com.cereal.command.monitor.data.common.httpclient.PrePopulatedCookiesStorage
 import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
 import com.cereal.command.monitor.data.common.json.defaultJson
 import com.cereal.command.monitor.data.tgtg.TgtgConfig
@@ -8,6 +9,7 @@ import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.CaptchaCookieResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.RefreshTokenRequest
@@ -16,11 +18,15 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -58,20 +64,42 @@ class TgtgApiClient(
 
     private suspend fun createHttpClient(): HttpClient {
         val appVersion = playStoreApiClient.getAppVersion()
+        val currentConfig = getTgtgConfig()
         val headers =
-            mapOf(
+            mutableMapOf(
                 HttpHeaders.ContentType to ContentType.Application.Json.toString(),
                 HttpHeaders.Accept to "application/json",
                 HttpHeaders.AcceptLanguage to "en-US",
                 HttpHeaders.AcceptEncoding to "gzip",
                 HttpHeaders.UserAgent to "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
-                "x-correlation-id" to getTgtgConfig().correlationId,
+                "x-correlation-id" to currentConfig.correlationId,
             )
+
+        val cookieStorage =
+            currentConfig.datadomeCookie?.let { raw ->
+                // raw format: datadome=... (value)
+                val parts = raw.split('=', limit = 2)
+                val name = parts.getOrNull(0) ?: "datadome"
+                val value = parts.getOrNull(1) ?: ""
+                PrePopulatedCookiesStorage(
+                    listOf(
+                        Cookie(
+                            name = name,
+                            value = value,
+                            domain = ".apptoogoodtogo.com",
+                            path = "/",
+                            secure = true,
+                            httpOnly = false,
+                        ),
+                    ),
+                )
+            } ?: PrePopulatedCookiesStorage()
 
         return defaultHttpClient(
             timeout = timeout,
             httpProxy = httpProxy,
             defaultHeaders = headers,
+            cookieStorage = cookieStorage,
             enableRetryPlugin = true,
         )
     }
@@ -94,7 +122,31 @@ class TgtgApiClient(
             }
 
         val bodyText = response.bodyAsText()
+        // 200 normal -> polling id, 403 -> captcha challenge with url
         return json.decodeFromString(AuthByEmailResponse.serializer(), bodyText)
+    }
+
+    // Execute the captcha check URL intercepted from the webview.
+    suspend fun executeCaptchaCheck(fullUrl: String): Boolean {
+        val httpClient = createHttpClient()
+        val response: HttpResponse = httpClient.get(fullUrl)
+        if (response.status != HttpStatusCode.OK) {
+            logRepository.debug("Captcha check failed with status ${'$'}{response.status}")
+            return false
+        }
+        val bodyText = response.bodyAsText()
+        val cookieResponse = json.decodeFromString(CaptchaCookieResponse.serializer(), bodyText)
+        val rawCookie = cookieResponse.cookie ?: return false
+        // Extract first segment before ';' to use as Cookie header value
+        val cookieHeaderValue = rawCookie.substringBefore(';')
+        storeDatadomeCookie(cookieHeaderValue)
+        logRepository.info("Stored DataDome cookie for subsequent TGTG requests")
+        return true
+    }
+
+    private suspend fun storeDatadomeCookie(cookie: String) {
+        val currentConfig = getTgtgConfig()
+        storeTgtgConfig(currentConfig.copy(datadomeCookie = cookie))
     }
 
     suspend fun authPoll(
