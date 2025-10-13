@@ -68,6 +68,7 @@ class TgtgScript : Script<TgtgConfiguration> {
                 preferenceComponent = provider.preference(),
                 playStoreApiClient = playStoreApiClient,
                 httpProxy = configuration.proxy()?.invoke(),
+                userInteractionComponent = provider.userInteraction(),
             )
 
         val tgtgRepository =
@@ -79,7 +80,7 @@ class TgtgScript : Script<TgtgConfiguration> {
             )
 
         // Create auth repository
-        val tgtgAuthRepository = TgtgAuthRepositoryImpl(tgtgApiClient, provider.userInteraction())
+        val tgtgAuthRepository = TgtgAuthRepositoryImpl(tgtgApiClient)
 
         // Create login commands
         val loginCommand =

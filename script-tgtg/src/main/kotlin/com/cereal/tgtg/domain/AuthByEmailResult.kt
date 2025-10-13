@@ -6,7 +6,4 @@ package com.cereal.tgtg.domain
  */
 data class AuthByEmailResult(
     val pollingId: String? = null,
-    val captchaUrl: String? = null,
-) {
-    val isCaptchaChallenge: Boolean get() = captchaUrl != null && pollingId == null
-}
+)

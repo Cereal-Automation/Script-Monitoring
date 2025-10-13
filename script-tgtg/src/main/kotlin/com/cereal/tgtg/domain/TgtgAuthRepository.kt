@@ -22,12 +22,6 @@ interface TgtgAuthRepository {
     suspend fun authByEmail(email: String): AuthByEmailResult
 
     /**
-     * Executes the captcha check URL after intercepting navigation to the captcha/check endpoint.
-     * Stores any returned cookie for subsequent requests.
-     */
-    suspend fun captchaCheck(fullUrl: String): Boolean
-
-    /**
      * Polls for authentication completion using the polling ID from authByEmail().
      *
      * @param pollingId The polling ID obtained from authByEmail()
