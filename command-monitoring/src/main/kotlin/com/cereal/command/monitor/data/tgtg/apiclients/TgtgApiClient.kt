@@ -65,8 +65,12 @@ class TgtgApiClient(
         preferenceComponent.setString(configKey, configJson)
     }
 
-    private suspend fun createHttpClient(): HttpClient {
+    private suspend fun getUserAgent(): String {
         val appVersion = playStoreApiClient.getAppVersion()
+        return "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
+    }
+
+    private suspend fun createHttpClient(): HttpClient {
         val currentConfig = getTgtgConfig()
         val headers =
             mutableMapOf(
@@ -74,7 +78,7 @@ class TgtgApiClient(
                 HttpHeaders.Accept to "application/json",
                 HttpHeaders.AcceptLanguage to "en-US",
                 HttpHeaders.AcceptEncoding to "gzip",
-                HttpHeaders.UserAgent to "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
+                HttpHeaders.UserAgent to getUserAgent(),
                 "x-correlation-id" to currentConfig.correlationId,
             )
 
@@ -274,6 +278,7 @@ class TgtgApiClient(
             ui.showUrl(
                 title = "Solve TGTG Captcha",
                 url = challengeUrl,
+                headers = mapOf(HttpHeaders.UserAgent to getUserAgent()),
             ) {
                 it.url.contains("/captcha/check")
             }
