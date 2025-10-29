@@ -87,10 +87,7 @@ class TgtgApiClient(
         )
     }
 
-    // region DataDome
-    private suspend fun fetchDataDomeCookie(originalRequestPath: String): String? { // ktlint formatted
-        // region datadome fetch
-
+    private suspend fun fetchDataDomeCookie(originalRequestPath: String): String? {
         return try {
             val appVersion = playStoreApiClient.getAppVersion()
             val cid = UUID.randomUUID().toString().replace("-", "").take(64) // pseudo cid generation
