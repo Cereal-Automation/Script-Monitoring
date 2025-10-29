@@ -8,6 +8,7 @@ import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.DataDomeCookieResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.RefreshTokenRequest
@@ -16,11 +17,16 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
+import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.parameters
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -32,7 +38,7 @@ class TgtgApiClient(
     private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,
 ) {
-    private val baseUrl = "https://apptoogoodtogo.com/api/"
+    private val baseUrl = "https://api.toogoodtogo.com/api/"
     private val json = defaultJson()
 
     private val configKey = "tgtg_config"
@@ -59,7 +65,7 @@ class TgtgApiClient(
     private suspend fun createHttpClient(): HttpClient {
         val appVersion = playStoreApiClient.getAppVersion()
         val headers =
-            mapOf(
+            mutableMapOf(
                 HttpHeaders.ContentType to ContentType.Application.Json.toString(),
                 HttpHeaders.Accept to "application/json",
                 HttpHeaders.AcceptLanguage to "en-US",
@@ -68,6 +74,11 @@ class TgtgApiClient(
                 "x-correlation-id" to getTgtgConfig().correlationId,
             )
 
+        // If we have a stored DataDome cookie, include it.
+        getTgtgConfig().datadomeCookie?.let { cookieValue ->
+            headers[HttpHeaders.Cookie] = cookieValue
+        }
+
         return defaultHttpClient(
             timeout = timeout,
             httpProxy = httpProxy,
@@ -75,6 +86,119 @@ class TgtgApiClient(
             enableRetryPlugin = true,
         )
     }
+
+    // region DataDome
+    private suspend fun fetchDataDomeCookie(originalRequestPath: String): String? { // ktlint formatted
+        // region datadome fetch
+
+        return try {
+            val appVersion = playStoreApiClient.getAppVersion()
+            val cid = UUID.randomUUID().toString().replace("-", "").take(64) // pseudo cid generation
+            val requestUrlEncoded =
+                URLEncoder.encode(
+                    "$baseUrl$originalRequestPath",
+                    StandardCharsets.UTF_8.toString(),
+                )
+            val userAgent = "TGTG/$appVersion Dalvik/2.1.0 (Linux; U; Android 14; Pixel 7 Pro Build/UQ1A.240105.004)"
+            val timestamp = System.currentTimeMillis()
+            val eventsJson =
+                "[%7B%22id%22:1,%22message%22:%22response validation%22,%22source%22:%22sdk%22,%22date%22:$timestamp%7D]" // mimic events
+
+            val formParameters = parameters {
+                append("cid", cid)
+                append("ddk", "1D42C2CA6131C526E09F294FE96F94")
+                append("request", requestUrlEncoded)
+                append("ua", userAgent)
+                append("events", eventsJson)
+                append("inte", "android-java-okhttp")
+                append("ddv", "3.0.4")
+                append("ddvc", appVersion)
+                append("os", "Android")
+                append("osr", "14")
+                append("osn", "UPSIDE_DOWN_CAKE")
+                append("osv", "34")
+                append("screen_x", "1440")
+                append("screen_y", "3120")
+                append("screen_d", "3.5")
+                append(
+                    "camera",
+                    "{\"auth\":\"true\", \"info\":\"{\\\"front\\\":\\\"2000x1500\\\",\\\"back\\\":\\\"5472x3648\\\"}\"}",
+                )
+                append("mdl", "Pixel 7 Pro")
+                append("prd", "Pixel 7 Pro")
+                append("mnf", "Google")
+                append("dev", "cheetah")
+                append("hrd", "GS201")
+                append("fgp", "google/cheetah/cheetah:14/UQ1A.240105.004/10814564:user/release-keys")
+                append("tgs", "release-keys")
+                append("d_ifv", UUID.randomUUID().toString().replace("-", ""))
+            }
+
+            val httpClient = defaultHttpClient(timeout = timeout, httpProxy = httpProxy)
+            val response: HttpResponse = httpClient.post("https://api-sdk.datadome.co/sdk/") {
+                headers {
+                    append(HttpHeaders.ContentType, "application/x-www-form-urlencoded")
+                    append(HttpHeaders.UserAgent, "okhttp/5.1.0")
+                    append("Connection", "Keep-Alive")
+                    append("Host", "api-sdk.datadome.co")
+                }
+                setBody(formParameters)
+            }
+            val body = response.bodyAsText()
+            val dataDomeResponse = try {
+                json.decodeFromString(
+                    DataDomeCookieResponse.serializer(),
+                    body,
+                )
+            } catch (e: Exception) {
+                null
+            }
+            val cookieFull = dataDomeResponse?.cookie
+            val cookie = cookieFull?.split(';')?.firstOrNull() // take only key=value part
+            if (cookie != null) {
+                val currentConfig = getTgtgConfig()
+                storeTgtgConfig(currentConfig.copy(datadomeCookie = cookie))
+                logRepository.debug("Stored DataDome cookie")
+            } else {
+                logRepository.debug("DataDome cookie not found in response")
+            }
+            cookie
+        } catch (e: Exception) {
+            logRepository.debug("Failed to fetch DataDome cookie: ${e.message}")
+            null
+        }
+    }
+
+    private suspend fun <T> executeWith403Retry(
+        path: String,
+        bodyBuilder: () -> String,
+        decode: (String) -> T,
+        authHeader: String? = null,
+    ): T? {
+        val httpClient = createHttpClient()
+        val response =
+            httpClient.post("${baseUrl}$path") {
+                authHeader?.let { headers[HttpHeaders.Authorization] = it }
+                setBody(bodyBuilder())
+            }
+        if (response.status.value == 403) {
+            logRepository.debug("Received 403 for $path. Attempting DataDome cookie fetch.")
+            val cookie = fetchDataDomeCookie(path)
+            if (cookie != null) {
+                val retryClient = createHttpClient() // picks up stored cookie
+                val retryResponse =
+                    retryClient.post("${baseUrl}$path") {
+                        authHeader?.let { headers[HttpHeaders.Authorization] = it }
+                        setBody(bodyBuilder())
+                    }
+                val retryBody = retryResponse.bodyAsText()
+                return decode(retryBody)
+            }
+        }
+        val bodyText = response.bodyAsText()
+        return decode(bodyText)
+    }
+    // endregion
 
     suspend fun authByEmail(email: String): AuthByEmailResponse {
         val currentConfig = getTgtgConfig()
@@ -87,14 +211,11 @@ class TgtgApiClient(
                 email = email,
             )
 
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}auth/v5/authByEmail") {
-                setBody(json.encodeToString(AuthByEmailRequest.serializer(), request))
-            }
-
-        val bodyText = response.bodyAsText()
-        return json.decodeFromString(AuthByEmailResponse.serializer(), bodyText)
+        return executeWith403Retry(
+            path = "auth/v5/authByEmail",
+            bodyBuilder = { json.encodeToString(AuthByEmailRequest.serializer(), request) },
+            decode = { body -> json.decodeFromString(AuthByEmailResponse.serializer(), body) },
+        ) ?: throw IllegalStateException("AuthByEmail returned null")
     }
 
     suspend fun authPoll(
@@ -109,28 +230,24 @@ class TgtgApiClient(
                 requestPollingId = pollingId,
             )
 
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}auth/v5/authByRequestPollingId") {
-                setBody(json.encodeToString(AuthPollRequest.serializer(), request))
-            }
+        val result =
+            executeWith403Retry(
+                path = "auth/v5/authByRequestPollingId",
+                bodyBuilder = { json.encodeToString(AuthPollRequest.serializer(), request) },
+                decode = { body -> json.decodeFromString(AuthPollResponse.serializer(), body) },
+            )
 
-        // If status code is 202, there's no response body - return null
-        if (response.status.value == 202) {
-            return null
-        }
+        if (result == null) return null
 
-        val bodyText = response.bodyAsText()
-        val authResponse = json.decodeFromString(AuthPollResponse.serializer(), bodyText)
-
-        // Create session if authentication was successful
-        authResponse.accessToken?.let { accessToken ->
-            authResponse.refreshToken?.let { refreshToken ->
+        // If status code was 202 we returned null earlier; logic moved inside executeWith403Retry? We still need to handle 202.
+        // For this path, if decode succeeded but tokens present create session.
+        result.accessToken?.let { accessToken ->
+            result.refreshToken?.let { refreshToken ->
                 createSession(accessToken, refreshToken)
             }
         }
 
-        return authResponse
+        return result
     }
 
     suspend fun login(): Boolean {
@@ -153,16 +270,14 @@ class TgtgApiClient(
 
         val request = RefreshTokenRequest(refreshToken = refreshToken)
 
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}token/v1/refresh") {
-                setBody(json.encodeToString(RefreshTokenRequest.serializer(), request))
-            }
+        val tokenResponse =
+            executeWith403Retry(
+                path = "token/v1/refresh",
+                bodyBuilder = { json.encodeToString(RefreshTokenRequest.serializer(), request) },
+                decode = { body -> json.decodeFromString(RefreshTokenResponse.serializer(), body) },
+            )
 
-        val bodyText = response.bodyAsText()
-        val tokenResponse = json.decodeFromString(RefreshTokenResponse.serializer(), bodyText)
-
-        tokenResponse.accessToken?.let { accessToken ->
+        tokenResponse?.accessToken?.let { accessToken ->
             updateSession(accessToken)
             return true
         }
@@ -178,15 +293,15 @@ class TgtgApiClient(
             return null
         }
 
-        val httpClient = createHttpClient()
         val response =
-            httpClient.post("${baseUrl}item/v8/") {
-                headers[HttpHeaders.Authorization] = "Bearer ${session.accessToken}"
-                setBody(json.encodeToString(ListItemsRequest.serializer(), request))
-            }
+            executeWith403Retry(
+                path = "item/v8/",
+                bodyBuilder = { json.encodeToString(ListItemsRequest.serializer(), request) },
+                decode = { body -> json.decodeFromString(ListItemsResponse.serializer(), body) },
+                authHeader = "Bearer ${session.accessToken}",
+            )
 
-        val bodyText = response.bodyAsText()
-        return json.decodeFromString(ListItemsResponse.serializer(), bodyText)
+        return response
     }
 
     private suspend fun createSession(
