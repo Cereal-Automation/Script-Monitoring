@@ -17,13 +17,18 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.cookies.AcceptAllCookiesStorage
+import io.ktor.client.plugins.cookies.CookiesStorage
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Cookie
 import io.ktor.http.HttpHeaders
+import io.ktor.http.Url
 import io.ktor.http.parameters
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -38,6 +43,10 @@ class TgtgApiClient(
     private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,
 ) {
+    companion object {
+        private const val DATA_DOME_COOKIE_NAME = "datadome"
+    }
+
     private val baseUrl = "https://api.toogoodtogo.com/api/"
     private val json = defaultJson()
 
@@ -64,6 +73,7 @@ class TgtgApiClient(
 
     private suspend fun createHttpClient(): HttpClient {
         val appVersion = playStoreApiClient.getAppVersion()
+        val config = getTgtgConfig()
         val headers =
             mutableMapOf(
                 HttpHeaders.ContentType to ContentType.Application.Json.toString(),
@@ -71,23 +81,64 @@ class TgtgApiClient(
                 HttpHeaders.AcceptLanguage to "en-US",
                 HttpHeaders.AcceptEncoding to "gzip",
                 HttpHeaders.UserAgent to "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
-                "x-correlation-id" to getTgtgConfig().correlationId,
+                "x-correlation-id" to config.correlationId,
             )
 
-        // If we have a stored DataDome cookie, include it.
-        getTgtgConfig().datadomeCookie?.let { cookieValue ->
-            headers[HttpHeaders.Cookie] = cookieValue
-        }
+        val cookieStorage = createCookieStorage(config)
 
         return defaultHttpClient(
             timeout = timeout,
             httpProxy = httpProxy,
             defaultHeaders = headers,
-            enableRetryPlugin = true,
+            cookieStorage = cookieStorage,
+            enableRetryPlugin = false,
         )
     }
 
-    private suspend fun fetchDataDomeCookie(originalRequestPath: String): String? {
+    private suspend fun createCookieStorage(config: TgtgConfig): CookiesStorage {
+        val baseStorage = AcceptAllCookiesStorage()
+        val tgtgUrl = Url(baseUrl)
+
+        config.datadomeCookie?.let { cookieValue ->
+            val parts = cookieValue.split('=', limit = 2)
+            if (parts.size == 2) {
+                val name = parts[0].trim()
+                val value = parts[1].trim()
+                if (name.isNotEmpty() && value.isNotEmpty()) {
+                    val cookie =
+                        Cookie(
+                            name = name,
+                            value = value,
+                            domain = tgtgUrl.host,
+                            path = "/",
+                        )
+                    baseStorage.addCookie(tgtgUrl, cookie)
+                }
+            }
+        }
+
+        return object : CookiesStorage by baseStorage {
+            override suspend fun addCookie(requestUrl: Url, cookie: Cookie) {
+                baseStorage.addCookie(requestUrl, cookie)
+
+                if (cookie.name.equals(DATA_DOME_COOKIE_NAME, ignoreCase = true)) {
+                    val trimmedValue = cookie.value.trim()
+                    val cookieString =
+                        if (trimmedValue.isNotEmpty()) {
+                            "${cookie.name}=$trimmedValue"
+                        } else {
+                            null
+                        }
+                    val currentConfig = getTgtgConfig()
+                    storeTgtgConfig(currentConfig.copy(datadomeCookie = cookieString))
+                }
+            }
+        }
+    }
+
+    private suspend fun fetchDataDomeCookie(
+        originalRequestPath: String,
+    ): String? { // keep trailing comma to satisfy multiline signature rule
         return try {
             val appVersion = playStoreApiClient.getAppVersion()
             val cid = UUID.randomUUID().toString().replace("-", "").take(64) // pseudo cid generation
@@ -101,55 +152,59 @@ class TgtgApiClient(
             val eventsJson =
                 "[%7B%22id%22:1,%22message%22:%22response validation%22,%22source%22:%22sdk%22,%22date%22:$timestamp%7D]" // mimic events
 
-            val formParameters = parameters {
-                append("cid", cid)
-                append("ddk", "1D42C2CA6131C526E09F294FE96F94")
-                append("request", requestUrlEncoded)
-                append("ua", userAgent)
-                append("events", eventsJson)
-                append("inte", "android-java-okhttp")
-                append("ddv", "3.0.4")
-                append("ddvc", appVersion)
-                append("os", "Android")
-                append("osr", "14")
-                append("osn", "UPSIDE_DOWN_CAKE")
-                append("osv", "34")
-                append("screen_x", "1440")
-                append("screen_y", "3120")
-                append("screen_d", "3.5")
-                append(
-                    "camera",
-                    "{\"auth\":\"true\", \"info\":\"{\\\"front\\\":\\\"2000x1500\\\",\\\"back\\\":\\\"5472x3648\\\"}\"}",
-                )
-                append("mdl", "Pixel 7 Pro")
-                append("prd", "Pixel 7 Pro")
-                append("mnf", "Google")
-                append("dev", "cheetah")
-                append("hrd", "GS201")
-                append("fgp", "google/cheetah/cheetah:14/UQ1A.240105.004/10814564:user/release-keys")
-                append("tgs", "release-keys")
-                append("d_ifv", UUID.randomUUID().toString().replace("-", ""))
-            }
+            val formParameters =
+                parameters {
+                    append("cid", cid)
+                    append("ddk", "1D42C2CA6131C526E09F294FE96F94")
+                    append("request", requestUrlEncoded)
+                    append("ua", userAgent)
+                    append("events", eventsJson)
+                    append("inte", "android-java-okhttp")
+                    append("ddv", "3.0.4")
+                    append("ddvc", appVersion)
+                    append("os", "Android")
+                    append("osr", "14")
+                    append("osn", "UPSIDE_DOWN_CAKE")
+                    append("osv", "34")
+                    append("screen_x", "1440")
+                    append("screen_y", "3120")
+                    append("screen_d", "3.5")
+                    append(
+                        "camera",
+                        "{\"auth\":\"true\", \"info\":\"{\\\"front\\\":\\\"2000x1500\\\",\\\"back\\\":\\\"5472x3648\\\"}\"}",
+                    )
+                    append("mdl", "Pixel 7 Pro")
+                    append("prd", "Pixel 7 Pro")
+                    append("mnf", "Google")
+                    append("dev", "cheetah")
+                    append("hrd", "GS201")
+                    append("fgp", "google/cheetah/cheetah:14/UQ1A.240105.004/10814564:user/release-keys")
+                    append("tgs", "release-keys")
+                    append("d_ifv", UUID.randomUUID().toString().replace("-", ""))
+                }
 
             val httpClient = defaultHttpClient(timeout = timeout, httpProxy = httpProxy)
-            val response: HttpResponse = httpClient.post("https://api-sdk.datadome.co/sdk/") {
-                headers {
-                    append(HttpHeaders.ContentType, "application/x-www-form-urlencoded")
-                    append(HttpHeaders.UserAgent, "okhttp/5.1.0")
-                    append("Connection", "Keep-Alive")
-                    append("Host", "api-sdk.datadome.co")
+            val response: HttpResponse =
+                httpClient.post("https://api-sdk.datadome.co/sdk/") {
+                    headers {
+                        append(HttpHeaders.ContentType, "application/x-www-form-urlencoded")
+                        append(HttpHeaders.UserAgent, "okhttp/5.1.0")
+                        append("Connection", "Keep-Alive")
+                        append("Host", "api-sdk.datadome.co")
+                    }
+                    // Wrap parameters in FormDataContent to avoid class cast exception
+                    setBody(FormDataContent(formParameters))
                 }
-                setBody(formParameters)
-            }
             val body = response.bodyAsText()
-            val dataDomeResponse = try {
-                json.decodeFromString(
-                    DataDomeCookieResponse.serializer(),
-                    body,
-                )
-            } catch (e: Exception) {
-                null
-            }
+            val dataDomeResponse =
+                try {
+                    json.decodeFromString(
+                        DataDomeCookieResponse.serializer(),
+                        body,
+                    )
+                } catch (e: Exception) {
+                    null
+                }
             val cookieFull = dataDomeResponse?.cookie
             val cookie = cookieFull?.split(';')?.firstOrNull() // take only key=value part
             if (cookie != null) {
@@ -195,7 +250,6 @@ class TgtgApiClient(
         val bodyText = response.bodyAsText()
         return decode(bodyText)
     }
-    // endregion
 
     suspend fun authByEmail(email: String): AuthByEmailResponse {
         val currentConfig = getTgtgConfig()
