@@ -138,7 +138,7 @@ class TgtgApiClient(
 
     private suspend fun fetchDataDomeCookie(
         originalRequestPath: String,
-    ): String? { // keep trailing comma to satisfy multiline signature rule
+    ): String? {
         return try {
             val appVersion = playStoreApiClient.getAppVersion()
             val cid = UUID.randomUUID().toString().replace("-", "").take(64) // pseudo cid generation
@@ -192,7 +192,6 @@ class TgtgApiClient(
                         append("Connection", "Keep-Alive")
                         append("Host", "api-sdk.datadome.co")
                     }
-                    // Wrap parameters in FormDataContent to avoid class cast exception
                     setBody(FormDataContent(formParameters))
                 }
             val body = response.bodyAsText()
