@@ -116,10 +116,7 @@ internal class DataDomeCookieManager(
             val response =
                 httpClient.post("https://api-sdk.datadome.co/sdk/") {
                     headers {
-                        append(HttpHeaders.ContentType, "application/x-www-form-urlencoded")
                         append(HttpHeaders.UserAgent, "okhttp/5.1.0")
-                        append("Connection", "Keep-Alive")
-                        append("Host", "api-sdk.datadome.co")
                     }
                     setBody(FormDataContent(formParameters))
                 }
