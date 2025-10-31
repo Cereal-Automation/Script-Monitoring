@@ -33,7 +33,6 @@ class TgtgApiClient(
     private val baseUrl = "https://api.toogoodtogo.com/api/"
     private val json = defaultJson()
 
-    // New collaborators (lazily initialised because they call suspend functions indirectly)
     private val configStore by lazy { TgtgConfigStore(preferenceComponent, json, logRepository) }
     private val dataDomeManager by lazy {
         DataDomeCookieManager(
@@ -48,12 +47,10 @@ class TgtgApiClient(
     }
     private val httpExecutor by lazy { HttpExecutor(baseUrl, logRepository, dataDomeManager) { createHttpClient() } }
 
-    // ---- Config helpers ----
     private suspend fun getConfig(): TgtgConfig = configStore.get()
 
     private suspend fun updateConfig(transform: (TgtgConfig) -> TgtgConfig) = configStore.update(transform)
 
-    // ---- Http client creation ----
     private suspend fun createHttpClient(): HttpClient {
         val appVersion = playStoreApiClient.getAppVersion()
         val config = getConfig()
@@ -76,7 +73,6 @@ class TgtgApiClient(
         )
     }
 
-    // ---- Public API methods ----
     suspend fun authByEmail(email: String): AuthByEmailResponse {
         val updatedConfig = updateConfig { it.copy(correlationId = UUID.randomUUID().toString()) }
         val request = AuthByEmailRequest(deviceType = updatedConfig.deviceType, email = email)
@@ -130,7 +126,6 @@ class TgtgApiClient(
         )
     }
 
-    // ---- Session management ----
     private suspend fun refreshToken(): Boolean {
         val refreshToken = getConfig().session?.refreshToken ?: return false
         val request = RefreshTokenRequest(refreshToken = refreshToken)
