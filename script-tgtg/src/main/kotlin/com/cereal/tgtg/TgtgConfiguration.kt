@@ -15,14 +15,18 @@ interface TgtgConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(
         keyName = KEY_LATITUDE,
         name = "Latitude",
-        description = "Latitude coordinate for your location (e.g., 52.3676 for Amsterdam).",
+        description =
+            "Latitude coordinate for your location (e.g., 52.3676 for Amsterdam). To find it use a lookup " +
+                "site such as latlong.net.",
     )
     fun latitude(): Double
 
     @ScriptConfigurationItem(
         keyName = KEY_LONGITUDE,
         name = "Longitude",
-        description = "Longitude coordinate for your location (e.g., 4.9041 for Amsterdam).",
+        description =
+            "Longitude coordinate for your location (e.g., 4.9041 for Amsterdam). To find it use a lookup " +
+                "site such as latlong.net.",
     )
     fun longitude(): Double
 
