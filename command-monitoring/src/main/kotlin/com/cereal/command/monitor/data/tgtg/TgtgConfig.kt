@@ -8,6 +8,7 @@ data class TgtgConfig(
     val correlationId: String = UUID.randomUUID().toString(),
     val deviceType: String = "ANDROID",
     val session: TgtgSession? = null,
+    val datadomeCookie: String? = null,
 )
 
 @Serializable

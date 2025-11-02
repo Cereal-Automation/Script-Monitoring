@@ -16,9 +16,7 @@ import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import java.util.UUID
@@ -32,113 +30,80 @@ class TgtgApiClient(
     private val httpProxy: Proxy? = null,
     private val timeout: Duration = 30.seconds,
 ) {
-    private val baseUrl = "https://apptoogoodtogo.com/api/"
+    private val baseUrl = "https://api.toogoodtogo.com/api/"
     private val json = defaultJson()
 
-    private val configKey = "tgtg_config"
-
-    private suspend fun getTgtgConfig(): TgtgConfig {
-        val configJson = preferenceComponent.getString(configKey)
-        return if (configJson != null) {
-            try {
-                json.decodeFromString<TgtgConfig>(configJson)
-            } catch (e: Exception) {
-                logRepository.debug("Failed to deserialize stored config: ${e.message}")
-                TgtgConfig()
-            }
-        } else {
-            TgtgConfig()
-        }
+    private val configStore by lazy { TgtgConfigStore(preferenceComponent, json, logRepository) }
+    private val dataDomeManager by lazy {
+        DataDomeCookieManager(
+            baseUrl,
+            timeout,
+            httpProxy,
+            logRepository,
+            playStoreApiClient,
+            configStore,
+            json,
+        )
     }
+    private val httpExecutor by lazy { HttpExecutor(baseUrl, logRepository, dataDomeManager) { createHttpClient() } }
 
-    private suspend fun storeTgtgConfig(config: TgtgConfig) {
-        val configJson = json.encodeToString(config)
-        preferenceComponent.setString(configKey, configJson)
-    }
+    private suspend fun getConfig(): TgtgConfig = configStore.get()
+
+    private suspend fun updateConfig(transform: (TgtgConfig) -> TgtgConfig) = configStore.update(transform)
 
     private suspend fun createHttpClient(): HttpClient {
         val appVersion = playStoreApiClient.getAppVersion()
+        val config = getConfig()
         val headers =
-            mapOf(
+            mutableMapOf(
                 HttpHeaders.ContentType to ContentType.Application.Json.toString(),
                 HttpHeaders.Accept to "application/json",
                 HttpHeaders.AcceptLanguage to "en-US",
                 HttpHeaders.AcceptEncoding to "gzip",
                 HttpHeaders.UserAgent to "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
-                "x-correlation-id" to getTgtgConfig().correlationId,
+                "x-correlation-id" to config.correlationId,
             )
-
+        val cookieStorage: CookiesStorage = dataDomeManager.createCookieStorage(config)
         return defaultHttpClient(
             timeout = timeout,
             httpProxy = httpProxy,
             defaultHeaders = headers,
-            enableRetryPlugin = true,
+            cookieStorage = cookieStorage,
+            enableRetryPlugin = false,
         )
     }
 
     suspend fun authByEmail(email: String): AuthByEmailResponse {
-        val currentConfig = getTgtgConfig()
-        val updatedConfig = currentConfig.copy(correlationId = UUID.randomUUID().toString())
-        storeTgtgConfig(updatedConfig)
-
-        val request =
-            AuthByEmailRequest(
-                deviceType = updatedConfig.deviceType,
-                email = email,
-            )
-
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}auth/v5/authByEmail") {
-                setBody(json.encodeToString(AuthByEmailRequest.serializer(), request))
-            }
-
-        val bodyText = response.bodyAsText()
-        return json.decodeFromString(AuthByEmailResponse.serializer(), bodyText)
+        val updatedConfig = updateConfig { it.copy(correlationId = UUID.randomUUID().toString()) }
+        val request = AuthByEmailRequest(deviceType = updatedConfig.deviceType, email = email)
+        return httpExecutor.postWith403Retry(
+            path = "auth/v5/authByEmail",
+            bodyBuilder = { json.encodeToString(AuthByEmailRequest.serializer(), request) },
+            decode = { body -> json.decodeFromString(AuthByEmailResponse.serializer(), body) },
+        ) ?: error("AuthByEmail returned null")
     }
 
     suspend fun authPoll(
         pollingId: String,
         email: String,
     ): AuthPollResponse? {
-        val currentConfig = getTgtgConfig()
+        val currentConfig = getConfig()
         val request =
-            AuthPollRequest(
-                deviceType = currentConfig.deviceType,
-                email = email,
-                requestPollingId = pollingId,
+            AuthPollRequest(deviceType = currentConfig.deviceType, email = email, requestPollingId = pollingId)
+        val result =
+            httpExecutor.postWith403Retry(
+                path = "auth/v5/authByRequestPollingId",
+                bodyBuilder = { json.encodeToString(AuthPollRequest.serializer(), request) },
+                decode = { body -> json.decodeFromString(AuthPollResponse.serializer(), body) },
             )
-
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}auth/v5/authByRequestPollingId") {
-                setBody(json.encodeToString(AuthPollRequest.serializer(), request))
-            }
-
-        // If status code is 202, there's no response body - return null
-        if (response.status.value == 202) {
-            return null
-        }
-
-        val bodyText = response.bodyAsText()
-        val authResponse = json.decodeFromString(AuthPollResponse.serializer(), bodyText)
-
-        // Create session if authentication was successful
-        authResponse.accessToken?.let { accessToken ->
-            authResponse.refreshToken?.let { refreshToken ->
-                createSession(accessToken, refreshToken)
-            }
-        }
-
-        return authResponse
+        // Create session if tokens present
+        result?.accessToken?.let { at -> result.refreshToken?.let { rt -> createSession(at, rt) } }
+        return result
     }
 
     suspend fun login(): Boolean {
-        val currentConfig = getTgtgConfig()
-        val updatedConfig = currentConfig.copy(correlationId = UUID.randomUUID().toString())
-        storeTgtgConfig(updatedConfig)
-
-        val session = updatedConfig.session
+        updateConfig { it.copy(correlationId = UUID.randomUUID().toString()) }
+        val session = getConfig().session
         return if (session?.refreshToken != null) {
             refreshToken()
         } else {
@@ -147,69 +112,55 @@ class TgtgApiClient(
         }
     }
 
-    private suspend fun refreshToken(): Boolean {
-        val config = getTgtgConfig()
-        val refreshToken = config.session?.refreshToken ?: return false
-
-        val request = RefreshTokenRequest(refreshToken = refreshToken)
-
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}token/v1/refresh") {
-                setBody(json.encodeToString(RefreshTokenRequest.serializer(), request))
-            }
-
-        val bodyText = response.bodyAsText()
-        val tokenResponse = json.decodeFromString(RefreshTokenResponse.serializer(), bodyText)
-
-        tokenResponse.accessToken?.let { accessToken ->
-            updateSession(accessToken)
-            return true
-        }
-
-        return false
-    }
-
     suspend fun listItems(request: ListItemsRequest): ListItemsResponse? {
-        val config = getTgtgConfig()
-        val session = config.session
+        val session = getConfig().session
         if (session?.refreshToken == null) {
             logRepository.info("You are not logged in.")
             return null
         }
+        return httpExecutor.postWith403Retry(
+            path = "item/v8/",
+            authHeader = "Bearer ${session.accessToken}",
+            bodyBuilder = { json.encodeToString(ListItemsRequest.serializer(), request) },
+            decode = { body -> json.decodeFromString(ListItemsResponse.serializer(), body) },
+        )
+    }
 
-        val httpClient = createHttpClient()
-        val response =
-            httpClient.post("${baseUrl}item/v8/") {
-                headers[HttpHeaders.Authorization] = "Bearer ${session.accessToken}"
-                setBody(json.encodeToString(ListItemsRequest.serializer(), request))
-            }
-
-        val bodyText = response.bodyAsText()
-        return json.decodeFromString(ListItemsResponse.serializer(), bodyText)
+    private suspend fun refreshToken(): Boolean {
+        val refreshToken = getConfig().session?.refreshToken ?: return false
+        val request = RefreshTokenRequest(refreshToken = refreshToken)
+        val tokenResponse =
+            httpExecutor.postWith403Retry(
+                path = "token/v1/refresh",
+                bodyBuilder = { json.encodeToString(RefreshTokenRequest.serializer(), request) },
+                decode = { body -> json.decodeFromString(RefreshTokenResponse.serializer(), body) },
+            )
+        tokenResponse?.accessToken?.let { accessToken ->
+            updateSession(accessToken)
+            return true
+        }
+        return false
     }
 
     private suspend fun createSession(
         accessToken: String,
         refreshToken: String,
     ) {
-        val currentConfig = getTgtgConfig()
-        val session =
-            TgtgSession(
-                accessToken = accessToken,
-                refreshToken = refreshToken,
+        updateConfig { current ->
+            current.copy(
+                session =
+                    TgtgSession(
+                        accessToken = accessToken,
+                        refreshToken = refreshToken,
+                    ),
             )
-        val updatedConfig = currentConfig.copy(session = session)
-        storeTgtgConfig(updatedConfig)
+        }
     }
 
     private suspend fun updateSession(accessToken: String) {
-        val currentConfig = getTgtgConfig()
-        val currentSession = currentConfig.session
-        if (currentSession != null) {
-            val updatedSession = currentSession.copy(accessToken = accessToken)
-            val updatedConfig = currentConfig.copy(session = updatedSession)
-            storeTgtgConfig(updatedConfig)
+        updateConfig { current ->
+            val session = current.session ?: return@updateConfig current
+            current.copy(session = session.copy(accessToken = accessToken))
         }
     }
 }
