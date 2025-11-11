@@ -32,25 +32,29 @@ git clone https://github.com/Cereal-Automation/Script-Monitoring.git
 
 ### Creating a release
 
-First update the script version in `src/main/resources/manifest.json`
-
 #### Build binary using GitHub Actions
 
-Next, the easiest way to build the script binary is by creating a git tag. This will trigger GitHub Actions to build a
-jar and
-obfuscate it. This jar is uploaded as artifact and is therefore available in
-the [GitHub Actions Artifacts](https://docs.github.com/en/actions/managing-workflow-runs/downloading-workflow-artifacts)
-section.
+To create a release, use the following steps:
+
+1. Create a git tag in the format `script-<module>:<version>` (e.g., `script-sample:1.0.0`).
+    - The `<module>` corresponds to the script module name.
+    - The `<version>` is the version number of the release.
+
+2. Push the tag to the repository. This will trigger the GitHub Actions workflow to:
+    - Build the JAR file for the specified module.
+    - Update the `version_code` in the `manifest.json` file dynamically based on the version (e.g., `1.0.0` becomes
+      `100`).
+    - Upload the JAR file as an artifact in the GitHub Actions run.
 
 #### Build binary manually
 
-If you are not using GitHub (Actions) or don't want to use this way of creating a jar you can execute
-the following command locally or in your custom CI pipeline to get a jar that can be used as a release
-in the Cereal Marketplace:
+If you prefer to build the binary manually, you can run the following command locally:
 
-* `./gradlew :[script-module]:scriptJar`
+```sh
+./gradlew :[script-module]:scriptJar
+```
 
-The jar can be found in the `build/obfuscated` folder.
+The resulting JAR file will be located in the `build/obfuscated` folder.
 
 ### CI/CD
 
@@ -61,12 +65,12 @@ A GitHub actions configuration is included in this repository. It contains the f
 
 ## Modules
 
-| Module             | Description                                                                                                                                  |
-|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| command            | Contains the command definition and an entry point to easily execute one or more commands.                                                   |
-| command-monitoring | Implements the monitoring command used by scripts set up as monitors.                                                                       |
-| script-common      | Defines the common dependencies for scripts implemented in this repository and contains code useful for setting up a monitoring script.      |
-| script-*           | The actual scripts made available in the Cereal marketplace.                                                                                |
+| Module             | Description                                                                                                                             |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| command            | Contains the command definition and an entry point to easily execute one or more commands.                                              |
+| command-monitoring | Implements the monitoring command used by scripts set up as monitors.                                                                   |
+| script-common      | Defines the common dependencies for scripts implemented in this repository and contains code useful for setting up a monitoring script. |
+| script-*           | The actual scripts made available in the Cereal marketplace.                                                                            |
 
 ## Tips
 
@@ -77,7 +81,8 @@ A GitHub actions configuration is included in this repository. It contains the f
 
 ### 1. OpenAPI Specification
 
-Place the updated Stockx OpenAPI JSON file ([found here](https://developer.stockx.com/openapi/reference/overview)) inside the root `specs/` directory: `specs/stockx.json`.
+Place the updated Stockx OpenAPI JSON file ([found here](https://developer.stockx.com/openapi/reference/overview))
+inside the root `specs/` directory: `specs/stockx.json`.
 
 ## 2. Generating the Client
 
