@@ -1,0 +1,45 @@
+name: Release Script Jar
+
+on:
+  push:
+    tags:
+      - "script-*:v*.*.*"
+      - "script-*:*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Extract module and version from tag
+        id: extract
+        run: |
+          TAG=$(echo $GITHUB_REF_NAME)
+          MODULE=$(echo $TAG | cut -d':' -f1)
+          VERSION=$(echo $TAG | cut -d':' -f2)
+          echo "MODULE=$MODULE" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Build jar
+        run: |
+          ./gradlew :$MODULE:clean :$MODULE:build
+
+      - name: Publish jar
+        run: |
+          mkdir -p release-jars
+          cp $MODULE/build/libs/*.jar release-jars/
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.MODULE }}-jars
+          path: release-jars/
