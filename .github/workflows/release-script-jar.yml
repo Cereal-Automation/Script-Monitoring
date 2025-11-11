@@ -3,7 +3,6 @@ name: Release Script Jar
 on:
   push:
     tags:
-      - "script-*:v*.*.*"
       - "script-*:*.*.*"
 
 jobs:
