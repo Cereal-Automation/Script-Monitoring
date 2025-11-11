@@ -17,7 +17,7 @@ interface TgtgConfiguration : BaseConfiguration {
         name = "Latitude",
         description =
             "Latitude coordinate for your location (e.g., 52.3676 for Amsterdam). To find it use a lookup " +
-                    "site such as https://latlong.net.",
+                "site such as https://latlong.net.",
     )
     fun latitude(): Double
 
@@ -26,7 +26,7 @@ interface TgtgConfiguration : BaseConfiguration {
         name = "Longitude",
         description =
             "Longitude coordinate for your location (e.g., 4.9041 for Amsterdam). To find it use a lookup " +
-                    "site such as https://latlong.net.",
+                "site such as https://latlong.net.",
     )
     fun longitude(): Double
 
@@ -42,7 +42,7 @@ interface TgtgConfiguration : BaseConfiguration {
         name = "Proxies",
         description =
             "The proxy to use when accessing the TGTG API. If multiple proxies are available, " +
-                    "they will be rotated after each run.",
+                "they will be rotated after each run.",
     )
     fun proxy(): RandomProxy?
 
