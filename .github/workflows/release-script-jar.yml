@@ -37,7 +37,7 @@ jobs:
 
       - name: Build jar
         run: |
-          ./gradlew :$MODULE:clean :$MODULE:build
+          ./gradlew :$MODULE:clean :$MODULE:scriptJar
 
       - name: Publish jar and mapping
         run: |
