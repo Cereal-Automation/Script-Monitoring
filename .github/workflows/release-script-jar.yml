@@ -39,13 +39,13 @@ jobs:
         run: |
           ./gradlew :$MODULE:clean :$MODULE:build
 
-      - name: Publish jar
+      - name: Publish jar and mapping
         run: |
-          mkdir -p release-jars
-          cp $MODULE/build/libs/*.jar release-jars/
+          mkdir -p release-artifacts
+          cp -r $MODULE/build/obfuscated/* release-artifacts/
 
       - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.MODULE }}-jars
-          path: release-jars/
+          name: ${{ env.MODULE }}-artifacts
+          path: release-artifacts/
