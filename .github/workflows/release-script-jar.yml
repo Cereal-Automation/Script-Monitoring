@@ -28,6 +28,13 @@ jobs:
           echo "MODULE=$MODULE" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Update version_code in manifest
+        run: |
+          VERSION_CODE=$(echo $VERSION | awk -F. '{print $1 * 100 + $2 * 10 + $3}')
+          MANIFEST_PATH=$MODULE/src/main/resources/manifest.json
+          jq --argjson version_code "$VERSION_CODE" '.version_code = $version_code' $MANIFEST_PATH > tmp_manifest.json
+          mv tmp_manifest.json $MANIFEST_PATH
+
       - name: Build jar
         run: |
           ./gradlew :$MODULE:clean :$MODULE:build
