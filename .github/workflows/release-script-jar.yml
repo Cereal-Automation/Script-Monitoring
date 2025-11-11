@@ -3,7 +3,7 @@ name: Release Script Jar
 on:
   push:
     tags:
-      - "script-*:*.*.*"
+      - "script-*/[0-9]*.[0-9]*.[0-9]*"
 
 jobs:
   build:
@@ -23,8 +23,8 @@ jobs:
         id: extract
         run: |
           TAG=$(echo $GITHUB_REF_NAME)
-          MODULE=$(echo $TAG | cut -d':' -f1)
-          VERSION=$(echo $TAG | cut -d':' -f2)
+          MODULE=$(echo $TAG | cut -d'/' -f1)
+          VERSION=$(echo $TAG | cut -d'/' -f2)
           echo "MODULE=$MODULE" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
