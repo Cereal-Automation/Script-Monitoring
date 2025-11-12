@@ -4,7 +4,18 @@ This repository contains the source code of the free scripts published on
 the [marketplace](https://marketplace.cereal-automation.com)
 of the [Cereal Automation](https://www.cereal-automation.com/) platform.
 
-## Getting Started
+## Available Scripts in the Marketplace
+
+| Script Name | URL                                                                                      | Description                                                            |
+|-------------|------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| TGTG Script | [TGTG Script](https://marketplace.cereal-automation.com/scripts/com.cereal.monitor.tgtg) | Monitors and automates tasks related to the "Too Good To Go" platform. |
+
+### Requirements
+
+To run any of the scripts, you need the Cereal Client. Download it
+from [Cereal Automation](https://www.cereal-automation.com/download/).
+
+## Development Getting Started
 
 ### Prerequisites
 
