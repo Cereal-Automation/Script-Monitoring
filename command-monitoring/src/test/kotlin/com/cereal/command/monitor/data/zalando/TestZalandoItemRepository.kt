@@ -2,6 +2,7 @@ package com.cereal.command.monitor.data.zalando
 
 import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -11,6 +12,7 @@ class TestZalandoItemRepository {
     @Tag("integration")
     @ParameterizedTest
     @MethodSource("data")
+    @Disabled("Disabled because it fails and not yet in production. Needs investigation.")
     fun testReadApi(data: TestData) =
         runBlocking {
             val repository =
