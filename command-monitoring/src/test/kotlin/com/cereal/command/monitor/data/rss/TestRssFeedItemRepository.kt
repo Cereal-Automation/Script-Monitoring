@@ -68,6 +68,8 @@ class TestRssFeedItemRepository {
                         categories = listOf(),
                         itunesItemData = null,
                         commentsUrl = null,
+                        youtubeItemData = null,
+                        rawEnclosure = null,
                     ),
                 ),
             title = null,
@@ -77,5 +79,6 @@ class TestRssFeedItemRepository {
             lastBuildDate = null,
             updatePeriod = null,
             itunesChannelData = null,
+            youtubeChannelData = null,
         )
 }

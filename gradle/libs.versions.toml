@@ -1,44 +1,44 @@
 [versions]
 # Kotlin
-kotlin = "2.2.0"
+kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 kotlinx-datetime = "0.7.1"
 
 # Gradle Plugins
-gradleup-shadow = "8.3.8"
-ktlint = "12.1.1"
-openapi-generator = "7.15.0"
-foojay-resolver = "0.5.0"
-proguard = "7.7.0"
+gradleup-shadow = "8.3.9"
+ktlint = "12.2.0"
+openapi-generator = "7.16.0"
+foojay-resolver = "0.6.0"
+proguard = "7.8.0"
 
 # Testing
-junit-jupiter = "5.10.0"
-mockk = "1.14.5"
+junit-jupiter = "5.11.0"
+mockk = "1.14.6"
 kotlintest = "3.4.2"
 
 # Cereal Automation
-cereal-sdk = "1.7.0"
+cereal-sdk = "1.7.2"
 cereal-licensing = "1.7.1"
 cereal-test-utils = "1.7.0"
 
 # HTTP Client
-ktor = "3.2.3"
-logging-interceptor = "5.1.0"
+ktor = "3.3.0"
+logging-interceptor = "5.2.0"
 
 # Web Scraping & Parsing
-htmlunit = "4.7.0"
-jsoup = "1.19.1"
-rssparser = "6.0.8"
+htmlunit = "4.8.0"
+jsoup = "1.21.2"
+rssparser = "6.1.0"
 
 # JSON Processing
-moshi = "1.15.1"
+moshi = "1.15.2"
 
 # Spotless (for stockx-api-client)
 spotless = "6.25.0"
 
 # Kotlin Gradle Plugin (for stockx-api-client)
-kotlin-gradle-plugin = "1.9.23"
+kotlin-gradle-plugin = "1.9.24"
 
 [libraries]
 # Kotlin
