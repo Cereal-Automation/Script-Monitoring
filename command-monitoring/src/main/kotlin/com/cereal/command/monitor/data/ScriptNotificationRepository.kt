@@ -25,6 +25,7 @@ class ScriptNotificationRepository(
     private val discordUsername: String,
     private val discordAvatarUrl: String? = null,
     private val discordColor: String = "16777215",
+    private val discordWebhookUrl: String? = null,
 ) : NotificationRepository {
     override suspend fun notify(
         message: String,
@@ -38,6 +39,7 @@ class ScriptNotificationRepository(
                 discordMessage {
                     username = discordUsername
                     avatarUrl = discordAvatarUrl
+                    webhookUrl = discordWebhookUrl
                     embed {
                         title = message
                         description = item.description
