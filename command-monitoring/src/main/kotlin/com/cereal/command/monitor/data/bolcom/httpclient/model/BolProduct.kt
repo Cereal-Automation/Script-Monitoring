@@ -1,8 +1,5 @@
 package com.cereal.command.monitor.data.bolcom.httpclient.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class BolProduct(
     val productId: String,
     val slug: String?,
