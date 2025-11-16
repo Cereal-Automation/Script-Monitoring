@@ -93,7 +93,6 @@ class BolcomWebDataSource(
         if (products.isEmpty()) return emptyList()
 
         return products.mapNotNull { productData -> mapSearchResultToItem(productData) }
-
     }
 
     private fun collectProducts(el: JsonElement): List<BolProduct> {
@@ -318,10 +317,11 @@ class BolcomWebDataSource(
 
         return Item(
             id = productData.productId,
-            url = buildString {
-                append(BOL_COM_BASE_URL)
-                append(productData.slug)
-            },
+            url =
+                buildString {
+                    append(BOL_COM_BASE_URL)
+                    append(productData.slug)
+                },
             name = title,
             description = productData.description,
             imageUrl = productData.imageUrl,
