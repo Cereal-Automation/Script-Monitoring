@@ -38,7 +38,9 @@ class BolcomWebDataSource(
 ) {
     companion object {
         private const val USER_AGENT =
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_2 like Mac OS X) " +
+                "AppleWebKit/605.1.15 (KHTML, like Gecko) " +
+                "Version/26.0 Mobile/15E148 Safari/604.1"
         private const val BOL_COM_BASE_URL = "https://www.bol.com"
     }
 
@@ -72,23 +74,23 @@ class BolcomWebDataSource(
      * @return A list of `Item` objects corresponding to the products found for the given EAN. Returns an empty list if no products are found or in case of an error.
      */
     suspend fun fetchItemsByEan(ean: String): List<Item> {
-            val response =
-                performRequest(
-                    url = "$BOL_COM_BASE_URL/nl/nl/s.data?searchtext=$ean",
-                    method = HttpMethod.Get,
-                ) {}
+        val response =
+            performRequest(
+                url = "$BOL_COM_BASE_URL/nl/nl/s.data?searchtext=$ean",
+                method = HttpMethod.Get,
+            ) {}
 
-            val raw = response.bodyAsText()
-            val asJson = runCatching { json.parseToJsonElement(raw) }.getOrNull()
-            val decoded =
-                if (asJson is JsonArray) {
-                    tryDecodeInternedTable(raw)
-                } else {
-                    asJson
-                }
-            val normalized: JsonElement = decoded ?: asJson ?: JsonNull
-            val products = collectProducts(normalized)
-            if (products.isEmpty()) return emptyList()
+        val raw = response.bodyAsText()
+        val asJson = runCatching { json.parseToJsonElement(raw) }.getOrNull()
+        val decoded =
+            if (asJson is JsonArray) {
+                tryDecodeInternedTable(raw)
+            } else {
+                asJson
+            }
+        val normalized: JsonElement = decoded ?: asJson ?: JsonNull
+        val products = collectProducts(normalized)
+        if (products.isEmpty()) return emptyList()
 
         return products.mapNotNull { productData -> mapSearchResultToItem(productData) }
 
