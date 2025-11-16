@@ -5,9 +5,7 @@ import com.cereal.command.monitor.data.bolcom.httpclient.exception.ProductUnavai
 import com.cereal.command.monitor.data.bolcom.httpclient.exception.ProxyUnavailableException
 import com.cereal.command.monitor.data.bolcom.httpclient.model.BolProduct
 import com.cereal.command.monitor.data.bolcom.httpclient.model.BolcomSearchResponse
-import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
-import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.HttpClient
@@ -27,9 +25,6 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.decodeFromJsonElement
-import java.math.BigDecimal
-import java.text.NumberFormat
-import java.util.Locale
 
 class BolcomWebDataSource(
     private val logRepository: LogRepository,
@@ -51,6 +46,7 @@ class BolcomWebDataSource(
             explicitNulls = false
         }
     }
+    private val productMapper = BolcomProductMapper(baseUrl = BOL_COM_BASE_URL)
 
     private suspend fun getHttpClient(): HttpClient =
         client ?: run {
@@ -88,165 +84,19 @@ class BolcomWebDataSource(
                 asJson
             }
         val normalized: JsonElement = decoded ?: asJson ?: JsonNull
-        val products = collectProducts(normalized)
+        val products = extractProducts(normalized)
         if (products.isEmpty()) return emptyList()
 
-        return products.mapNotNull { productData -> mapSearchResultToItem(productData) }
+        return products.mapNotNull { productData -> productMapper.mapBolProductToItem(productData) }
     }
 
-    private fun collectProducts(el: JsonElement): List<BolProduct> {
+    private fun extractProducts(el: JsonElement): List<BolProduct> {
         val response =
             runCatching {
                 json.decodeFromJsonElement<BolcomSearchResponse>(el)
             }.getOrNull() ?: return emptyList()
 
-        val template =
-            response.customer
-                ?.basket
-                ?.totalQuantity
-                ?.routesSearchPage
-                ?.data
-                ?.template
-                ?: return emptyList()
-
-        val products = mutableListOf<BolProduct>()
-
-        for (region in template.regions) {
-            for (slot in region.slots) {
-                if (slot.type == "ProductItem") {
-                    val product = slot.props?.product ?: continue
-                    val productId = product.id ?: continue
-
-                    val brand =
-                        product.relatedParties
-                            .firstOrNull { it.role == "BRAND" }
-                            ?.party?.name
-
-                    val imageUrl =
-                        product.assets
-                            .firstOrNull()
-                            ?.renditions?.firstOrNull()
-                            ?.url
-
-                    val description =
-                        product.attributes
-                            .firstOrNull { it.name == "Description" }
-                            ?.values?.firstOrNull()
-                            ?.value
-
-                    val bestOffer = product.bestSellingOffer
-                    val price = bestOffer?.sellingPrice?.price?.amount
-                    val discount = bestOffer?.sellingPriceDiscountOnStrikethroughPrice?.amount?.amount
-                    val regularPrice = bestOffer?.strikethroughPrice?.price?.amount
-                    val sellerName = bestOffer?.retailer?.name ?: bestOffer?.retailer?.id
-
-                    val deliveryDesc = bestOffer?.bestDeliveryOption?.deliveryDescription
-                    val orderable =
-                        (
-                            deliveryDesc != null &&
-                                (
-                                    deliveryDesc.contains("Op voorraad", ignoreCase = true) ||
-                                        deliveryDesc.contains("Voor 23:00", ignoreCase = true) ||
-                                        deliveryDesc.contains("morgen in huis", ignoreCase = true)
-                                )
-                        ) ||
-                            bestOffer?.deliveredWithin48Hours == true
-
-                    products.add(
-                        BolProduct(
-                            productId = productId,
-                            title = product.title,
-                            slug = product.url,
-                            brand = brand,
-                            price = price,
-                            discount = discount,
-                            regularPrice = regularPrice,
-                            orderable = orderable,
-                            imageUrl = imageUrl,
-                            seller = sellerName,
-                            description = description,
-                        ),
-                    )
-                }
-            }
-        }
-
-        return products
-    }
-
-    private fun mapSearchResultToItem(productData: BolProduct): Item? {
-        val title = productData.title ?: return null
-        val properties = mutableListOf<ItemProperty>()
-
-        properties.add(
-            ItemProperty.Stock(
-                isInStock = productData.orderable,
-                amount = null,
-                level = if (productData.orderable) ":white_check_mark:" else ":x:",
-            ),
-        )
-
-        productData.seller?.let { seller ->
-            properties.add(
-                ItemProperty.Custom(
-                    name = "Seller",
-                    value = seller,
-                ),
-            )
-        }
-
-        productData.brand?.let { brand ->
-            if (brand.isNotBlank()) {
-                properties.add(ItemProperty.Custom(name = "Brand", value = brand))
-            }
-        }
-
-        productData.price?.let { price ->
-            properties.add(
-                ItemProperty.Custom(
-                    name = "Price",
-                    value =
-                        buildString {
-                            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-                            currencyFormatter.currency = java.util.Currency.getInstance(Currency.EUR.code)
-
-                            append(currencyFormatter.format(BigDecimal.valueOf(price)))
-                            productData.regularPrice?.let { regularPrice ->
-                                append(" ")
-                                append("~~${currencyFormatter.format(BigDecimal.valueOf(regularPrice))}~~")
-                            }
-                        },
-                ),
-            )
-        }
-
-        productData.discount?.let { price ->
-            properties.add(
-                ItemProperty.Custom(
-                    name = "Discount",
-                    value =
-                        buildString {
-                            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-                            currencyFormatter.currency = java.util.Currency.getInstance(Currency.EUR.code)
-                            append(currencyFormatter.format(BigDecimal.valueOf(price)))
-                        },
-                ),
-            )
-        }
-
-        return Item(
-            id = productData.productId,
-            url =
-                buildString {
-                    append(BOL_COM_BASE_URL)
-                    append(productData.slug)
-                },
-            name = title,
-            description = productData.description,
-            imageUrl = productData.imageUrl,
-            variants = emptyList(),
-            properties = properties,
-        )
+        return productMapper.extractProductsFromResponse(response)
     }
 
     private suspend fun performRequest(
