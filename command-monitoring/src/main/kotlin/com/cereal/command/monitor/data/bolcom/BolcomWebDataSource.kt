@@ -89,12 +89,6 @@ class BolcomWebDataSource(
                 }
             val normalized: JsonElement = decoded ?: asJson ?: JsonNull
             val products = collectProducts(normalized)
-
-            logRepository.debug("Found ${products.size} products")
-            products.forEach { p ->
-                logRepository.debug("Product: id=${p.productId}, title=${p.title}, slug=${p.slug}, brand=${p.brand}")
-            }
-
             if (products.isEmpty()) return emptyList()
 
         return products.mapNotNull { productData -> mapSearchResultToItem(productData) }
