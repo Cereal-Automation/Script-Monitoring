@@ -35,7 +35,6 @@ import java.util.Locale
 class BolcomWebDataSource(
     private val logRepository: LogRepository,
     private val randomProxy: RandomProxy?,
-    private val notifyOnlyBolComSeller: Boolean,
 ) {
     companion object {
         private const val USER_AGENT =
@@ -257,10 +256,6 @@ class BolcomWebDataSource(
 
     private fun mapSearchResultToItem(productData: BolProduct): Item? {
         val title = productData.title ?: return null
-        val isBolComSeller = productData.seller?.equals("bol", ignoreCase = true) == true
-
-        if (notifyOnlyBolComSeller && !isBolComSeller) return null
-
         val properties = mutableListOf<ItemProperty>()
 
         properties.add(
@@ -271,12 +266,14 @@ class BolcomWebDataSource(
             ),
         )
 
-        properties.add(
-            ItemProperty.Custom(
-                name = "Sold by Bol.com",
-                value = if (isBolComSeller) ":white_check_mark:" else ":x:",
-            ),
-        )
+        productData.seller?.let { seller ->
+            properties.add(
+                ItemProperty.Custom(
+                    name = "Seller",
+                    value = seller,
+                ),
+            )
+        }
 
         productData.brand?.let { brand ->
             if (brand.isNotBlank()) {
