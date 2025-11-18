@@ -76,7 +76,7 @@ class BolcomProductMapper(
             slug = product.url,
             brand = brand,
             price = price,
-            discount = discount,
+            discount = discount?.toDoubleOrNull(),
             regularPrice = regularPrice,
             orderable = orderable,
             imageUrl = imageUrl,

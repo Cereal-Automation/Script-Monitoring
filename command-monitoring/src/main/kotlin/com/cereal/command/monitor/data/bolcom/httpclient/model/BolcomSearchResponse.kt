@@ -123,7 +123,7 @@ data class BolcomSearchResponse(
 
     @Serializable
     data class DiscountAmount(
-        val amount: Double? = null,
+        val amount: String? = null,
     )
 
     @Serializable
