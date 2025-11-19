@@ -61,7 +61,7 @@ class ExecuteCommandsInteractor(
                             currentContext = emitted
                             emit(currentContext)
                         }
-                    
+
                     // Log waiting time before next run
                     if (decision is RunDecision.RunRepeat && decision.startDelay.isPositive()) {
                         val seconds = decision.startDelay.inWholeSeconds
