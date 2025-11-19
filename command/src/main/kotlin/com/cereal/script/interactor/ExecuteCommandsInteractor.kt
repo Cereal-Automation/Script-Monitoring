@@ -61,6 +61,12 @@ class ExecuteCommandsInteractor(
                             currentContext = emitted
                             emit(currentContext)
                         }
+
+                    // Log waiting time before next run
+                    if (decision is RunDecision.RunRepeat && decision.startDelay.isPositive()) {
+                        val seconds = decision.startDelay.inWholeSeconds
+                        logRepository.info("Waiting $seconds seconds before running again.")
+                    }
                 } while (decision is RunDecision.RunRepeat)
             }
         }.retryWhen { cause, _ ->
