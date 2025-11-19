@@ -76,7 +76,7 @@ internal class DataDomeCookieManager(
             val appVersion = playStoreApiClient.getAppVersion()
             val cid = UUID.randomUUID().toString().replace("-", "").take(64)
             val requestUrlEncoded = URLEncoder.encode("$baseUrl$originalRequestPath", StandardCharsets.UTF_8.toString())
-            val userAgent = "TGTG/$appVersion Dalvik/2.1.0 (Linux; U; Android 14; Pixel 7 Pro Build/UQ1A.240105.004)"
+            val userAgent = TgtgConstants.USER_AGENT_TEMPLATE.format(appVersion)
             val timestamp = System.currentTimeMillis()
             val eventsJson =
                 "[%7B%22id%22:1,%22message%22:%22response validation%22,%22source%22:%22sdk%22,%22date%22:$timestamp%7D]"
