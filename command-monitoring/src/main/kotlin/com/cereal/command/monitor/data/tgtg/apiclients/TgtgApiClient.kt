@@ -60,7 +60,7 @@ class TgtgApiClient(
                 HttpHeaders.Accept to "application/json",
                 HttpHeaders.AcceptLanguage to "en-US",
                 HttpHeaders.AcceptEncoding to "gzip",
-                HttpHeaders.UserAgent to "TGTG/$appVersion Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
+                HttpHeaders.UserAgent to TgtgConstants.USER_AGENT_TEMPLATE.format(appVersion),
                 "x-correlation-id" to config.correlationId,
             )
         val cookieStorage: CookiesStorage = dataDomeManager.createCookieStorage(config)
