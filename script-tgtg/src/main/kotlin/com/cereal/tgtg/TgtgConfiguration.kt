@@ -9,6 +9,7 @@ interface TgtgConfiguration : BaseConfiguration {
         keyName = KEY_EMAIL,
         name = "Email",
         description = "Your TGTG account email address for authentication.",
+        isScriptIdentifier = true,
     )
     fun email(): String
 
