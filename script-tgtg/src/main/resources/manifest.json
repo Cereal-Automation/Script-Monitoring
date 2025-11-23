@@ -2,5 +2,6 @@
   "package_name": "com.cereal.monitor.tgtg",
   "name": "TGTG Monitor",
   "version_code": 2,
-  "script": "com.cereal.tgtg.TgtgScript"
+  "script": "com.cereal.tgtg.TgtgScript",
+  "instructions": "This script monitors your favorite stores on Too Good To Go. Requirements:\n1. A Too Good To Go account.\n2. You must have added stores to your favorites in the TGTG app.\n3. Configure your latitude and longitude to be within range of your favorite stores."
 }
