@@ -30,6 +30,18 @@ data class AuthPollRequest(
 )
 
 @Serializable
+data class AuthByRequestPinRequest(
+    @SerialName("device_type")
+    val deviceType: String,
+    @SerialName("email")
+    val email: String,
+    @SerialName("request_pin")
+    val requestPin: String,
+    @SerialName("request_polling_id")
+    val requestPollingId: String,
+)
+
+@Serializable
 data class AuthPollResponse(
     @SerialName("access_token")
     val accessToken: String? = null,
