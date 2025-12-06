@@ -31,7 +31,7 @@ An authentication email has been sent to your TGTG account.
 IMPORTANT INSTRUCTIONS:
 1. Check your email inbox for a message from Too Good To Go
 2. Open the email and look for the authentication PIN/code
-3. Enter the PIN/code in the input field below
+3. Enter the PIN/code in the dialog
 
 """
     }
