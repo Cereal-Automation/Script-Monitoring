@@ -18,7 +18,7 @@ mockk = "1.14.6"
 kotlintest = "3.4.2"
 
 # Cereal Automation
-cereal-sdk = "1.7.2"
+cereal-sdk = "1.7.3"
 cereal-licensing = "1.7.1"
 cereal-test-utils = "1.7.0"
 
