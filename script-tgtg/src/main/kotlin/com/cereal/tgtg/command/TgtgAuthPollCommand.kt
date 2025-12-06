@@ -61,7 +61,7 @@ IMPORTANT INSTRUCTIONS:
             try {
                 userInteractionComponent.requestInput(
                     "TGTG Authentication Code",
-                    "Please enter the code received in the authentication email:"
+                    "Please enter the code received in the authentication email:",
                 )
             } catch (e: Exception) {
                 throw UnrecoverableException("Failed to request code: ${e.message}", e)
