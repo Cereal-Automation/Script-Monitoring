@@ -27,4 +27,13 @@ class TgtgAuthRepositoryImpl(
         val response = tgtgApiClient.authPoll(pollingId, email)
         return response?.accessToken != null && response.refreshToken != null
     }
+
+    override suspend fun authByRequestPin(
+        pollingId: String,
+        pin: String,
+        email: String,
+    ): Boolean {
+        val response = tgtgApiClient.authByRequestPin(pollingId, pin, email)
+        return response?.accessToken != null && response.refreshToken != null
+    }
 }

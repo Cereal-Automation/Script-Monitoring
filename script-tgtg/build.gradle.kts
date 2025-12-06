@@ -3,8 +3,12 @@ plugins {
 }
 
 dependencies {
-    implementation("com.cereal-automation:cereal-sdk:1.7.0:all")
-    implementation("com.cereal-automation:cereal-licensing:1.7.1")
+    implementation(libs.cereal.sdk) {
+        artifact {
+            classifier = "all"
+        }
+    }
+    implementation(libs.bundles.cereal.base)
 
     implementation(project(":script-common"))
     implementation(project(":command"))

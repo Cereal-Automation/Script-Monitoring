@@ -30,11 +30,8 @@ An authentication email has been sent to your TGTG account.
 
 IMPORTANT INSTRUCTIONS:
 1. Check your email inbox for a message from Too Good To Go
-2. Open the email on your PC/computer (NOT on your phone)
-3. Click the authentication link in the email
-4. Do NOT open the email on a phone with the TGTG app installed
-
-Press Continue here after you clicked the link.
+2. Open the email and look for the authentication PIN/code
+3. Enter the PIN/code in the dialog
 
 """
     }
@@ -59,16 +56,20 @@ Press Continue here after you clicked the link.
             context.put(authState.copy(instructionsShown = true))
         }
 
-        // Wait for the user to confirm they clicked the email link
-        try {
-            userInteractionComponent.showContinueButton()
-        } catch (e: Exception) {
-            throw UnrecoverableException("Failed to show continue button: ${e.message}", e)
-        }
+        // Request the code from the user
+        val pin =
+            try {
+                userInteractionComponent.requestInput(
+                    "TGTG Authentication Code",
+                    "Please enter the code received in the authentication email:",
+                )
+            } catch (e: Exception) {
+                throw UnrecoverableException("Failed to request code: ${e.message}", e)
+            }
 
-        // After the user pressed continue, check authentication status
+        // Authenticate with the PIN
         try {
-            val isAuthenticated = tgtgAuthRepository.authPoll(authState.pollingId, configuration.email())
+            val isAuthenticated = tgtgAuthRepository.authByRequestPin(authState.pollingId, pin, configuration.email())
             if (isAuthenticated) {
                 logRepository.info("Authentication successful! You are now logged in to TGTG.")
                 context.store.removeIf { it is TgtgAuthState }
@@ -76,7 +77,7 @@ Press Continue here after you clicked the link.
             } else {
                 // Let the user try again on the next iteration.
                 logRepository.info(
-                    "Authentication not completed. If you did not click the email link yet, please do so and press Continue to try again.",
+                    "Authentication failed. Please check the code and try again.",
                 )
                 return
             }

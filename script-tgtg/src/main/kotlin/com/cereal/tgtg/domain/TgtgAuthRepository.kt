@@ -32,4 +32,18 @@ interface TgtgAuthRepository {
         pollingId: String,
         email: String,
     ): Boolean
+
+    /**
+     * Authenticates using the PIN received in the email.
+     *
+     * @param pollingId The polling ID obtained from authByEmail()
+     * @param pin The PIN received in the email
+     * @param email The email address used for authentication
+     * @return true if authentication is complete with valid tokens, false otherwise
+     */
+    suspend fun authByRequestPin(
+        pollingId: String,
+        pin: String,
+        email: String,
+    ): Boolean
 }

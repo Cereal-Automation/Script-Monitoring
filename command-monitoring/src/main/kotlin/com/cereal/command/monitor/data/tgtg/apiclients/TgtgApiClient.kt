@@ -6,6 +6,7 @@ import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.TgtgSession
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByEmailResponse
+import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthByRequestPinRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollRequest
 import com.cereal.command.monitor.data.tgtg.apiclients.models.AuthPollResponse
 import com.cereal.command.monitor.data.tgtg.apiclients.models.ListItemsRequest
@@ -94,6 +95,30 @@ class TgtgApiClient(
             httpExecutor.postWith403Retry(
                 path = "auth/v5/authByRequestPollingId",
                 bodyBuilder = { json.encodeToString(AuthPollRequest.serializer(), request) },
+                decode = { body -> json.decodeFromString(AuthPollResponse.serializer(), body) },
+            )
+        // Create session if tokens present
+        result?.accessToken?.let { at -> result.refreshToken?.let { rt -> createSession(at, rt) } }
+        return result
+    }
+
+    suspend fun authByRequestPin(
+        pollingId: String,
+        pin: String,
+        email: String,
+    ): AuthPollResponse? {
+        val currentConfig = getConfig()
+        val request =
+            AuthByRequestPinRequest(
+                deviceType = currentConfig.deviceType,
+                email = email,
+                requestPin = pin,
+                requestPollingId = pollingId,
+            )
+        val result =
+            httpExecutor.postWith403Retry(
+                path = "auth/v5/authByRequestPin",
+                bodyBuilder = { json.encodeToString(AuthByRequestPinRequest.serializer(), request) },
                 decode = { body -> json.decodeFromString(AuthPollResponse.serializer(), body) },
             )
         // Create session if tokens present
