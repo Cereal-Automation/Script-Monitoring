@@ -10,6 +10,7 @@ interface TgtgConfiguration : BaseConfiguration {
         name = "Email",
         description = "Your TGTG account email address for authentication.",
         isScriptIdentifier = true,
+        stateModifier = EmailStateModifier::class,
     )
     fun email(): String
 
@@ -19,6 +20,7 @@ interface TgtgConfiguration : BaseConfiguration {
         description =
             "Latitude coordinate for your location (e.g., 52.3676 for Amsterdam). To find it use a lookup " +
                 "site such as https://latlong.net.",
+        stateModifier = LatitudeStateModifier::class,
     )
     fun latitude(): Double
 
@@ -28,6 +30,7 @@ interface TgtgConfiguration : BaseConfiguration {
         description =
             "Longitude coordinate for your location (e.g., 4.9041 for Amsterdam). To find it use a lookup " +
                 "site such as https://latlong.net.",
+        stateModifier = LongitudeStateModifier::class,
     )
     fun longitude(): Double
 
@@ -35,6 +38,7 @@ interface TgtgConfiguration : BaseConfiguration {
         keyName = KEY_RADIUS,
         name = "Search Radius (meters)",
         description = "Search radius in meters around your location. Default is 50000 (50km).",
+        stateModifier = RadiusStateModifier::class,
     )
     fun radius(): Int?
 
