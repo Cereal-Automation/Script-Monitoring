@@ -19,7 +19,7 @@ interface TgtgConfiguration : BaseConfiguration {
         name = "Latitude",
         description =
             "Latitude coordinate for your location (e.g., 52.3676 for Amsterdam). To find it use a lookup " +
-                "site such as https://latlong.net.",
+                    "site such as https://latlong.net.",
         stateModifier = LatitudeStateModifier::class,
     )
     fun latitude(): Double
@@ -29,7 +29,7 @@ interface TgtgConfiguration : BaseConfiguration {
         name = "Longitude",
         description =
             "Longitude coordinate for your location (e.g., 4.9041 for Amsterdam). To find it use a lookup " +
-                "site such as https://latlong.net.",
+                    "site such as https://latlong.net.",
         stateModifier = LongitudeStateModifier::class,
     )
     fun longitude(): Double
@@ -37,17 +37,17 @@ interface TgtgConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(
         keyName = KEY_RADIUS,
         name = "Search Radius (meters)",
-        description = "Search radius in meters around your location. Default is 50000 (50km).",
+        description = "Search radius in meters around your location.",
         stateModifier = RadiusStateModifier::class,
     )
-    fun radius(): Int?
+    fun radius(): Int? = 50000
 
     @ScriptConfigurationItem(
         keyName = KEY_RANDOM_PROXY,
         name = "Proxies",
         description =
             "The proxy to use when accessing the TGTG API. If multiple proxies are available, " +
-                "they will be rotated after each run.",
+                    "they will be rotated after each run.",
     )
     fun proxy(): RandomProxy?
 

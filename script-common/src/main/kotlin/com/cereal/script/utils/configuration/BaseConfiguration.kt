@@ -9,10 +9,10 @@ interface BaseConfiguration : ScriptConfiguration {
         name = "Interval",
         description =
             "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 15" +
-                "second, defaults to a random value between 15 and 30 seconds.",
+                "seconds.",
         stateModifier = MonitorIntervalStateModifier::class,
     )
-    fun monitorInterval(): Int?
+    fun monitorInterval(): Int? = 30
 
     companion object {
         const val KEY_MONITOR_INTERVAL = "monitor_interval"
