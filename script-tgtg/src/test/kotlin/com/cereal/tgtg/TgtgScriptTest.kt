@@ -56,6 +56,7 @@ class TgtgScriptTest {
                     every { latitude() } returns 52.3676
                     every { longitude() } returns 4.9041
                     every { radius() } returns 50000
+                    every { favoritesOnly() } returns true
                 }
             val componentProviderFactory = TestComponentProviderFactory()
 
@@ -143,6 +144,27 @@ class TgtgScriptTest {
         }
 
     @Test
+    fun `test execute with favorites only disabled`() =
+        runTest {
+            // Given
+            val script = TgtgScript()
+            val configuration =
+                createMockConfiguration(
+                    favoritesOnly = false,
+                )
+            val componentProvider = createMockComponentProvider()
+            val statusUpdate: suspend (String) -> Unit = mockk(relaxed = true)
+
+            script.onStart(configuration, componentProvider)
+
+            // When
+            val result = script.execute(configuration, componentProvider, statusUpdate)
+
+            // Then
+            assertTrue(result is ExecutionResult.Success || result is ExecutionResult.Error)
+        }
+
+    @Test
     fun `test execute with minimal configuration`() =
         runTest {
             // Given
@@ -168,6 +190,7 @@ class TgtgScriptTest {
         latitude: Double = 52.3676,
         longitude: Double = 4.9041,
         radius: Int? = 50000,
+        favoritesOnly: Boolean = true,
         proxy: RandomProxy? = null,
     ): TgtgConfiguration =
         mockk<TgtgConfiguration>().apply {
@@ -175,6 +198,7 @@ class TgtgScriptTest {
             coEvery { latitude() } returns latitude
             coEvery { longitude() } returns longitude
             coEvery { radius() } returns radius
+            coEvery { favoritesOnly() } returns favoritesOnly
             coEvery { proxy() } returns proxy
             coEvery { monitorInterval() } returns 60 // seconds
         }
