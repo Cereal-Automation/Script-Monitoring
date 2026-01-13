@@ -27,6 +27,7 @@ class TgtgItemRepository(
     private val latitude: Double,
     private val longitude: Double,
     private val radius: Int = 50000,
+    private val favoritesOnly: Boolean = true,
 ) : ItemRepository {
     override suspend fun getItems(nextPageToken: String?): Page {
         // TGTG API doesn't support pagination in the traditional sense
@@ -35,7 +36,7 @@ class TgtgItemRepository(
         val itemsResponse =
             tgtgApiClient.listItems(
                 ListItemsRequest(
-                    favoritesOnly = true,
+                    favoritesOnly = favoritesOnly,
                     origin =
                         ListItemsRequest.Origin(
                             latitude = latitude,
