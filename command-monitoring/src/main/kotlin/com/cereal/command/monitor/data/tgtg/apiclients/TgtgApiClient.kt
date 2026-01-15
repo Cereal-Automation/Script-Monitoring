@@ -18,6 +18,7 @@ import com.cereal.sdk.component.preference.PreferenceComponent
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.cookies.CookiesStorage
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import java.util.UUID
@@ -71,6 +72,8 @@ class TgtgApiClient(
             defaultHeaders = headers,
             cookieStorage = cookieStorage,
             enableRetryPlugin = false,
+            logLevel = LogLevel.BODY,
+            logRepository = logRepository,
         )
     }
 

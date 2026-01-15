@@ -1,6 +1,7 @@
 package com.cereal.command.monitor.data.common.httpclient
 
 import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -17,6 +18,9 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import okhttp3.Authenticator
 import okhttp3.Credentials
 import java.net.InetSocketAddress
@@ -28,6 +32,8 @@ fun defaultHttpClient(
     defaultHeaders: Map<String, Any> = emptyMap(),
     cookieStorage: CookiesStorage = AcceptAllCookiesStorage(),
     enableRetryPlugin: Boolean = false,
+    logLevel: LogLevel = LogLevel.NONE,
+    logRepository: LogRepository? = null,
 ): HttpClient =
     HttpClient(OkHttp) {
         engine {
@@ -68,11 +74,18 @@ fun defaultHttpClient(
         install(Logging) {
             logger =
                 object : Logger {
+                    @OptIn(DelicateCoroutinesApi::class)
                     override fun log(message: String) {
-                        println(message)
+                        if (logRepository != null) {
+                            GlobalScope.launch {
+                                logRepository.debug(message)
+                            }
+                        } else {
+                            println(message)
+                        }
                     }
                 }
-            level = LogLevel.INFO
+            level = logLevel
         }
         install(HttpTimeout) {
             requestTimeoutMillis = timeout.inWholeMilliseconds
