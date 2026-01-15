@@ -72,7 +72,7 @@ class TgtgApiClient(
             defaultHeaders = headers,
             cookieStorage = cookieStorage,
             enableRetryPlugin = false,
-            logLevel = LogLevel.ALL,
+            logLevel = LogLevel.BODY,
             logRepository = logRepository,
         )
     }
