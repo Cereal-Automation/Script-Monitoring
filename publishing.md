@@ -1,6 +1,7 @@
 # Maven Artifacts
 
-This project publishes Maven artifacts for the `command` and `command-monitoring` modules, making them available for use in other projects.
+This project publishes Maven artifacts for the `command` and `command-monitoring` modules, making them available for use
+in other projects.
 
 ## Available Modules
 
@@ -19,11 +20,13 @@ This project publishes Maven artifacts for the `command` and `command-monitoring
 To create Maven artifacts in your local Maven repository (`~/.m2/repository`) with `SNAPSHOT` as version:
 
 #### Publish Both Modules
+
 ```bash
 ./gradlew publishToMavenLocal
 ```
 
 #### Publish Individual Modules
+
 ```bash
 # Publish command module only
 ./gradlew :command:publishToMavenLocal
@@ -33,6 +36,7 @@ To create Maven artifacts in your local Maven repository (`~/.m2/repository`) wi
 ```
 
 #### Publish with Custom Version
+
 ```bash
 # Publish with a specific version
 ./gradlew :command:publishToMavenLocal -PpublishVersion=1.2.3
@@ -51,5 +55,51 @@ repositories {
 dependencies {
     implementation("com.cereal-automation:script-command:SNAPSHOT")
     implementation("com.cereal-automation:script-command-monitoring:SNAPSHOT")
+}
+```
+
+## Using JitPack
+
+### Adding JitPack Repository
+
+Add the JitPack repository to your project's `build.gradle.kts`:
+
+#### Gradle Kotlin DSL
+
+```kotlin
+repositories {
+    maven { url = uri("https://jitpack.io") }
+}
+```
+
+#### Gradle Groovy DSL
+
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+
+#### Maven
+
+```xml
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+### Adding Dependencies
+
+#### Using a Release Tag
+
+If you have a release tag like `1.0.0`:
+
+```kotlin
+dependencies {
+    implementation("com.github.cereal-automation:Script-Monitoring:1.0.0")
 }
 ```
