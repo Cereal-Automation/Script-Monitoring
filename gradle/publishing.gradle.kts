@@ -38,14 +38,6 @@ afterEvaluate {
                 name = "local"
                 url = uri("${rootProject.layout.buildDirectory.get()}/repos")
             }
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/cereal-automation/script-monitoring")
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
-            }
         }
     }
 }
