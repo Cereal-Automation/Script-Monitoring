@@ -4,12 +4,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
-    implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.kotlin.coroutines)
 
     testImplementation(libs.bundles.testing)

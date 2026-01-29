@@ -8,8 +8,6 @@ kotlinx-datetime = "0.7.1"
 # Gradle Plugins
 gradleup-shadow = "8.3.9"
 ktlint = "12.2.0"
-openapi-generator = "7.16.0"
-foojay-resolver = "0.6.0"
 proguard = "7.8.0"
 
 # Testing
@@ -34,16 +32,8 @@ rssparser = "6.1.0"
 # JSON Processing
 moshi = "1.15.2"
 
-# Spotless (for stockx-api-client)
-spotless = "6.25.0"
-
-# Kotlin Gradle Plugin (for stockx-api-client)
-kotlin-gradle-plugin = "1.9.24"
-
 [libraries]
 # Kotlin
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
@@ -53,7 +43,6 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 # Testing
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-kotlintest = { module = "io.kotlintest:kotlintest-runner-junit5", version.ref = "kotlintest" }
 
 # Cereal Automation
 cereal-sdk = { module = "com.cereal-automation:cereal-sdk", version.ref = "cereal-sdk" }
@@ -76,25 +65,14 @@ htmlunit = { module = "org.htmlunit:htmlunit", version.ref = "htmlunit" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 rssparser = { module = "com.prof18.rssparser:rssparser", version.ref = "rssparser" }
 
-# JSON Processing
-moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
-moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshi" }
-
 # Proguard
 proguard = { module = "com.guardsquare:proguard-gradle", version.ref = "proguard" }
-
-# Kotlin Gradle Plugin
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-gradle-plugin" }
-spotless-gradle-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 gradleup-shadow = { id = "com.gradleup.shadow", version.ref = "gradleup-shadow" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
-openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
-foojay-resolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay-resolver" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 [bundles]
 # Common dependencies for most modules
@@ -121,5 +99,3 @@ ktor-client = [
 # Web scraping
 web-scraping = ["htmlunit", "jsoup", "rssparser"]
 
-# JSON processing
-json-processing = ["moshi-kotlin", "moshi-adapters"]

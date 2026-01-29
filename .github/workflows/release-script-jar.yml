@@ -1,52 +1,56 @@
-name: Release Script Jar
+name: Release script JAR
 
 on:
   push:
     tags:
-      - "script-*/[0-9]*.[0-9]*.[0-9]*"
+      - '*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: 17
           cache: 'gradle'
-
-      - name: Extract module and version from tag
-        id: extract
-        run: |
-          TAG=$(echo $GITHUB_REF_NAME)
-          MODULE=$(echo $TAG | cut -d'/' -f1)
-          VERSION=$(echo $TAG | cut -d'/' -f2)
-          echo "MODULE=$MODULE" >> $GITHUB_ENV
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       - name: Update version_code in manifest
         run: |
+          VERSION=${{ github.ref_name }}
+          VERSION=${VERSION#v}
           VERSION_CODE=$(echo $VERSION | awk -F. '{print $1 * 100 + $2 * 10 + $3}')
-          MANIFEST_PATH=$MODULE/src/main/resources/manifest.json
+          MANIFEST_PATH=src/main/resources/manifest.json
           jq --argjson version_code "$VERSION_CODE" '.version_code = $version_code' $MANIFEST_PATH > tmp_manifest.json
           mv tmp_manifest.json $MANIFEST_PATH
-
-      - name: Build jar
-        run: |
-          ./gradlew :$MODULE:clean :$MODULE:scriptJar
-
-      - name: Publish jar and mapping
-        run: |
-          mkdir -p release-artifacts
-          cp -r $MODULE/build/obfuscated/* release-artifacts/
-
-      - name: Upload jar artifact
+      - name: Obfuscate
+        run:
+          ./gradlew script:scriptJar
+      - name: Rename jar with version
+        run: mv build/cereal/release.jar build/cereal/release-${{ github.ref_name }}.jar
+      - name: Store script jar
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.MODULE }}-artifacts
-          path: release-artifacts/
+          name: script-${{ github.ref_name }}-release
+          path: build/cereal/release-${{ github.ref_name }}.jar
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          files: build/cereal/release-${{ github.ref_name }}.jar
+          generate_release_notes: true

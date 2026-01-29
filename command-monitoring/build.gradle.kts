@@ -4,12 +4,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
-    implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.web.scraping)
     implementation(libs.bundles.kotlin.coroutines)
     implementation(libs.kotlinx.serialization.json)
@@ -20,7 +14,6 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
 
     implementation(project(":command"))
-    implementation(project(":stockx-api-client"))
     testImplementation(project(":command"))
 }
 

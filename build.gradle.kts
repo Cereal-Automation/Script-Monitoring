@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.gradleup.shadow)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.openapi.generator)
 }
 
 allprojects {
@@ -23,71 +22,72 @@ buildscript {
 
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "java")
 
-    ktlint {
-        filter {
-            exclude { element ->
-                val path = element.file.path
-                path.contains("stockx-api-client")
+    dependencies {
+        implementation(rootProject.libs.cereal.sdk) {
+            artifact {
+                classifier = "all"
             }
+        }
+        implementation(rootProject.libs.bundles.cereal.base)
+    }
+}
+
+project(":script") {
+    apply(plugin = "com.gradleup.shadow")
+
+    tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+        archiveFileName.set("release.jar")
+
+        dependencies {
+            // The below dependencies are included in the Cereal client by default so they can be excluded here.
+            // New (breaking) versions will have a different artifact id so they will always stay compatible.
+            // Be careful when adding something here because Proguard could need the code to determine that methods
+            // called by any of these libs are in still in use so that Proguard doesn't remove them. For example
+            // kotlinx-coroutines-core isn't excluded for that reason.
+            exclude { dependency ->
+                (
+                        dependency.moduleGroup == "com.cereal-automation" &&
+                                dependency.moduleName == "cereal-sdk"
+                        )
+            }
+
+            // Kotlin is included in the Cereal client by default so leave it out to make the script binary smaller and to
+            // prevent conflicts with coroutines, which is also used in the Scripts' interface.
+            exclude("DebugProbesKt.bin", "META-INF/**", "*.jpg", "kotlin/**")
         }
     }
 
-    if (name !in listOf("command", "command-monitoring", "script-common")) {
-        apply(plugin = "com.gradleup.shadow")
+    tasks.register("scriptJar", proguard.gradle.ProGuardTask::class.java) {
+        description = "Build script jar with obfuscation"
+        dependsOn("shadowJar")
 
-        tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-            archiveFileName.set("release.jar")
+        val artifactName = "release.jar"
+        val buildDir = layout.buildDirectory.get()
+        val obfuscatedFolder = "$buildDir/obfuscated"
 
-            dependencies {
-                // The below dependencies are included in the Cereal client by default so they can be excluded here.
-                // New (breaking) versions will have a different artifact id so they will always stay compatible.
-                // Be careful when adding something here because Proguard could need the code to determine that methods
-                // called by any of these libs are in still in use so that Proguard doesn't remove them. For example
-                // kotlinx-coroutines-core isn't excluded for that reason.
-                exclude { dependency ->
-                    (
-                        dependency.moduleGroup == "com.cereal-automation" &&
-                            (dependency.moduleName == "cereal-sdk" || dependency.moduleName == "cereal-chrome-driver")
-                    )
-                }
+        injars("$buildDir/libs/$artifactName")
+        outjars("$obfuscatedFolder/$artifactName")
 
-                // Kotlin is included in the Cereal client by default so leave it out to make the script binary smaller and to
-                // prevent conflicts with coroutines, which is also used in the Scripts' interface.
-                exclude("DebugProbesKt.bin", "META-INF/**", "*.jpg", "kotlin/**")
-            }
-        }
+        // Mapping for debugging
+        printseeds("$obfuscatedFolder/seeds.txt")
+        printmapping("$obfuscatedFolder/mapping.txt")
 
-        tasks.register("scriptJar", proguard.gradle.ProGuardTask::class.java) {
-            description = "Build script jar with obfuscation"
-            dependsOn("shadowJar")
+        // Dependencies
+        libraryjars(sourceSets.main.get().compileClasspath)
 
-            val artifactName = "release.jar"
-            val buildDir = layout.buildDirectory.get()
-            val obfuscatedFolder = "$buildDir/obfuscated"
-
-            injars("$buildDir/libs/$artifactName")
-            outjars("$obfuscatedFolder/$artifactName")
-
-            // Mapping for debugging
-            printseeds("$obfuscatedFolder/seeds.txt")
-            printmapping("$obfuscatedFolder/mapping.txt")
-
-            // Dependencies
-            libraryjars(sourceSets.main.get().compileClasspath)
-
-            configuration(
-                files(
-                    "${rootDir.absolutePath}/proguard-rules/script.pro",
-                    "${rootDir.absolutePath}/proguard-rules/cereal-licensing.pro",
-                    "${rootDir.absolutePath}/proguard-rules/coroutines.pro",
-                    "${rootDir.absolutePath}/proguard-rules/kotlinx-serialization.pro",
-                    "${rootDir.absolutePath}/proguard-rules/ktor.pro",
-                    "${rootDir.absolutePath}/proguard-rules/okhttp.pro",
-                    "${rootDir.absolutePath}/proguard-rules/okio.pro",
-                ),
-            )
-        }
+        configuration(
+            files(
+                "${rootDir.absolutePath}/proguard-rules/script.pro",
+                "${rootDir.absolutePath}/proguard-rules/cereal-licensing.pro",
+                "${rootDir.absolutePath}/proguard-rules/coroutines.pro",
+                "${rootDir.absolutePath}/proguard-rules/kotlinx-serialization.pro",
+                "${rootDir.absolutePath}/proguard-rules/ktor.pro",
+                "${rootDir.absolutePath}/proguard-rules/okhttp.pro",
+                "${rootDir.absolutePath}/proguard-rules/okio.pro",
+            ),
+        )
     }
 }
 
@@ -97,16 +97,4 @@ tasks {
             languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
-}
-
-openApiGenerate {
-    generatorName.set("kotlin")
-    inputSpec.set("$rootDir/specs/stockx.json")
-    outputDir.set("$rootDir/stockx-api-client")
-    apiPackage.set("com.cereal.stockx.api")
-    invokerPackage.set("com.cereal.stockx.api.invoker")
-    modelPackage.set("com.cereal.stockx.api.model")
-    configOptions.put("dateLibrary", "java8")
-    configOptions.put("omitGradleWrapper", "true")
-    configOptions.put("library", "jvm-ktor")
 }
