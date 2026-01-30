@@ -1,0 +1,94 @@
+name: Reusable Script Release
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        required: true
+        type: string
+        description: "The name of the script module (e.g. script-nike)"
+      version:
+        required: true
+        type: string
+        description: "The version of the release (e.g. 1.0.0)"
+      repository:
+        required: false
+        type: string
+        default: "Cereal-Automation/Script-Monitoring"
+        description: "Repository to checkout source code from"
+      ref:
+        required: false
+        type: string
+        description: "Ref to checkout (branch, tag, sha). Defaults to default branch."
+    secrets:
+      token:
+        required: false
+        description: "PAT for checking out Script-Monitoring if private"
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Script-Monitoring
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.token || github.token }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Update version_code in manifest
+        env:
+          MODULE: ${{ inputs.module }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          # Calculate version code: major*100 + minor*10 + patch
+          VERSION_CODE=$(echo $VERSION | awk -F. '{print $1 * 100 + $2 * 10 + $3}')
+          MANIFEST_PATH=$MODULE/src/main/resources/manifest.json
+          
+          echo "Updating manifest validation for $MODULE with version $VERSION (code: $VERSION_CODE)"
+          
+          if [ -f "$MANIFEST_PATH" ]; then
+            jq --argjson version_code "$VERSION_CODE" '.version_code = $version_code' $MANIFEST_PATH > tmp_manifest.json
+            mv tmp_manifest.json $MANIFEST_PATH
+          else
+            echo "Warning: Manifest not found at $MANIFEST_PATH. Skipping update."
+          fi
+
+      - name: Build jar
+        env:
+          MODULE: ${{ inputs.module }}
+        run: |
+          ./gradlew :$MODULE:clean :$MODULE:scriptJar
+
+      - name: Prepare Artifacts
+        env:
+          MODULE: ${{ inputs.module }}
+        run: |
+          mkdir -p release-artifacts
+          if [ -d "$MODULE/build/obfuscated" ]; then
+            cp -r $MODULE/build/obfuscated/* release-artifacts/
+          else
+            echo "Error: Build output directory not found!"
+            exit 1
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.module }}-v${{ inputs.version }}-artifacts
+          path: release-artifacts/
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release-artifacts/*
