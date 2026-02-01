@@ -10,6 +10,11 @@ dependencies {
     }
     implementation(libs.bundles.cereal.base)
 
+    testImplementation(libs.cereal.sdk) {
+        artifact {
+            classifier = "all"
+        }
+    }
     testImplementation(libs.bundles.testing)
 }
 

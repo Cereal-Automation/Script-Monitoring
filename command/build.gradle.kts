@@ -12,6 +12,7 @@ dependencies {
     implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.kotlin.coroutines)
 
+    testImplementation(libs.cereal.sdk)
     testImplementation(libs.bundles.testing)
     testImplementation(libs.cereal.test.utils)
 

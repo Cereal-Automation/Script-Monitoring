@@ -16,6 +16,11 @@ dependencies {
     implementation(libs.bundles.ktor.client)
     implementation(libs.logging.interceptor)
 
+    testImplementation(libs.cereal.sdk) {
+        artifact {
+            classifier = "all"
+        }
+    }
     testImplementation(libs.bundles.testing)
     testImplementation(libs.ktor.client.mock)
 
