@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.cereal.sdk) {
+    compileOnly(libs.cereal.sdk) {
         artifact {
             classifier = "all"
         }
