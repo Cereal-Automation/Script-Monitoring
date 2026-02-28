@@ -9,9 +9,6 @@ import io.ktor.http.HttpHeaders
 
 /**
  * Executes POST requests to the TGTG API with support for a 403 -> DataDome cookie acquisition retry.
- *
- * The HTTP client is created once on first use and reused for all subsequent requests,
- * avoiding the overhead of spawning a new OkHttp thread pool per request.
  */
 internal class HttpExecutor(
     private val baseUrl: String,
