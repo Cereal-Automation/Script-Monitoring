@@ -57,6 +57,7 @@ class TgtgScriptTest {
                     every { longitude() } returns 4.9041
                     every { radius() } returns 50000
                     every { favoritesOnly() } returns true
+                    every { minimumRating() } returns null
                 }
             val componentProviderFactory = TestComponentProviderFactory()
 
@@ -192,6 +193,7 @@ class TgtgScriptTest {
         radius: Int? = 50000,
         favoritesOnly: Boolean = true,
         proxy: RandomProxy? = null,
+        minimumRating: Double? = null,
     ): TgtgConfiguration =
         mockk<TgtgConfiguration>().apply {
             coEvery { email() } returns email
@@ -201,6 +203,7 @@ class TgtgScriptTest {
             coEvery { favoritesOnly() } returns favoritesOnly
             coEvery { proxy() } returns proxy
             coEvery { monitorInterval() } returns 60 // seconds
+            coEvery { minimumRating() } returns minimumRating
         }
 
     private fun createMockComponentProvider(): ComponentProvider =

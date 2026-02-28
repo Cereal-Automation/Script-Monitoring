@@ -74,3 +74,20 @@ object RadiusStateModifier : StateModifier {
 
     override fun getVisibility(scriptConfig: ScriptConfig): Visibility = Visibility.VisibleOptional
 }
+
+object MinimumRatingStateModifier : StateModifier {
+    override fun getError(scriptConfig: ScriptConfig): String? {
+        val value = scriptConfig.valueForKey(TgtgConfiguration.KEY_MINIMUM_RATING)
+        return if (value is ScriptConfigValue.DoubleScriptConfigValue) {
+            if (value.value < 0.0 || value.value > 5.0) {
+                "Minimum rating must be between 0.0 and 5.0."
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    override fun getVisibility(scriptConfig: ScriptConfig): Visibility = Visibility.VisibleOptional
+}
