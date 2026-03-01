@@ -16,13 +16,17 @@ internal class HttpExecutor(
     private val cookieManager: DataDomeCookieManager,
     private val httpClientFactory: suspend () -> HttpClient,
 ) {
+    private var cachedClient: HttpClient? = null
+
+    private suspend fun getClient(): HttpClient = cachedClient ?: httpClientFactory().also { cachedClient = it }
+
     suspend fun <T> postWith403Retry(
         path: String,
         authHeader: String? = null,
         bodyBuilder: () -> String,
         decode: (String) -> T,
     ): T? {
-        val client = httpClientFactory()
+        val client = getClient()
         val response =
             client.post("${baseUrl}$path") {
                 authHeader?.let { headers[HttpHeaders.Authorization] = it }
@@ -32,9 +36,8 @@ internal class HttpExecutor(
             logRepository.debug("Received 403 for $path. Attempting DataDome cookie fetch.")
             val cookie = cookieManager.fetch(path)
             if (cookie != null) {
-                val retryClient = httpClientFactory() // picks up stored cookie via new storage
                 val retryResponse =
-                    retryClient.post("${baseUrl}$path") {
+                    client.post("${baseUrl}$path") {
                         authHeader?.let { headers[HttpHeaders.Authorization] = it }
                         setBody(bodyBuilder())
                     }
