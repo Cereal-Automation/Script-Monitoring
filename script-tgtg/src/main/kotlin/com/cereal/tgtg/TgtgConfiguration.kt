@@ -60,6 +60,14 @@ interface TgtgConfiguration : BaseConfiguration {
     )
     fun proxy(): RandomProxy?
 
+    @ScriptConfigurationItem(
+        keyName = KEY_MINIMUM_RATING,
+        name = "Minimum Rating",
+        description = "Minimum average rating (0.0 to 5.0). Stores with a lower rating will be ignored.",
+        stateModifier = MinimumRatingStateModifier::class,
+    )
+    fun minimumRating(): Double?
+
     companion object {
         const val KEY_EMAIL = "email"
         const val KEY_LATITUDE = "latitude"
@@ -67,5 +75,6 @@ interface TgtgConfiguration : BaseConfiguration {
         const val KEY_RADIUS = "radius"
         const val KEY_FAVORITES_ONLY = "favorites_only"
         const val KEY_RANDOM_PROXY = "random_proxy"
+        const val KEY_MINIMUM_RATING = "minimum_rating"
     }
 }

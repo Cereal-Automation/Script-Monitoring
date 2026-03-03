@@ -28,6 +28,7 @@ class TgtgItemRepository(
     private val longitude: Double,
     private val radius: Int = 50000,
     private val favoritesOnly: Boolean = true,
+    private val minimumRating: Double? = null,
 ) : ItemRepository {
     override suspend fun getItems(nextPageToken: String?): Page {
         // TGTG API doesn't support pagination in the traditional sense
@@ -47,7 +48,11 @@ class TgtgItemRepository(
             )
 
         val items =
-            itemsResponse?.items?.map { tgtgItem ->
+            itemsResponse?.items?.filter { tgtgItem ->
+                if (minimumRating == null) return@filter true
+                val rating = tgtgItem.item.averageOverallRating?.averageOverallRating
+                rating == null || rating >= minimumRating
+            }?.map { tgtgItem ->
                 convertTgtgItemToItem(tgtgItem)
             } ?: emptyList()
 
