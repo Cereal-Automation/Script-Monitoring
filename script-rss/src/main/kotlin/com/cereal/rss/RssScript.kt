@@ -4,7 +4,6 @@ import com.cereal.command.monitor.MonitorCommandFactory
 import com.cereal.command.monitor.data.rss.RssFeedItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.MonitorStrategyFactory
-import com.cereal.command.monitor.models.Currency
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
@@ -51,10 +50,11 @@ class RssScript : Script<RssConfiguration> {
         val factory = MonitorCommandFactory(provider)
         val logRepository = factory.logRepository(statusUpdate)
         val notificationRepository = factory.notificationRepository("RSS Monitor")
-        val itemRepository = RssFeedItemRepository(
-            rssFeedUrl = configuration.rssUrl(),
-            logger = provider.logger(),
-        )
+        val itemRepository =
+            RssFeedItemRepository(
+                rssFeedUrl = configuration.rssUrl(),
+                logger = provider.logger(),
+            )
 
         val strategies = buildMonitorStrategies(configuration)
 
@@ -73,20 +73,6 @@ class RssScript : Script<RssConfiguration> {
         buildList {
             if (configuration.monitorNewItems()) {
                 add(MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now()))
-            }
-            if (configuration.monitorPriceDrop()) {
-                add(MonitorStrategyFactory.priceDropMonitorStrategy())
-            }
-            if (configuration.monitorStockAvailable()) {
-                add(MonitorStrategyFactory.stockAvailableMonitorStrategy())
-            }
-            if (configuration.monitorStockChanged()) {
-                add(MonitorStrategyFactory.stockChangedMonitorStrategy())
-            }
-            val threshold = configuration.priceThreshold()
-            if (configuration.monitorPriceThreshold() && threshold != null) {
-                // Since priceThreshold is a String?, we must parse it here to BigDecimal
-                add(MonitorStrategyFactory.equalsOrBelowPriceMonitorStrategy(threshold.toBigDecimal(), Currency.EUR))
             }
         }
 }
