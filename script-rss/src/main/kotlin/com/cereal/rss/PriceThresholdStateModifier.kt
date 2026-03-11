@@ -4,6 +4,7 @@ import com.cereal.sdk.statemodifier.ScriptConfig
 import com.cereal.sdk.statemodifier.ScriptConfigValue
 import com.cereal.sdk.statemodifier.StateModifier
 import com.cereal.sdk.statemodifier.Visibility
+import java.math.BigDecimal
 
 object PriceThresholdStateModifier : StateModifier {
     override fun getError(scriptConfig: ScriptConfig): String? {
@@ -15,7 +16,7 @@ object PriceThresholdStateModifier : StateModifier {
             return null
         }
         val decimalValue = priceThreshold.value.toBigDecimalOrNull() ?: return "Price threshold must be a valid number."
-        if (decimalValue <= java.math.BigDecimal.ZERO) {
+        if (decimalValue <= BigDecimal.ZERO) {
             return "Price threshold must be greater than zero."
         }
         return null
