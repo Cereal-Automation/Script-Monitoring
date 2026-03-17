@@ -29,7 +29,7 @@ interface RssConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(
         keyName = KEY_FILTER_AUTHORS,
         name = "Authors",
-        description = "Comma-separated list of exact author names to match.",
+        description = "Comma-separated list of author names to match (case-insensitive).",
     )
     fun filterAuthors(): String?
 

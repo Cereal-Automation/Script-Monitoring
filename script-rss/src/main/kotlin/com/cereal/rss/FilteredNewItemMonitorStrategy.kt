@@ -11,8 +11,10 @@ class FilteredNewItemMonitorStrategy(
     private val categories: List<String>,
     private val logic: FilterLogic,
 ) : MonitorStrategy {
-
-    override suspend fun shouldNotify(item: Item, previousItem: Item?): String? {
+    override suspend fun shouldNotify(
+        item: Item,
+        previousItem: Item?,
+    ): String? {
         // Delegate baseline newness check
         val baselineMessage = baselineStrategy.shouldNotify(item, previousItem) ?: return null
 
@@ -21,31 +23,36 @@ class FilteredNewItemMonitorStrategy(
             return baselineMessage
         }
 
-        val matchesKeyword = keywords.isNotEmpty() && keywords.any { keyword ->
-            item.name.contains(keyword, ignoreCase = true) ||
-                (item.description?.contains(keyword, ignoreCase = true) == true)
-        }
+        val matchesKeyword =
+            keywords.isNotEmpty() &&
+                keywords.any { keyword ->
+                    item.name.contains(keyword, ignoreCase = true) ||
+                        (item.description?.contains(keyword, ignoreCase = true) == true)
+                }
 
-        val itemAuthor = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "author" }?.value
-        val matchesAuthor = authors.isNotEmpty() && authors.any { it.equals(itemAuthor, ignoreCase = true) }
+        val itemAuthors = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == "author" }.map { it.value }
+        val matchesAuthor =
+            authors.isNotEmpty() &&
+                authors.any { configured ->
+                    itemAuthors.any { it.equals(configured, ignoreCase = true) }
+                }
 
         val itemCategories = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == "category" }.map { it.value }
-        val matchesCategory = categories.isNotEmpty() && categories.any { configuredCategory ->
-            itemCategories.any { it.equals(configuredCategory, ignoreCase = true) }
-        }
+        val matchesCategory =
+            categories.isNotEmpty() &&
+                categories.any { configuredCategory ->
+                    itemCategories.any { it.equals(configuredCategory, ignoreCase = true) }
+                }
 
-        val hasKeywordFilter = keywords.isNotEmpty()
-        val hasAuthorFilter = authors.isNotEmpty()
-        val hasCategoryFilter = categories.isNotEmpty()
-
-        val passed = when (logic) {
-            FilterLogic.MATCH_ANY -> matchesKeyword || matchesAuthor || matchesCategory
-            FilterLogic.MATCH_ALL -> {
-                (!hasKeywordFilter || matchesKeyword) &&
-                    (!hasAuthorFilter || matchesAuthor) &&
-                    (!hasCategoryFilter || matchesCategory)
+        val passed =
+            when (logic) {
+                FilterLogic.MATCH_ANY -> matchesKeyword || matchesAuthor || matchesCategory
+                FilterLogic.MATCH_ALL -> {
+                    (keywords.isEmpty() || matchesKeyword) &&
+                        (authors.isEmpty() || matchesAuthor) &&
+                        (categories.isEmpty() || matchesCategory)
+                }
             }
-        }
 
         return if (passed) baselineMessage else null
     }

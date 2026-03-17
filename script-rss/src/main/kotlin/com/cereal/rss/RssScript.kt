@@ -72,7 +72,14 @@ class RssScript : Script<RssConfiguration> {
     private fun buildMonitorStrategies(configuration: RssConfiguration): List<MonitorStrategy> =
         buildList {
             if (configuration.monitorNewItems()) {
-                add(MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now()))
+                val baseline = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now())
+                val keywords = parseCsv(configuration.filterKeywords())
+                val authors = parseCsv(configuration.filterAuthors())
+                val categories = parseCsv(configuration.filterCategories())
+                val logic = configuration.filterLogic() ?: FilterLogic.MATCH_ANY
+                add(FilteredNewItemMonitorStrategy(baseline, keywords, authors, categories, logic))
             }
         }
+
+    private fun parseCsv(input: String?): List<String> = input?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
 }
