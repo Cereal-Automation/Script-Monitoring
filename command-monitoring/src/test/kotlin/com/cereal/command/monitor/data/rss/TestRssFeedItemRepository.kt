@@ -48,14 +48,85 @@ class TestRssFeedItemRepository {
             )
         }
 
-    private fun buildRssChannel(): RssChannel =
+    @Test
+    fun testParseRssWithAuthorAndCategories() =
+        runBlocking {
+            val rssParser = mockk<RssParser>()
+            coEvery { rssParser.getRssChannel(any()) } returns buildRssChannel(
+                author = "Jane Doe",
+                categories = listOf("tech", "kotlin"),
+            )
+            val repository = RssFeedItemRepository("http://foo.bar", mockk<LoggerComponent>(), rssParser)
+
+            val result = repository.getItems(null)
+
+            assertEquals(
+                Page(
+                    items =
+                        listOf(
+                            Item(
+                                "foo",
+                                url = "http://bar.baz",
+                                name = "bar",
+                                properties =
+                                    listOf(
+                                        ItemProperty.PublishDate(Instant.fromEpochSeconds(1726558620L)),
+                                        ItemProperty.Custom("author", "Jane Doe"),
+                                        ItemProperty.Custom("category", "tech"),
+                                        ItemProperty.Custom("category", "kotlin"),
+                                    ),
+                            ),
+                        ),
+                    nextPageToken = null,
+                ),
+                result,
+            )
+        }
+
+    @Test
+    fun testParseRssWithBlankAuthorAndCategories() =
+        runBlocking {
+            val rssParser = mockk<RssParser>()
+            coEvery { rssParser.getRssChannel(any()) } returns buildRssChannel(
+                author = "  ",
+                categories = listOf("", "valid"),
+            )
+            val repository = RssFeedItemRepository("http://foo.bar", mockk<LoggerComponent>(), rssParser)
+
+            val result = repository.getItems(null)
+
+            assertEquals(
+                Page(
+                    items =
+                        listOf(
+                            Item(
+                                "foo",
+                                url = "http://bar.baz",
+                                name = "bar",
+                                properties =
+                                    listOf(
+                                        ItemProperty.PublishDate(Instant.fromEpochSeconds(1726558620L)),
+                                        ItemProperty.Custom("category", "valid"),
+                                    ),
+                            ),
+                        ),
+                    nextPageToken = null,
+                ),
+                result,
+            )
+        }
+
+    private fun buildRssChannel(
+        author: String? = null,
+        categories: List<String> = listOf(),
+    ): RssChannel =
         RssChannel(
             items =
                 listOf(
                     RssItem(
                         guid = "foo",
                         title = "bar",
-                        author = null,
+                        author = author,
                         link = "http://bar.baz",
                         pubDate = "Tue, 17 Sep 2024 07:37:00 GMT",
                         description = null,
@@ -65,7 +136,7 @@ class TestRssFeedItemRepository {
                         video = null,
                         sourceName = null,
                         sourceUrl = null,
-                        categories = listOf(),
+                        categories = categories,
                         itunesItemData = null,
                         commentsUrl = null,
                         youtubeItemData = null,
