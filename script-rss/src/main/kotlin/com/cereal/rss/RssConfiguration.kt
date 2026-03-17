@@ -19,8 +19,40 @@ interface RssConfiguration : BaseConfiguration {
     )
     fun monitorNewItems(): Boolean
 
+    @ScriptConfigurationItem(
+        keyName = KEY_FILTER_KEYWORDS,
+        name = "Keywords",
+        description = "Comma-separated list of keywords to search for in title or description.",
+    )
+    fun filterKeywords(): String?
+
+    @ScriptConfigurationItem(
+        keyName = KEY_FILTER_AUTHORS,
+        name = "Authors",
+        description = "Comma-separated list of exact author names to match.",
+    )
+    fun filterAuthors(): String?
+
+    @ScriptConfigurationItem(
+        keyName = KEY_FILTER_CATEGORIES,
+        name = "Categories",
+        description = "Comma-separated list of categories to match.",
+    )
+    fun filterCategories(): String?
+
+    @ScriptConfigurationItem(
+        keyName = KEY_FILTER_LOGIC,
+        name = "Filter Logic",
+        description = "MATCH_ALL (AND) or MATCH_ANY (OR). Defaults to MATCH_ANY.",
+    )
+    fun filterLogic(): FilterLogic?
+
     companion object {
         const val KEY_RSS_URL = "rss_url"
         const val KEY_MONITOR_NEW_ITEMS = "monitor_new_items"
+        const val KEY_FILTER_KEYWORDS = "filter_keywords"
+        const val KEY_FILTER_AUTHORS = "filter_authors"
+        const val KEY_FILTER_CATEGORIES = "filter_categories"
+        const val KEY_FILTER_LOGIC = "filter_logic"
     }
 }
