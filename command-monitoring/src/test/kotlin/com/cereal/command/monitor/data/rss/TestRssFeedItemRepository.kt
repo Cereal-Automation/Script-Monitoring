@@ -52,10 +52,11 @@ class TestRssFeedItemRepository {
     fun testParseRssWithAuthorAndCategories() =
         runBlocking {
             val rssParser = mockk<RssParser>()
-            coEvery { rssParser.getRssChannel(any()) } returns buildRssChannel(
-                author = "Jane Doe",
-                categories = listOf("tech", "kotlin"),
-            )
+            coEvery { rssParser.getRssChannel(any()) } returns
+                buildRssChannel(
+                    author = "Jane Doe",
+                    categories = listOf("tech", "kotlin"),
+                )
             val repository = RssFeedItemRepository("http://foo.bar", mockk<LoggerComponent>(), rssParser)
 
             val result = repository.getItems(null)
@@ -87,10 +88,11 @@ class TestRssFeedItemRepository {
     fun testParseRssWithBlankAuthorAndCategories() =
         runBlocking {
             val rssParser = mockk<RssParser>()
-            coEvery { rssParser.getRssChannel(any()) } returns buildRssChannel(
-                author = "  ",
-                categories = listOf("", "valid"),
-            )
+            coEvery { rssParser.getRssChannel(any()) } returns
+                buildRssChannel(
+                    author = "  ",
+                    categories = listOf("", "valid"),
+                )
             val repository = RssFeedItemRepository("http://foo.bar", mockk<LoggerComponent>(), rssParser)
 
             val result = repository.getItems(null)

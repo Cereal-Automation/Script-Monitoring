@@ -30,14 +30,20 @@ class FilteredNewItemMonitorStrategy(
                         (item.description?.contains(keyword, ignoreCase = true) == true)
                 }
 
-        val itemAuthors = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == RssFeedItemRepository.PROPERTY_AUTHOR }.map { it.value }
+        val itemAuthors =
+            item.properties.filterIsInstance<ItemProperty.Custom>().filter {
+                it.name == RssFeedItemRepository.PROPERTY_AUTHOR
+            }.map { it.value }
         val matchesAuthor =
             authors.isNotEmpty() &&
                 authors.any { configured ->
                     itemAuthors.any { it.equals(configured, ignoreCase = true) }
                 }
 
-        val itemCategories = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == RssFeedItemRepository.PROPERTY_CATEGORY }.map { it.value }
+        val itemCategories =
+            item.properties.filterIsInstance<ItemProperty.Custom>().filter {
+                it.name == RssFeedItemRepository.PROPERTY_CATEGORY
+            }.map { it.value }
         val matchesCategory =
             categories.isNotEmpty() &&
                 categories.any { configuredCategory ->

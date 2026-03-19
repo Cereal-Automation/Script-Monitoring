@@ -21,6 +21,7 @@ class RssFeedItemRepository(
         const val PROPERTY_AUTHOR = "author"
         const val PROPERTY_CATEGORY = "category"
     }
+
     private val dateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
 
     override suspend fun getItems(nextPageToken: String?): Page {
