@@ -194,6 +194,7 @@ class TgtgScriptTest {
         favoritesOnly: Boolean = true,
         proxy: RandomProxy? = null,
         minimumRating: Double? = null,
+        notifyOnPriceChange: Boolean = false,
     ): TgtgConfiguration =
         mockk<TgtgConfiguration>().apply {
             coEvery { email() } returns email
@@ -204,6 +205,7 @@ class TgtgScriptTest {
             coEvery { proxy() } returns proxy
             coEvery { monitorInterval() } returns 60 // seconds
             coEvery { minimumRating() } returns minimumRating
+            coEvery { notifyOnPriceChange() } returns notifyOnPriceChange
         }
 
     private fun createMockComponentProvider(): ComponentProvider =
