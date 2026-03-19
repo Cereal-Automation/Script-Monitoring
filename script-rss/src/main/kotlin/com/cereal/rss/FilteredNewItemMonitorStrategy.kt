@@ -10,7 +10,6 @@ class FilteredNewItemMonitorStrategy(
     private val keywords: List<String>,
     private val authors: List<String>,
     private val categories: List<String>,
-    private val logic: FilterLogic,
 ) : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
@@ -45,15 +44,7 @@ class FilteredNewItemMonitorStrategy(
                     itemCategories.any { it.equals(configuredCategory, ignoreCase = true) }
                 }
 
-        val passed =
-            when (logic) {
-                FilterLogic.MATCH_ANY -> matchesKeyword || matchesAuthor || matchesCategory
-                FilterLogic.MATCH_ALL -> {
-                    (keywords.isEmpty() || matchesKeyword) &&
-                        (authors.isEmpty() || matchesAuthor) &&
-                        (categories.isEmpty() || matchesCategory)
-                }
-            }
+        val passed = matchesKeyword || matchesAuthor || matchesCategory
 
         return if (passed) baselineMessage else null
     }

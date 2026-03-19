@@ -76,8 +76,7 @@ class RssScript : Script<RssConfiguration> {
                 val keywords = parseCsv(configuration.filterKeywords())
                 val authors = parseCsv(configuration.filterAuthors())
                 val categories = parseCsv(configuration.filterCategories())
-                val logic = configuration.filterLogic() ?: FilterLogic.MATCH_ANY
-                add(FilteredNewItemMonitorStrategy(baseline, keywords, authors, categories, logic))
+                add(FilteredNewItemMonitorStrategy(baseline, keywords, authors, categories))
             }
         }
 

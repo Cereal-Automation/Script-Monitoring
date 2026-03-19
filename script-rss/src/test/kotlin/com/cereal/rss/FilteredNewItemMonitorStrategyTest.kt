@@ -42,7 +42,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = emptyList(),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -63,17 +62,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("Kotlin"),
                     authors = listOf("Alice"),
                     categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertNull(result)
         }
 
-    // --- MATCH_ANY: keyword matches ---
+    // --- Keyword matches ---
 
     @Test
-    fun `MATCH_ANY keyword matches returns baseline message`() =
+    fun `keyword matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Kotlin Tutorial")
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -84,17 +82,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("Kotlin"),
                     authors = emptyList(),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertEquals(baselineMessage, result)
         }
 
-    // --- MATCH_ANY: author matches ---
+    // --- Author matches ---
 
     @Test
-    fun `MATCH_ANY author matches returns baseline message`() =
+    fun `author matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Some Post", author = "Alice")
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -105,17 +102,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("NonMatchingKeyword"),
                     authors = listOf("Alice"),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertEquals(baselineMessage, result)
         }
 
-    // --- MATCH_ANY: category matches ---
+    // --- Category matches ---
 
     @Test
-    fun `MATCH_ANY category matches returns baseline message`() =
+    fun `category matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Some Post", categories = listOf("tech"))
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -126,17 +122,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("NonMatchingKeyword"),
                     authors = listOf("NonMatchingAuthor"),
                     categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertEquals(baselineMessage, result)
         }
 
-    // --- MATCH_ANY: nothing matches ---
+    // --- Nothing matches ---
 
     @Test
-    fun `MATCH_ANY nothing matches returns null`() =
+    fun `nothing matches returns null`() =
         runTest {
             val item = newItem(name = "Java Tutorial", author = "Bob", categories = listOf("general"))
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -147,59 +142,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("Kotlin"),
                     authors = listOf("Alice"),
                     categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertNull(result)
         }
 
-    // --- MATCH_ALL: all filters match ---
+    // --- Only keywords configured ---
 
     @Test
-    fun `MATCH_ALL all filters match returns baseline message`() =
-        runTest {
-            val item = newItem(name = "Kotlin Tutorial", author = "Alice", categories = listOf("tech"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
-
-            val strategy =
-                FilteredNewItemMonitorStrategy(
-                    baselineStrategy = baselineStrategy,
-                    keywords = listOf("Kotlin"),
-                    authors = listOf("Alice"),
-                    categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ALL,
-                )
-
-            val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
-        }
-
-    // --- MATCH_ALL: only keyword matches (missing author) ---
-
-    @Test
-    fun `MATCH_ALL only keyword matches missing author returns null`() =
-        runTest {
-            val item = newItem(name = "Kotlin Tutorial", author = "Bob", categories = listOf("tech"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
-
-            val strategy =
-                FilteredNewItemMonitorStrategy(
-                    baselineStrategy = baselineStrategy,
-                    keywords = listOf("Kotlin"),
-                    authors = listOf("Alice"),
-                    categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ALL,
-                )
-
-            val result = strategy.shouldNotify(item, null)
-            assertNull(result)
-        }
-
-    // --- MATCH_ALL: only keywords configured, keyword matches ---
-
-    @Test
-    fun `MATCH_ALL only keywords configured keyword matches returns baseline message`() =
+    fun `only keywords configured keyword matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Kotlin Tutorial")
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -210,7 +162,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("Kotlin"),
                     authors = emptyList(),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -218,7 +169,7 @@ class FilteredNewItemMonitorStrategyTest {
         }
 
     @Test
-    fun `MATCH_ALL only keywords configured keyword does not match returns null`() =
+    fun `only keywords configured keyword does not match returns null`() =
         runTest {
             val item = newItem(name = "Java Tutorial")
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -229,7 +180,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("Kotlin"),
                     authors = emptyList(),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -250,7 +200,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("kotlin"),
                     authors = emptyList(),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -269,7 +218,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = listOf("kotlin"),
                     authors = emptyList(),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -288,7 +236,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = listOf("alice"),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -307,17 +254,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = emptyList(),
                     categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ANY,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertEquals(baselineMessage, result)
         }
 
-    // --- MATCH_ALL: only authors configured ---
+    // --- Only authors configured ---
 
     @Test
-    fun `MATCH_ALL only authors configured author matches returns baseline message`() =
+    fun `only authors configured author matches returns baseline message`() =
         runTest {
             val item = newItem(author = "Jane Doe")
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -328,7 +274,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = listOf("Jane Doe"),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -336,7 +281,7 @@ class FilteredNewItemMonitorStrategyTest {
         }
 
     @Test
-    fun `MATCH_ALL only authors configured author does not match returns null`() =
+    fun `only authors configured author does not match returns null`() =
         runTest {
             val item = newItem(author = "Other Author")
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -347,17 +292,16 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = listOf("Jane Doe"),
                     categories = emptyList(),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
             assertNull(result)
         }
 
-    // --- MATCH_ALL: only categories configured ---
+    // --- Only categories configured ---
 
     @Test
-    fun `MATCH_ALL only categories configured category matches returns baseline message`() =
+    fun `only categories configured category matches returns baseline message`() =
         runTest {
             val item = newItem(categories = listOf("tech"))
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -368,7 +312,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = emptyList(),
                     categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -376,7 +319,7 @@ class FilteredNewItemMonitorStrategyTest {
         }
 
     @Test
-    fun `MATCH_ALL only categories configured category does not match returns null`() =
+    fun `only categories configured category does not match returns null`() =
         runTest {
             val item = newItem(categories = listOf("sports"))
             coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
@@ -387,7 +330,6 @@ class FilteredNewItemMonitorStrategyTest {
                     keywords = emptyList(),
                     authors = emptyList(),
                     categories = listOf("tech"),
-                    logic = FilterLogic.MATCH_ALL,
                 )
 
             val result = strategy.shouldNotify(item, null)
@@ -404,7 +346,6 @@ class FilteredNewItemMonitorStrategyTest {
                 keywords = emptyList(),
                 authors = emptyList(),
                 categories = emptyList(),
-                logic = FilterLogic.MATCH_ALL,
             )
 
         every { baselineStrategy.requiresBaseline() } returns true
