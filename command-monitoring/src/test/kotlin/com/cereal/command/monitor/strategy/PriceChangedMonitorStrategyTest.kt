@@ -148,6 +148,24 @@ class PriceChangedMonitorStrategyTest {
         }
 
     @Test
+    fun `returns notification when previous item has no stock property but current item is in stock and price changed`() =
+        runBlocking {
+            val current = itemWithPriceAndStock(BigDecimal("2.99"))
+            val previous = itemWithPriceOnly(BigDecimal("3.99"))
+            val result = subject.shouldNotify(current, previous)
+            assertNotNull(result)
+        }
+
+    @Test
+    fun `notification message contains old price, new price, currency and up arrow for price increase`() =
+        runBlocking {
+            val current = itemWithPriceAndStock(BigDecimal("3.99"))
+            val previous = itemWithPriceAndStock(BigDecimal("2.99"))
+            val result = subject.shouldNotify(current, previous)
+            assertEquals("Price for Spar changed: 2.99 EUR → 3.99 EUR (↑)", result)
+        }
+
+    @Test
     fun `requiresBaseline returns true`() {
         assertTrue(subject.requiresBaseline())
     }
