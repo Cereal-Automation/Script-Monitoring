@@ -25,6 +25,8 @@ class PriceChangedMonitorStrategy : MonitorStrategy {
         val currentPrice = item.getValue<ItemProperty.Price>() ?: return null
         val previousPrice = previousItem.getValue<ItemProperty.Price>() ?: return null
 
+        if (currentPrice.currency != previousPrice.currency) return null
+
         val stock = item.getValue<ItemProperty.Stock>() ?: return null
         if (!stock.isInStock) return null
 

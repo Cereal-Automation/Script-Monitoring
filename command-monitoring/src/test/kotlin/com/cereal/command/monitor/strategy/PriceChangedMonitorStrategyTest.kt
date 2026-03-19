@@ -66,6 +66,15 @@ class PriceChangedMonitorStrategyTest {
         }
 
     @Test
+    fun `notification message contains old price, new price, currency and direction`() =
+        runBlocking {
+            val current = itemWithPriceAndStock(BigDecimal("2.99"))
+            val previous = itemWithPriceAndStock(BigDecimal("3.99"))
+            val result = subject.shouldNotify(current, previous)
+            assertEquals("Price for Spar changed: 3.99 EUR → 2.99 EUR (↓)", result)
+        }
+
+    @Test
     fun `returns message with up arrow when price increases while in stock`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("4.99"))
@@ -117,6 +126,24 @@ class PriceChangedMonitorStrategyTest {
         runBlocking {
             val current = itemWithPriceOnly(BigDecimal("2.99"))
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
+            assertNull(subject.shouldNotify(current, previous))
+        }
+
+    @Test
+    fun `returns null when currencies differ between current and previous`() =
+        runBlocking {
+            val current = itemWithPriceAndStock(BigDecimal("2.99"), currency = Currency.EUR)
+            val previous =
+                Item(
+                    id = "1",
+                    url = null,
+                    name = "Spar",
+                    properties =
+                        listOf(
+                            ItemProperty.Price(BigDecimal("3.99"), Currency.USD),
+                            ItemProperty.Stock(isInStock = true, amount = 3, level = null),
+                        ),
+                )
             assertNull(subject.shouldNotify(current, previous))
         }
 
