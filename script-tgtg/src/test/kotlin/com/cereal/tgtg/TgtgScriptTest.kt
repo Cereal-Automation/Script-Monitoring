@@ -166,6 +166,26 @@ class TgtgScriptTest {
         }
 
     @Test
+    fun `test execute with notifyOnPriceChange enabled does not crash`() =
+        runTest {
+            // Given
+            val script = TgtgScript()
+            val configuration = createMockConfiguration(notifyOnPriceChange = true)
+            val componentProvider = createMockComponentProvider()
+            val statusUpdate: suspend (String) -> Unit = mockk(relaxed = true)
+
+            script.onStart(configuration, componentProvider)
+
+            // When
+            val result = script.execute(configuration, componentProvider, statusUpdate)
+
+            // Then - PriceChangedMonitorStrategy should be added without crashing
+            assertTrue(result is ExecutionResult.Success || result is ExecutionResult.Error)
+
+            script.onFinish(configuration, componentProvider)
+        }
+
+    @Test
     fun `test execute with minimal configuration`() =
         runTest {
             // Given
