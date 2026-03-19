@@ -1,5 +1,6 @@
 package com.cereal.rss
 
+import com.cereal.command.monitor.data.rss.RssFeedItemRepository
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.strategy.MonitorStrategy
@@ -30,14 +31,14 @@ class FilteredNewItemMonitorStrategy(
                         (item.description?.contains(keyword, ignoreCase = true) == true)
                 }
 
-        val itemAuthors = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == "author" }.map { it.value }
+        val itemAuthors = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == RssFeedItemRepository.PROPERTY_AUTHOR }.map { it.value }
         val matchesAuthor =
             authors.isNotEmpty() &&
                 authors.any { configured ->
                     itemAuthors.any { it.equals(configured, ignoreCase = true) }
                 }
 
-        val itemCategories = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == "category" }.map { it.value }
+        val itemCategories = item.properties.filterIsInstance<ItemProperty.Custom>().filter { it.name == RssFeedItemRepository.PROPERTY_CATEGORY }.map { it.value }
         val matchesCategory =
             categories.isNotEmpty() &&
                 categories.any { configuredCategory ->

@@ -17,6 +17,10 @@ class RssFeedItemRepository(
     private val logger: LoggerComponent,
     private val rssParser: RssParser = RssParser(),
 ) : ItemRepository {
+    companion object {
+        const val PROPERTY_AUTHOR = "author"
+        const val PROPERTY_CATEGORY = "category"
+    }
     private val dateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
 
     override suspend fun getItems(nextPageToken: String?): Page {
@@ -35,13 +39,13 @@ class RssFeedItemRepository(
 
                             rssItem.author?.let { author ->
                                 if (author.isNotBlank()) {
-                                    add(ItemProperty.Custom("author", author))
+                                    add(ItemProperty.Custom(PROPERTY_AUTHOR, author))
                                 }
                             }
 
                             rssItem.categories.forEach { category ->
                                 if (category.isNotBlank()) {
-                                    add(ItemProperty.Custom("category", category))
+                                    add(ItemProperty.Custom(PROPERTY_CATEGORY, category))
                                 }
                             }
                         }

@@ -1,5 +1,6 @@
 package com.cereal.rss
 
+import com.cereal.command.monitor.data.rss.RssFeedItemRepository
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.strategy.MonitorStrategy
@@ -22,8 +23,8 @@ class FilteredNewItemMonitorStrategyTest {
         categories: List<String> = emptyList(),
     ): Item {
         val properties = mutableListOf<ItemProperty>()
-        if (author != null) properties.add(ItemProperty.Custom("author", author))
-        categories.forEach { properties.add(ItemProperty.Custom("category", it)) }
+        if (author != null) properties.add(ItemProperty.Custom(RssFeedItemRepository.PROPERTY_AUTHOR, author))
+        categories.forEach { properties.add(ItemProperty.Custom(RssFeedItemRepository.PROPERTY_CATEGORY, it)) }
         return Item(id = "1", url = "http://example.com", name = name, description = description, properties = properties)
     }
 
