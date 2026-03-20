@@ -29,6 +29,11 @@ object MonitorStrategyFactory {
 
     fun newItemAvailableMonitorStrategy(since: Instant): MonitorStrategy = NewItemAvailableMonitorStrategy(since)
 
+    fun equalsOrBelowPriceMonitorStrategy(
+        price: java.math.BigDecimal,
+        currency: com.cereal.command.monitor.models.Currency,
+    ): MonitorStrategy = EqualsOrBelowPriceMonitorStrategy(price, currency)
+
     fun marketPriceComparisonStrategy(
         userInteractionComponent: UserInteractionComponent,
         clientId: String,
