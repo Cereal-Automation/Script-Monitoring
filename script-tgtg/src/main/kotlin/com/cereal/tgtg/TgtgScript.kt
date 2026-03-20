@@ -7,6 +7,7 @@ import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
+import com.cereal.command.monitor.strategy.PriceChangedMonitorStrategy
 import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
@@ -54,7 +55,7 @@ class TgtgScript : Script<TgtgConfiguration> {
         statusUpdate: suspend (message: String) -> Unit,
     ): List<Command> {
         val factory = MonitorCommandFactory(provider)
-        val monitorStrategies = buildMonitorStrategies()
+        val monitorStrategies = buildMonitorStrategies(configuration)
 
         val logRepository = factory.logRepository(statusUpdate)
         val notificationRepository = factory.notificationRepository("TGTG")
@@ -118,9 +119,10 @@ class TgtgScript : Script<TgtgConfiguration> {
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun buildMonitorStrategies(): List<MonitorStrategy> =
-        listOf(
-            NewItemAvailableMonitorStrategy(Clock.System.now()),
-            StockAvailableMonitorStrategy(notifyOnInitialRun = true),
-        )
+    private fun buildMonitorStrategies(configuration: TgtgConfiguration): List<MonitorStrategy> =
+        buildList {
+            add(NewItemAvailableMonitorStrategy(Clock.System.now()))
+            add(StockAvailableMonitorStrategy(notifyOnInitialRun = true))
+            if (configuration.notifyOnPriceChange()) add(PriceChangedMonitorStrategy())
+        }
 }

@@ -68,6 +68,15 @@ interface TgtgConfiguration : BaseConfiguration {
     )
     fun minimumRating(): Double?
 
+    @ScriptConfigurationItem(
+        keyName = KEY_NOTIFY_ON_PRICE_CHANGE,
+        name = "Notify on Price Change",
+        description =
+            "If enabled, sends a notification whenever the price of an available bag changes (Dynamic Price). " +
+                "Only fires when the item is in stock.",
+    )
+    fun notifyOnPriceChange(): Boolean = false
+
     companion object {
         const val KEY_EMAIL = "email"
         const val KEY_LATITUDE = "latitude"
@@ -76,5 +85,6 @@ interface TgtgConfiguration : BaseConfiguration {
         const val KEY_FAVORITES_ONLY = "favorites_only"
         const val KEY_RANDOM_PROXY = "random_proxy"
         const val KEY_MINIMUM_RATING = "minimum_rating"
+        const val KEY_NOTIFY_ON_PRICE_CHANGE = "notify_on_price_change"
     }
 }
