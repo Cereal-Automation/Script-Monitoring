@@ -24,7 +24,7 @@ cereal-test-utils = "1.7.0"
 
 # HTTP Client
 ktor = "3.3.0"
-logging-interceptor = "5.2.0"
+logging-interceptor = "5.3.2"
 
 # Web Scraping & Parsing
 htmlunit = "4.8.0"
