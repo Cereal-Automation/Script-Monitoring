@@ -17,9 +17,9 @@ jobs:
         module: [ script-nike, script-snkrs, script-bdga-store, script-tgtg ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: 17
@@ -31,7 +31,7 @@ jobs:
           ./gradlew ${{ matrix.module }}:scriptJar
       - name: Store jar
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.module }}-${{ github.ref_name }}-release
           path: ${{ matrix.module }}/build/obfuscated/release.jar
