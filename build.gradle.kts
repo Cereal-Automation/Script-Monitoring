@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.gradleup.shadow)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.spotless) apply false
 }
 
 allprojects {
@@ -20,6 +21,17 @@ allprojects {
             exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
             exclude(group = "com.cereal-automation", module = "cereal-sdk")
         }
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
+
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 }
 
@@ -41,7 +53,7 @@ subprojects {
         }
     }
 
-    if (name !in listOf("command", "command-monitoring", "script-common")) {
+    if (name !in listOf("command", "command-monitoring", "script-common", "stockx-api-client")) {
         apply(plugin = "com.gradleup.shadow")
 
         tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
@@ -77,14 +89,6 @@ subprojects {
                     "${rootDir.absolutePath}/proguard-rules/okio.pro",
                 ),
             )
-        }
-    }
-}
-
-tasks {
-    kotlin {
-        jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
 }
