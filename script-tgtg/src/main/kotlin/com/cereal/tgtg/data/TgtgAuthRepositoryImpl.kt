@@ -14,6 +14,13 @@ class TgtgAuthRepositoryImpl(
 
     override suspend fun authByEmail(email: String): AuthByEmailResult {
         val response = tgtgApiClient.authByEmail(email)
+        if (response.captchaUrl != null) {
+            throw Exception(
+                "Too Good To Go requires a CAPTCHA verification before login can proceed. " +
+                    "This usually happens after too many login attempts. " +
+                    "Please wait a while and try again later.",
+            )
+        }
         val pollingId =
             response.pollingId
                 ?: throw Exception("No polling ID received from authentication request")

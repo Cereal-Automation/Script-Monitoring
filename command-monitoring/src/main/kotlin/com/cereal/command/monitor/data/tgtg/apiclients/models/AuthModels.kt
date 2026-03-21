@@ -17,6 +17,8 @@ data class AuthByEmailResponse(
     val pollingId: String? = null,
     @SerialName("state")
     val state: String? = null,
+    @SerialName("url")
+    val captchaUrl: String? = null,
 )
 
 @Serializable
