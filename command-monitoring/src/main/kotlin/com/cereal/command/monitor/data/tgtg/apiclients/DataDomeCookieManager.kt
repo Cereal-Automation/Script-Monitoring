@@ -6,7 +6,6 @@ import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.apiclients.models.DataDomeCookieResponse
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.Proxy
-import io.ktor.client.HttpClient
 import io.ktor.client.plugins.cookies.AcceptAllCookiesStorage
 import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.client.request.forms.FormDataContent
@@ -35,11 +34,6 @@ internal class DataDomeCookieManager(
     private val configStore: TgtgConfigStore,
     private val json: Json = defaultJson(),
 ) {
-    private var cachedHttpClient: HttpClient? = null
-
-    private fun getHttpClient(): HttpClient =
-        cachedHttpClient ?: defaultHttpClient(timeout = timeout, httpProxy = httpProxy).also { cachedHttpClient = it }
-
     companion object {
         private const val DATA_DOME_COOKIE_NAME = "datadome"
     }
@@ -118,7 +112,7 @@ internal class DataDomeCookieManager(
                     append("d_ifv", UUID.randomUUID().toString().replace("-", ""))
                 }
 
-            val httpClient = getHttpClient()
+            val httpClient = defaultHttpClient(timeout = timeout, httpProxy = httpProxy)
             val response =
                 httpClient.post("https://api-sdk.datadome.co/sdk/") {
                     headers {
