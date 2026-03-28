@@ -8,6 +8,7 @@ import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.script.repository.LogRepository
+import com.cereal.sdk.models.proxy.RandomProxy
 import java.math.BigDecimal
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -17,6 +18,7 @@ class ParariusItemRepository(
     private val maxPrice: Int?,
     private val minSizeM2: Int?,
     private val minRooms: Int?,
+    private val randomProxy: RandomProxy? = null,
     private val logRepository: LogRepository,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
@@ -37,7 +39,12 @@ class ParariusItemRepository(
 
     private suspend fun fetchCity(city: String): List<Item> {
         val url = buildCityUrl(city)
-        val document = defaultJSoupClient(url, timeout, null, userAgent).get()
+        val response = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).execute()
+        if (response.statusCode() != 200) {
+            logRepository.info("Pararius: HTTP ${response.statusCode()} for '$city' at $url")
+            return emptyList()
+        }
+        val document = response.parse()
         val links = document
             .select("section.listing-search-item h2.listing-search-item__title a")
             .map { it.attr("abs:href") }
@@ -59,7 +66,12 @@ class ParariusItemRepository(
     }
 
     private suspend fun fetchListing(url: String, city: String): Item? {
-        val doc = defaultJSoupClient(url, timeout, null, userAgent).get()
+        val response = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).execute()
+        if (response.statusCode() != 200) {
+            logRepository.info("Pararius: HTTP ${response.statusCode()} for listing '$url'")
+            return null
+        }
+        val doc = response.parse()
 
         val rawTitle = doc.selectFirst("h1.listing-detail-summary__title")?.text()?.trim() ?: ""
         val title = rawTitle.removePrefix("For rent:").trim()

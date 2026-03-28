@@ -1,5 +1,6 @@
 package com.cereal.command.monitor.data.rental
 
+import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
