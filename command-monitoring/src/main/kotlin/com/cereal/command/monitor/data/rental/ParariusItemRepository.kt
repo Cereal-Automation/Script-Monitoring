@@ -92,6 +92,7 @@ class ParariusItemRepository(
         val price = parsePrice(rawPrice)
         val sizeM2 = parseSizeM2(rawSize)
         val rooms = parseRooms(rawRooms)
+        val imageUrl = doc.selectFirst("meta[property=og:image]")?.attr("content")?.trim()
 
         if (!passesFilters(price, sizeM2, rooms)) return null
 
@@ -100,6 +101,7 @@ class ParariusItemRepository(
             url = url,
             name = "$title · ${city.replaceFirstChar { it.uppercase() }}",
             description = address,
+            imageUrl = imageUrl,
             properties =
                 buildList {
                     price?.let { add(ItemProperty.Price(it, Currency.EUR)) }
