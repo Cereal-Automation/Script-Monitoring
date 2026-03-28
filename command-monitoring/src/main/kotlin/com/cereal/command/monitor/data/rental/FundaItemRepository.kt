@@ -7,10 +7,18 @@ import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
+import dev.kdriver.core.browser.Browser
 import dev.kdriver.core.browser.createBrowser
+import dev.kdriver.core.tab.ReadyState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.math.BigDecimal
+import java.util.NoSuchElementException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -25,8 +33,8 @@ class FundaItemRepository(
 ) : ItemRepository {
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
-        val browserScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
-        val browser = dev.kdriver.core.browser.createBrowser(browserScope)
+        val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val browser = createBrowser(browserScope)
 
         try {
             for (city in cities) {
@@ -37,8 +45,8 @@ class FundaItemRepository(
                 }
             }
         } finally {
-            kotlin.runCatching { browser.stop() }
-            browserScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            runCatching { browser.stop() }
+            browserScope.coroutineContext[Job]?.cancel()
         }
 
         return Page(nextPageToken = null, items = items)
@@ -46,7 +54,7 @@ class FundaItemRepository(
 
     private suspend fun fetchCity(
         city: String,
-        browser: dev.kdriver.core.browser.Browser,
+        browser: Browser,
     ): List<Item> {
         val url = buildCityUrl(city)
         val html = fetchWithBrowser(url, browser)
@@ -86,16 +94,17 @@ class FundaItemRepository(
 
     private suspend fun fetchWithBrowser(
         url: String,
-        browser: dev.kdriver.core.browser.Browser,
+        browser: Browser,
     ): String {
         var pageContent: String? = null
         for (i in 1..5) {
             try {
                 val page = browser.get(url)
+                page.waitForReadyState(ReadyState.COMPLETE, timeout = 10000)
                 pageContent = page.getContent()
                 break
-            } catch (e: java.util.NoSuchElementException) {
-                kotlinx.coroutines.delay(500)
+            } catch (e: NoSuchElementException) {
+                delay(500)
             }
         }
         if (pageContent == null) throw IllegalStateException("Could not get page from browser")
@@ -105,7 +114,7 @@ class FundaItemRepository(
     private suspend fun fetchListing(
         url: String,
         city: String,
-        browser: dev.kdriver.core.browser.Browser,
+        browser: Browser,
     ): Item? {
         val html = fetchWithBrowser(url, browser)
         val doc = Jsoup.parse(html, url)
@@ -119,13 +128,28 @@ class FundaItemRepository(
             return null
         }
 
-        val address = doc.selectFirst("span.object-header__subtitle")?.text()?.trim() ?: ""
-        val rawPrice = doc.selectFirst("strong.object-header__price")?.text()?.trim() ?: ""
-        val rawSize = kenmerkenValue(doc, "Woonoppervlak")
-        val rawRooms = kenmerkenValue(doc, "Aantal kamers")
-        val available = kenmerkenValue(doc, "Aanvaarding")
-        val energyLabel = doc.select("span.energielabel, div.energielabel").firstOrNull()?.text()?.trim() ?: ""
-        val offeredSince = kenmerkenValue(doc, "Aangeboden sinds")
+        // Funda migrated to Nuxt 3 with randomized tailwind classes.
+        // Old CSS selectors like 'object-header__subtitle' no longer exist in the DOM.
+        // We parse values directly from the raw HTML/JSON string payloads that are present in the SSR response.
+        val address = title.substringAfter(": ").substringBefore(" |").trim()
+        val rawPrice =
+            Regex("""€\s*([\d.,]+)\s*(?:/mnd|per maand)""", RegexOption.IGNORE_CASE)
+                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+        val rawSize =
+            Regex("""(\d+)\s*m²""", RegexOption.IGNORE_CASE)
+                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+        val rawRooms =
+            Regex("""(\d+)\s*(?:kamer|kamers|slaapkamers?)""", RegexOption.IGNORE_CASE)
+                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+        val available =
+            Regex("""Aanvaarding["',:\s]+([^"'{]+)""", RegexOption.IGNORE_CASE)
+                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+        val energyLabel =
+            Regex("""Energielabel["',:\s]+([A-G][\+\d]{0,3})(?=["',:\s])""", RegexOption.IGNORE_CASE)
+                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+        val offeredSince =
+            Regex("""Aangeboden sinds["',:\s]+([^"'{]+)""", RegexOption.IGNORE_CASE)
+                .find(html)?.groupValues?.get(1)?.trim() ?: ""
 
         val price = parsePrice(rawPrice)
         val sizeM2 = parseSizeM2(rawSize)
