@@ -2,15 +2,11 @@ package com.cereal.command.monitor.data.rental
 
 import com.cereal.command.monitor.fixtures.repositories.FakeLogRepository
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertTrue
 
-// Disabled: Funda serves an Akamai reCAPTCHA challenge to headless HTTP clients.
-// Plain JSoup requests are blocked before reaching the listing results page.
-@Disabled
 class TestFundaItemRepository {
     @Tag("integration")
     @ParameterizedTest
