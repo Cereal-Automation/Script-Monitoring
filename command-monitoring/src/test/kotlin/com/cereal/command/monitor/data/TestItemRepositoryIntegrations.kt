@@ -2,6 +2,7 @@ package com.cereal.command.monitor.data
 
 import com.cereal.command.monitor.data.nike.NikeItemRepository
 import com.cereal.command.monitor.data.nike.ScrapeCategory
+import com.cereal.command.monitor.data.rental.ParariusItemRepository
 import com.cereal.command.monitor.data.shopify.ShopifyItemRepository
 import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.data.snkrs.Locale
@@ -71,6 +72,21 @@ class TestItemRepositoryIntegrations {
 //                    ZalandoProductCategory.MEN_SNEAKERS,
 //                    ZalandoWebsite.UK,
 //                    ZalandoMonitorType.NewReleases,
+//                ),
+                ParariusItemRepository(
+                    cities = listOf("amsterdam"),
+                    maxPrice = null,
+                    minSizeM2 = null,
+                    minRooms = null,
+                    logRepository = FakeLogRepository(),
+                ),
+                // Funda disabled: Akamai reCAPTCHA blocks headless HTTP clients.
+//                FundaItemRepository(
+//                    cities = listOf("amsterdam"),
+//                    maxPrice = null,
+//                    minSizeM2 = null,
+//                    minRooms = null,
+//                    logRepository = FakeLogRepository(),
 //                ),
             )
     }

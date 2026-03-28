@@ -46,7 +46,7 @@ class ParariusItemRepository(
         val document = response.parse()
         val links =
             document
-                .select("section.listing-search-item h2.listing-search-item__title a")
+                .select("section.listing-search-item a.listing-search-item__link--title")
                 .map { it.attr("abs:href") }
                 .filter { it.isNotBlank() }
                 .distinct()
@@ -79,7 +79,7 @@ class ParariusItemRepository(
         val rawTitle = doc.selectFirst("h1.listing-detail-summary__title")?.text()?.trim() ?: ""
         val title = rawTitle.removePrefix("For rent:").trim()
         val address = doc.selectFirst("div.listing-detail-summary__location")?.text()?.trim() ?: ""
-        val rawPrice = doc.selectFirst("dd.listing-features__description--for_rent_price")?.text()?.trim() ?: ""
+        val rawPrice = doc.selectFirst("span.listing-detail-summary__price-main")?.text()?.trim() ?: ""
         val rawSize = doc.selectFirst("li.illustrated-features__item--surface-area")?.text()?.trim() ?: ""
         val rawRooms = doc.selectFirst("li.illustrated-features__item--number-of-rooms")?.text()?.trim() ?: ""
         val available = doc.selectFirst("dd.listing-features__description--acceptance")?.text()?.trim() ?: ""
@@ -133,14 +133,10 @@ class ParariusItemRepository(
     companion object {
         fun parsePrice(raw: String): BigDecimal? {
             if (raw.isBlank()) return null
-            val cleaned =
-                raw
-                    .replace("€", "")
-                    .replace(".", "")
-                    .replace("per month", "", ignoreCase = true)
-                    .replace(",", ".")
-                    .trim()
-            return cleaned.toBigDecimalOrNull()
+            // Strip all non-digit characters and parse as a whole-euro amount.
+            // Handles Dutch formatting (€2.750,- p/m, €2,750 pcm, €2750 per month, etc.)
+            val digits = raw.replace(Regex("[^\\d]"), "")
+            return digits.toBigDecimalOrNull()
         }
 
         fun parseSizeM2(raw: String): Int? {

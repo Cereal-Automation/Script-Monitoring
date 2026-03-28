@@ -23,6 +23,11 @@ class ParariusItemRepositoryTest {
     }
 
     @Test
+    fun `parsePrice parses pcm format`() {
+        assertEquals(BigDecimal("2750"), ParariusItemRepository.parsePrice("€2,750 pcm"))
+    }
+
+    @Test
     fun `parseSizeM2 returns null for blank input`() {
         assertNull(ParariusItemRepository.parseSizeM2(""))
     }
