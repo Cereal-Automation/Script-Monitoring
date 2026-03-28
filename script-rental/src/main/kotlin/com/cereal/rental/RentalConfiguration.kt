@@ -1,4 +1,3 @@
-// script-rental/src/main/kotlin/com/cereal/rental/RentalConfiguration.kt
 package com.cereal.rental
 
 import com.cereal.script.utils.configuration.BaseConfiguration
