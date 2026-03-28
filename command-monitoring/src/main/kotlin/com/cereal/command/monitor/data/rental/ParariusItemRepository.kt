@@ -22,7 +22,6 @@ class ParariusItemRepository(
     private val logRepository: LogRepository,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
-
     private val userAgent = DESKTOP_USER_AGENTS.random()
 
     override suspend fun getItems(nextPageToken: String?): Page {
@@ -45,11 +44,12 @@ class ParariusItemRepository(
             return emptyList()
         }
         val document = response.parse()
-        val links = document
-            .select("section.listing-search-item h2.listing-search-item__title a")
-            .map { it.attr("abs:href") }
-            .filter { it.isNotBlank() }
-            .distinct()
+        val links =
+            document
+                .select("section.listing-search-item h2.listing-search-item__title a")
+                .map { it.attr("abs:href") }
+                .filter { it.isNotBlank() }
+                .distinct()
 
         if (links.isEmpty()) {
             logRepository.info("Pararius: no listings found for city '$city' at $url")
@@ -65,7 +65,10 @@ class ParariusItemRepository(
         }
     }
 
-    private suspend fun fetchListing(url: String, city: String): Item? {
+    private suspend fun fetchListing(
+        url: String,
+        city: String,
+    ): Item? {
         val response = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).execute()
         if (response.statusCode() != 200) {
             logRepository.info("Pararius: HTTP ${response.statusCode()} for listing '$url'")
@@ -80,9 +83,10 @@ class ParariusItemRepository(
         val rawSize = doc.selectFirst("li.illustrated-features__item--surface-area")?.text()?.trim() ?: ""
         val rawRooms = doc.selectFirst("li.illustrated-features__item--number-of-rooms")?.text()?.trim() ?: ""
         val available = doc.selectFirst("dd.listing-features__description--acceptance")?.text()?.trim() ?: ""
-        val energyLabel = doc
-            .select("dd[class*=listing-features__description--energy-label]")
-            .firstOrNull()?.text()?.trim() ?: ""
+        val energyLabel =
+            doc
+                .select("dd[class*=listing-features__description--energy-label]")
+                .firstOrNull()?.text()?.trim() ?: ""
         val offeredSince = doc.selectFirst("dd.listing-features__description--offered_since")?.text()?.trim() ?: ""
 
         val price = parsePrice(rawPrice)
@@ -96,18 +100,23 @@ class ParariusItemRepository(
             url = url,
             name = "$title · ${city.replaceFirstChar { it.uppercase() }}",
             description = address,
-            properties = buildList {
-                price?.let { add(ItemProperty.Price(it, Currency.EUR)) }
-                sizeM2?.let { add(ItemProperty.Custom("size_m2", "$it m²")) }
-                rooms?.let { add(ItemProperty.Custom("rooms", it.toString())) }
-                if (available.isNotBlank()) add(ItemProperty.Custom("available", available))
-                if (energyLabel.isNotBlank()) add(ItemProperty.Custom("energy_label", energyLabel))
-                if (offeredSince.isNotBlank()) add(ItemProperty.Custom("offered_since", offeredSince))
-            },
+            properties =
+                buildList {
+                    price?.let { add(ItemProperty.Price(it, Currency.EUR)) }
+                    sizeM2?.let { add(ItemProperty.Custom("size_m2", "$it m²")) }
+                    rooms?.let { add(ItemProperty.Custom("rooms", it.toString())) }
+                    if (available.isNotBlank()) add(ItemProperty.Custom("available", available))
+                    if (energyLabel.isNotBlank()) add(ItemProperty.Custom("energy_label", energyLabel))
+                    if (offeredSince.isNotBlank()) add(ItemProperty.Custom("offered_since", offeredSince))
+                },
         )
     }
 
-    internal fun passesFilters(price: BigDecimal?, sizeM2: Int?, rooms: Int?): Boolean {
+    internal fun passesFilters(
+        price: BigDecimal?,
+        sizeM2: Int?,
+        rooms: Int?,
+    ): Boolean {
         if (maxPrice != null && price != null && price > maxPrice.toBigDecimal()) return false
         if (minSizeM2 != null && sizeM2 != null && sizeM2 < minSizeM2) return false
         if (minRooms != null && rooms != null && rooms < minRooms) return false
@@ -124,12 +133,13 @@ class ParariusItemRepository(
     companion object {
         fun parsePrice(raw: String): BigDecimal? {
             if (raw.isBlank()) return null
-            val cleaned = raw
-                .replace("€", "")
-                .replace(".", "")
-                .replace("per month", "", ignoreCase = true)
-                .replace(",", ".")
-                .trim()
+            val cleaned =
+                raw
+                    .replace("€", "")
+                    .replace(".", "")
+                    .replace("per month", "", ignoreCase = true)
+                    .replace(",", ".")
+                    .trim()
             return cleaned.toBigDecimalOrNull()
         }
 

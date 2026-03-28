@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class FundaItemRepositoryTest {
-
     @Test
     fun `parsePrice returns null for blank input`() {
         assertNull(FundaItemRepository.parsePrice(""))
@@ -55,85 +54,92 @@ class FundaItemRepositoryTest {
 
     @Test
     fun `passesFilters returns true when all filters null`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = null,
-            minSizeM2 = null,
-            minRooms = null,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = null,
+                minSizeM2 = null,
+                minRooms = null,
+                logRepository = FakeLogRepository(),
+            )
         assert(repo.passesFilters(price = null, sizeM2 = null, rooms = null))
     }
 
     @Test
     fun `passesFilters returns false when price exceeds maxPrice`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = 1200,
-            minSizeM2 = null,
-            minRooms = null,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = 1200,
+                minSizeM2 = null,
+                minRooms = null,
+                logRepository = FakeLogRepository(),
+            )
         assert(!repo.passesFilters(price = BigDecimal("1500"), sizeM2 = null, rooms = null))
     }
 
     @Test
     fun `passesFilters includes listing when price is null and maxPrice is set (conservative)`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = 1200,
-            minSizeM2 = null,
-            minRooms = null,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = 1200,
+                minSizeM2 = null,
+                minRooms = null,
+                logRepository = FakeLogRepository(),
+            )
         assert(repo.passesFilters(price = null, sizeM2 = null, rooms = null))
     }
 
     @Test
     fun `passesFilters returns true when sizeM2 is null and minSizeM2 is set (conservative)`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = null,
-            minSizeM2 = 60,
-            minRooms = null,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = null,
+                minSizeM2 = 60,
+                minRooms = null,
+                logRepository = FakeLogRepository(),
+            )
         assert(repo.passesFilters(price = null, sizeM2 = null, rooms = null))
     }
 
     @Test
     fun `passesFilters returns true when rooms is null and minRooms is set (conservative)`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = null,
-            minSizeM2 = null,
-            minRooms = 3,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = null,
+                minSizeM2 = null,
+                minRooms = 3,
+                logRepository = FakeLogRepository(),
+            )
         assert(repo.passesFilters(price = null, sizeM2 = null, rooms = null))
     }
 
     @Test
     fun `passesFilters returns false when size is below minSizeM2`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = null,
-            minSizeM2 = 60,
-            minRooms = null,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = null,
+                minSizeM2 = 60,
+                minRooms = null,
+                logRepository = FakeLogRepository(),
+            )
         assert(!repo.passesFilters(price = null, sizeM2 = 45, rooms = null))
     }
 
     @Test
     fun `passesFilters returns false when rooms below minRooms`() {
-        val repo = FundaItemRepository(
-            cities = listOf("amsterdam"),
-            maxPrice = null,
-            minSizeM2 = null,
-            minRooms = 3,
-            logRepository = FakeLogRepository(),
-        )
+        val repo =
+            FundaItemRepository(
+                cities = listOf("amsterdam"),
+                maxPrice = null,
+                minSizeM2 = null,
+                minRooms = 3,
+                logRepository = FakeLogRepository(),
+            )
         assert(!repo.passesFilters(price = null, sizeM2 = null, rooms = 2))
     }
 }

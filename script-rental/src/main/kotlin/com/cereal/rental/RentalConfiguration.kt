@@ -4,7 +4,6 @@ import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 
 interface RentalConfiguration : BaseConfiguration {
-
     @ScriptConfigurationItem(
         keyName = KEY_CITIES,
         name = "Cities",

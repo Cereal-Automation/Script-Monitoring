@@ -23,7 +23,6 @@ class FundaItemRepository(
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
-
     private val userAgent = DESKTOP_USER_AGENTS.random()
 
     override suspend fun getItems(nextPageToken: String?): Page {
@@ -46,11 +45,12 @@ class FundaItemRepository(
             return emptyList()
         }
         val document = response.parse()
-        val links = document
-            .select("a[data-object-url-tracking]")
-            .map { it.attr("abs:href") }
-            .filter { it.isNotBlank() }
-            .distinct()
+        val links =
+            document
+                .select("a[data-object-url-tracking]")
+                .map { it.attr("abs:href") }
+                .filter { it.isNotBlank() }
+                .distinct()
 
         if (links.isEmpty()) {
             logRepository.info("Funda: no listings found for city '$city' at $url")
@@ -66,7 +66,10 @@ class FundaItemRepository(
         }
     }
 
-    private suspend fun fetchListing(url: String, city: String): Item? {
+    private suspend fun fetchListing(
+        url: String,
+        city: String,
+    ): Item? {
         val response = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).execute()
         if (response.statusCode() != 200) {
             logRepository.info("Funda: HTTP ${response.statusCode()} for listing '$url'")
@@ -74,8 +77,9 @@ class FundaItemRepository(
         }
         val doc = response.parse()
 
-        val title = doc.selectFirst("h1.object-header__title")?.text()?.trim()
-            ?: doc.title().substringBefore(" - ").trim()
+        val title =
+            doc.selectFirst("h1.object-header__title")?.text()?.trim()
+                ?: doc.title().substringBefore(" - ").trim()
         val address = doc.selectFirst("span.object-header__subtitle")?.text()?.trim() ?: ""
         val rawPrice = doc.selectFirst("strong.object-header__price")?.text()?.trim() ?: ""
         val rawSize = kenmerkenValue(doc, "Woonoppervlak")
@@ -95,24 +99,33 @@ class FundaItemRepository(
             url = url,
             name = "$title · ${city.replaceFirstChar { it.uppercase() }}",
             description = address,
-            properties = buildList {
-                price?.let { add(ItemProperty.Price(it, Currency.EUR)) }
-                sizeM2?.let { add(ItemProperty.Custom("size_m2", "$it m²")) }
-                rooms?.let { add(ItemProperty.Custom("rooms", it.toString())) }
-                if (available.isNotBlank()) add(ItemProperty.Custom("available", available))
-                if (energyLabel.isNotBlank()) add(ItemProperty.Custom("energy_label", energyLabel))
-                if (offeredSince.isNotBlank()) add(ItemProperty.Custom("offered_since", offeredSince))
-            },
+            properties =
+                buildList {
+                    price?.let { add(ItemProperty.Price(it, Currency.EUR)) }
+                    sizeM2?.let { add(ItemProperty.Custom("size_m2", "$it m²")) }
+                    rooms?.let { add(ItemProperty.Custom("rooms", it.toString())) }
+                    if (available.isNotBlank()) add(ItemProperty.Custom("available", available))
+                    if (energyLabel.isNotBlank()) add(ItemProperty.Custom("energy_label", energyLabel))
+                    if (offeredSince.isNotBlank()) add(ItemProperty.Custom("offered_since", offeredSince))
+                },
         )
     }
 
-    private fun kenmerkenValue(doc: Document, key: String): String {
-        val dt = doc.select("dl.object-kenmerken-list dt")
-            .firstOrNull { it.text().contains(key, ignoreCase = true) }
+    private fun kenmerkenValue(
+        doc: Document,
+        key: String,
+    ): String {
+        val dt =
+            doc.select("dl.object-kenmerken-list dt")
+                .firstOrNull { it.text().contains(key, ignoreCase = true) }
         return dt?.nextElementSibling()?.text()?.trim() ?: ""
     }
 
-    internal fun passesFilters(price: BigDecimal?, sizeM2: Int?, rooms: Int?): Boolean {
+    internal fun passesFilters(
+        price: BigDecimal?,
+        sizeM2: Int?,
+        rooms: Int?,
+    ): Boolean {
         if (maxPrice != null && price != null && price > maxPrice.toBigDecimal()) return false
         if (minSizeM2 != null && sizeM2 != null && sizeM2 < minSizeM2) return false
         if (minRooms != null && rooms != null && rooms < minRooms) return false
@@ -129,12 +142,13 @@ class FundaItemRepository(
     companion object {
         fun parsePrice(raw: String): BigDecimal? {
             if (raw.isBlank()) return null
-            val cleaned = raw
-                .replace("€", "")
-                .replace(".", "")
-                .replace("/maand", "", ignoreCase = true)
-                .replace(",", ".")
-                .trim()
+            val cleaned =
+                raw
+                    .replace("€", "")
+                    .replace(".", "")
+                    .replace("/maand", "", ignoreCase = true)
+                    .replace(",", ".")
+                    .trim()
             return cleaned.toBigDecimalOrNull()
         }
 
