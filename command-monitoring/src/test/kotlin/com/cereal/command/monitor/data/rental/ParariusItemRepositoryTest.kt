@@ -106,4 +106,28 @@ class ParariusItemRepositoryTest {
         )
         assert(!repo.passesFilters(price = null, sizeM2 = null, rooms = 2))
     }
+
+    @Test
+    fun `passesFilters returns true when sizeM2 is null and minSizeM2 is set (conservative)`() {
+        val repo = ParariusItemRepository(
+            cities = listOf("amsterdam"),
+            maxPrice = null,
+            minSizeM2 = 60,
+            minRooms = null,
+            logRepository = FakeLogRepository(),
+        )
+        assert(repo.passesFilters(price = null, sizeM2 = null, rooms = null))
+    }
+
+    @Test
+    fun `passesFilters returns true when rooms is null and minRooms is set (conservative)`() {
+        val repo = ParariusItemRepository(
+            cities = listOf("amsterdam"),
+            maxPrice = null,
+            minSizeM2 = null,
+            minRooms = 3,
+            logRepository = FakeLogRepository(),
+        )
+        assert(repo.passesFilters(price = null, sizeM2 = null, rooms = null))
+    }
 }
