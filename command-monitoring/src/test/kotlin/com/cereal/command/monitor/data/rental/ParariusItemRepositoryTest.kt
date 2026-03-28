@@ -34,6 +34,11 @@ class ParariusItemRepositoryTest {
     }
 
     @Test
+    fun `parseSizeM2 parses approximate m2 value with ca prefix`() {
+        assertEquals(85, ParariusItemRepository.parseSizeM2("ca. 85 m²"))
+    }
+
+    @Test
     fun `parseRooms returns null for blank input`() {
         assertNull(ParariusItemRepository.parseRooms(""))
     }

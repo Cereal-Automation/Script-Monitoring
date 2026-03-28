@@ -34,6 +34,11 @@ class FundaItemRepositoryTest {
     }
 
     @Test
+    fun `parseSizeM2 parses approximate m2 value with ca prefix`() {
+        assertEquals(75, FundaItemRepository.parseSizeM2("ca. 75 m²"))
+    }
+
+    @Test
     fun `parseRooms returns null for blank input`() {
         assertNull(FundaItemRepository.parseRooms(""))
     }

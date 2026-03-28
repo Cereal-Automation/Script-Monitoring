@@ -140,7 +140,7 @@ class FundaItemRepository(
 
         fun parseSizeM2(raw: String): Int? {
             if (raw.isBlank()) return null
-            return raw.replace("m²", "").trim().split(" ").firstOrNull()?.toIntOrNull()
+            return Regex("""\d+""").find(raw)?.value?.toIntOrNull()
         }
 
         fun parseRooms(raw: String): Int? {
