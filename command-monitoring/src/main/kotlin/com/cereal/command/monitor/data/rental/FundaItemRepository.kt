@@ -27,6 +27,8 @@ class FundaItemRepository(
     private val maxPrice: Int?,
     private val minSizeM2: Int?,
     private val minRooms: Int?,
+    private val furnishing: Furnishing? = null,
+    private val propertyType: PropertyType? = null,
     private val logRepository: LogRepository,
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 30.seconds,
@@ -197,12 +199,15 @@ class FundaItemRepository(
         return true
     }
 
-    private fun buildCityUrl(city: String): String =
-        if (maxPrice != null) {
-            "https://www.funda.nl/huur/$city/?prijsmax=$maxPrice"
-        } else {
-            "https://www.funda.nl/huur/$city/"
+    private fun buildCityUrl(city: String): String {
+        val segments = buildList<String> {
+            add("https://www.funda.nl/huur/$city")
+            propertyType?.let { add(it.fundaSegment) }
+            furnishing?.let { add(it.fundaSegment) }
         }
+        val base = segments.joinToString("/") + "/"
+        return if (maxPrice != null) "$base?prijsmax=$maxPrice" else base
+    }
 
     companion object {
         fun parsePrice(raw: String): BigDecimal? {

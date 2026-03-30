@@ -1,5 +1,7 @@
 package com.cereal.rental
 
+import com.cereal.command.monitor.data.rental.Furnishing
+import com.cereal.command.monitor.data.rental.PropertyType
 import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 
@@ -42,6 +44,20 @@ interface RentalConfiguration : BaseConfiguration {
     fun minRooms(): Int?
 
     @ScriptConfigurationItem(
+        keyName = KEY_FURNISHING,
+        name = "Furnishing",
+        description = "Filter by furnishing. Leave empty for any.",
+    )
+    fun furnishing(): Furnishing?
+
+    @ScriptConfigurationItem(
+        keyName = KEY_PROPERTY_TYPE,
+        name = "Property type",
+        description = "Filter by property type. Leave empty for any.",
+    )
+    fun propertyType(): PropertyType?
+
+    @ScriptConfigurationItem(
         keyName = KEY_ENABLE_PARARIUS,
         name = "Enable Pararius",
         description = "If enabled, scrape Pararius.com for new listings.",
@@ -60,6 +76,8 @@ interface RentalConfiguration : BaseConfiguration {
         const val KEY_MAX_PRICE = "max_price"
         const val KEY_MIN_SIZE_M2 = "min_size_m2"
         const val KEY_MIN_ROOMS = "min_rooms"
+        const val KEY_FURNISHING = "furnishing"
+        const val KEY_PROPERTY_TYPE = "property_type"
         const val KEY_ENABLE_PARARIUS = "enable_pararius"
         const val KEY_ENABLE_FUNDA = "enable_funda"
     }

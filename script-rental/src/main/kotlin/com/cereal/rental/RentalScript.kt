@@ -51,6 +51,8 @@ class RentalScript : Script<RentalConfiguration> {
         val logRepository = factory.logRepository(statusUpdate)
         val notificationRepository = factory.notificationRepository("Dutch Rental Monitor")
         val cities = parseCities(configuration.cities())
+        val furnishing = configuration.furnishing()
+        val propertyType = configuration.propertyType()
         val strategy = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now())
         val strategies = listOf(strategy)
 
@@ -62,6 +64,8 @@ class RentalScript : Script<RentalConfiguration> {
                         maxPrice = configuration.maxPrice(),
                         minSizeM2 = configuration.minSizeM2(),
                         minRooms = configuration.minRooms(),
+                        furnishing = furnishing,
+                        propertyType = propertyType,
                         randomProxy = null,
                         logRepository = logRepository,
                     )
@@ -83,6 +87,8 @@ class RentalScript : Script<RentalConfiguration> {
                         maxPrice = configuration.maxPrice(),
                         minSizeM2 = configuration.minSizeM2(),
                         minRooms = configuration.minRooms(),
+                        furnishing = furnishing,
+                        propertyType = propertyType,
                         logRepository = logRepository,
                         randomProxy = null,
                     )

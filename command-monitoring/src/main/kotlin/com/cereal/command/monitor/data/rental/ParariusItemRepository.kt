@@ -18,6 +18,8 @@ class ParariusItemRepository(
     private val maxPrice: Int?,
     private val minSizeM2: Int?,
     private val minRooms: Int?,
+    private val furnishing: Furnishing? = null,
+    private val propertyType: PropertyType? = null,
     private val randomProxy: RandomProxy? = null,
     private val logRepository: LogRepository,
     private val timeout: Duration = 30.seconds,
@@ -125,12 +127,15 @@ class ParariusItemRepository(
         return true
     }
 
-    private fun buildCityUrl(city: String): String =
-        if (maxPrice != null) {
-            "https://www.pararius.com/apartments/$city/0-$maxPrice"
-        } else {
-            "https://www.pararius.com/apartments/$city"
+    private fun buildCityUrl(city: String): String {
+        val segments = buildList<String> {
+            add("https://www.pararius.com/apartments/$city")
+            propertyType?.parariusSegment?.let { add(it) }
+            furnishing?.let { add(it.parariusSegment) }
+            maxPrice?.let { add("0-$it") }
         }
+        return segments.joinToString("/")
+    }
 
     companion object {
         fun parsePrice(raw: String): BigDecimal? {
