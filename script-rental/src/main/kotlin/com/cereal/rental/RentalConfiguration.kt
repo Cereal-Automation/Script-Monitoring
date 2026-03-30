@@ -2,8 +2,33 @@ package com.cereal.rental
 
 import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
+import com.cereal.sdk.statemodifier.ScriptConfig
+import com.cereal.sdk.statemodifier.ScriptConfigValue
+import com.cereal.sdk.statemodifier.StateModifier
+import com.cereal.sdk.statemodifier.Visibility
+
+private object RentalIntervalStateModifier : StateModifier {
+    override fun getError(scriptConfig: ScriptConfig): String? {
+        val value = scriptConfig.valueForKey(BaseConfiguration.KEY_MONITOR_INTERVAL)
+        return if (value is ScriptConfigValue.IntScriptConfigValue && value.value < 60) {
+            "Interval must be at least 60 seconds (1 minute)."
+        } else {
+            null
+        }
+    }
+
+    override fun getVisibility(scriptConfig: ScriptConfig): Visibility = Visibility.VisibleOptional
+}
 
 interface RentalConfiguration : BaseConfiguration {
+    @ScriptConfigurationItem(
+        keyName = BaseConfiguration.KEY_MONITOR_INTERVAL,
+        name = "Interval",
+        description = "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 60 seconds.",
+        stateModifier = RentalIntervalStateModifier::class,
+    )
+    override fun monitorInterval(): Int? = 300
+
     @ScriptConfigurationItem(
         keyName = KEY_CITIES,
         name = "Cities",
