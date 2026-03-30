@@ -30,6 +30,7 @@ class MonitorCommand(
 
         var nextPageToken: String? = null
         var totalNumberOfItems = 0
+        var totalNotifications = 0
         val items: MutableMap<String, Item> = monitorStatus.monitorItems?.toMutableMap() ?: hashMapOf()
 
         do {
@@ -42,7 +43,7 @@ class MonitorCommand(
             val page = itemRepository.getItems(nextPageToken)
             logRepository.debug("Retrieved ${page.items.size} items.")
 
-            tryExecuteStrategies(page.items, monitorStatus.monitorItems)
+            totalNotifications += tryExecuteStrategies(page.items, monitorStatus.monitorItems)
             page.items.forEach { item -> items[item.id] = item }
             totalNumberOfItems += page.items.size
             nextPageToken = page.nextPageToken
@@ -51,6 +52,10 @@ class MonitorCommand(
         logRepository.info(
             "Found and processed a total of $totalNumberOfItems items.",
         )
+
+        if (totalNotifications == 0) {
+            logRepository.info("No items matched the configured filters — no notifications sent.")
+        }
 
         return context.put(
             monitorStatus.copy(
@@ -65,18 +70,21 @@ class MonitorCommand(
     private suspend fun tryExecuteStrategies(
         items: List<Item>,
         existingItems: Map<String, Item>?,
-    ) {
+    ): Int {
+        var notifications = 0
         items.forEach { item ->
             logRepository.debug("Processing item: ${item.id} - ${item.name}")
             strategies.forEach { strategy ->
                 if (!strategy.requiresBaseline() || existingItems != null) {
-                    ExecuteStrategyCommand(
-                        notificationRepository,
-                        logRepository,
-                        strategy,
-                        item,
-                        existingItems?.get(item.id),
-                    ).execute()
+                    val notified =
+                        ExecuteStrategyCommand(
+                            notificationRepository,
+                            logRepository,
+                            strategy,
+                            item,
+                            existingItems?.get(item.id),
+                        ).execute()
+                    if (notified) notifications++
                 } else {
                     logRepository.debug(
                         "Skipping strategy ${strategy::class.simpleName} for item ${item.id} - requires baseline but none available",
@@ -84,5 +92,6 @@ class MonitorCommand(
                 }
             }
         }
+        return notifications
     }
 }
