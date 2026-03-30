@@ -10,8 +10,8 @@ import com.cereal.sdk.statemodifier.Visibility
 private object RentalIntervalStateModifier : StateModifier {
     override fun getError(scriptConfig: ScriptConfig): String? {
         val value = scriptConfig.valueForKey(BaseConfiguration.KEY_MONITOR_INTERVAL)
-        return if (value is ScriptConfigValue.IntScriptConfigValue && value.value < 60) {
-            "Interval must be at least 60 seconds (1 minute)."
+        return if (value is ScriptConfigValue.IntScriptConfigValue && value.value < 1) {
+            "Interval must be at least 1 minute."
         } else {
             null
         }
@@ -23,11 +23,11 @@ private object RentalIntervalStateModifier : StateModifier {
 interface RentalConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(
         keyName = BaseConfiguration.KEY_MONITOR_INTERVAL,
-        name = "Interval",
-        description = "The duration, in seconds, the script waits before rechecking for updates. Minimum value is 60 seconds.",
+        name = "Interval (minutes)",
+        description = "How often the script checks for new listings, in minutes. Minimum value is 1 minute.",
         stateModifier = RentalIntervalStateModifier::class,
     )
-    override fun monitorInterval(): Int? = 300
+    override fun monitorInterval(): Int? = 5
 
     @ScriptConfigurationItem(
         keyName = KEY_CITIES,

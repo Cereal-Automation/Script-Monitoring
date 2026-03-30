@@ -71,7 +71,7 @@ class RentalScript : Script<RentalConfiguration> {
                         logRepository = logRepository,
                         notificationRepository = notificationRepository,
                         strategies = strategies,
-                        scrapeInterval = configuration.monitorInterval()?.seconds,
+                        scrapeInterval = configuration.monitorInterval()?.let { it * 60 }?.seconds,
                     ),
                 )
             }
@@ -92,7 +92,7 @@ class RentalScript : Script<RentalConfiguration> {
                         logRepository = logRepository,
                         notificationRepository = notificationRepository,
                         strategies = strategies,
-                        scrapeInterval = configuration.monitorInterval()?.seconds,
+                        scrapeInterval = configuration.monitorInterval()?.let { it * 60 }?.seconds,
                     ),
                 )
             }
