@@ -34,7 +34,7 @@ class FundaItemRepository(
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
         val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        val browser = createBrowser(browserScope)
+        val browser = createBrowser(browserScope) { headless = true }
 
         try {
             for (city in cities) {
