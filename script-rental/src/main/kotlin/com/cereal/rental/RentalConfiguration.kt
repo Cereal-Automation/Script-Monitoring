@@ -61,6 +61,7 @@ interface RentalConfiguration : BaseConfiguration {
         keyName = KEY_ENABLE_PARARIUS,
         name = "Enable Pararius",
         description = "If enabled, scrape Pararius.com for new listings.",
+        stateModifier = RentalSourceStateModifier::class,
     )
     fun enablePararius(): Boolean
 
@@ -68,6 +69,7 @@ interface RentalConfiguration : BaseConfiguration {
         keyName = KEY_ENABLE_FUNDA,
         name = "Enable Funda",
         description = "If enabled, scrape Funda.nl for new listings.",
+        stateModifier = RentalSourceStateModifier::class,
     )
     fun enableFunda(): Boolean
 
