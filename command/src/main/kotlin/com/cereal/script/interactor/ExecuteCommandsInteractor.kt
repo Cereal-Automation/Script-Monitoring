@@ -9,6 +9,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
 
 /**
@@ -56,11 +59,15 @@ class ExecuteCommandsInteractor(
                     applyDecisionDelay(decision)
 
                     // Execute the command and emit updates
+                    var shouldContinue = true
                     executeCommand(command, currentContext)
-                        .collect { emitted ->
-                            currentContext = emitted
+                        .collect { result ->
+                            currentContext = result.context
+                            shouldContinue = result.shouldContinue
                             emit(currentContext)
                         }
+
+                    if (!shouldContinue) return@flow
 
                     // Log waiting time before next run
                     if (decision is RunDecision.RunRepeat && decision.startDelay.isPositive()) {
@@ -119,12 +126,41 @@ class ExecuteCommandsInteractor(
     private fun executeCommand(
         command: Command,
         context: ChainContext,
-    ): Flow<ChainContext> =
+    ): Flow<CommandResult> =
         flow {
-            command.execute(context)
-            emit(context)
+            try {
+                command.execute(context)
+                emit(CommandResult(context, shouldContinue = true))
+            } catch (e: CommandSuccessException) {
+                e.message?.let { logRepository.info(it) }
+                emit(CommandResult(context, shouldContinue = false))
+            }
         }.withRetry(command.getDescription(), logRepository)
             .withLogging(command.getDescription(), logRepository)
+
+    private fun Flow<CommandResult>.withLogging(
+        action: String,
+        logRepository: LogRepository,
+    ): Flow<CommandResult> =
+        this
+            .onStart {
+                logRepository.info("Starting $action.")
+            }.onEach { result ->
+                if (result.shouldContinue) {
+                    logRepository.info("Finished '$action'.")
+                }
+            }.onCompletion { error ->
+                error?.let {
+                    if (error !is CancellationException && error !is CommandSuccessException) {
+                        logRepository.debug("Error executing '$action': \n${error.stackTraceToString()}")
+                    }
+                }
+            }
+
+    private data class CommandResult(
+        val context: ChainContext,
+        val shouldContinue: Boolean,
+    )
 
     /**
      * Create a shallow copy of the given ChainContext.

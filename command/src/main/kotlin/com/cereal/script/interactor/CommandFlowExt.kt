@@ -32,7 +32,7 @@ fun <T> Flow<T>.withRetry(
     this.retryWhen { cause, attempt ->
         // Propagate cooperative cancellation without logging or retrying
         if (cause is CancellationException) return@retryWhen false
-        if (cause is RuntimeException || cause is UnrecoverableException || cause is InvalidChainContextException) {
+        if (cause is RuntimeException || cause is UnrecoverableException || cause is InvalidChainContextException || cause is CommandSuccessException) {
             // Runtime exceptions, UnrecoverableExceptions, and InvalidChainContextExceptions are not retried at the command level.
             // InvalidChainContextExceptions will be handled at the command chain level to restart the entire chain.
             val message =
@@ -40,9 +40,10 @@ fun <T> Flow<T>.withRetry(
                     is InvalidChainContextException -> "Restarting '$action' due to an invalid state"
                     is UnrecoverableException -> "Skip retrying '$action' due to unrecoverable error"
                     is RuntimeException -> "Skip retrying '$action' due to unhandled error"
+                    is CommandSuccessException -> null
                     else -> "Skip retrying '$action'"
                 }
-            logRepository.info(message)
+            message?.let { logRepository.info(it) }
             false
         } else if (attempt < RETRY_ATTEMPTS_TOTAL) {
             val delayTime =
@@ -82,7 +83,7 @@ fun Flow<ChainContext>.withLogging(
             logRepository.info("Finished '$action'.")
         }.onCompletion { error ->
             error?.let {
-                if (error !is CancellationException) {
+                if (error !is CancellationException && error !is CommandSuccessException) {
                     logRepository.debug("Error executing '$action': \n${error.stackTraceToString()}")
                 }
             }
