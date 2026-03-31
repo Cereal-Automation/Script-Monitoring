@@ -35,8 +35,8 @@ fun <T> Flow<T>.withRetry(
         if (cause is RuntimeException ||
             cause is UnrecoverableException ||
             cause is InvalidChainContextException ||
-            cause is CommandSuccessException)
-        {
+            cause is CommandSuccessException
+        ) {
             // Runtime exceptions, UnrecoverableExceptions, and InvalidChainContextExceptions are not retried at the command level.
             // InvalidChainContextExceptions will be handled at the command chain level to restart the entire chain.
             val message =
