@@ -1,7 +1,5 @@
 package com.cereal.command.monitor.data.rental
 
-import com.cereal.command.monitor.data.common.useragent.DESKTOP_USER_AGENTS
-import com.cereal.command.monitor.data.common.webclient.defaultJSoupClient
 import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
@@ -9,7 +7,17 @@ import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
+import dev.kdriver.core.browser.Browser
+import dev.kdriver.core.browser.createBrowser
+import dev.kdriver.core.tab.ReadyState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import org.jsoup.Jsoup
 import java.math.BigDecimal
+import java.util.NoSuchElementException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -24,28 +32,35 @@ class ParariusItemRepository(
     private val logRepository: LogRepository,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
-    private val userAgent = DESKTOP_USER_AGENTS.random()
-
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
-        for (city in cities) {
-            try {
-                items += fetchCity(city)
-            } catch (e: Exception) {
-                logRepository.info("Pararius: failed to fetch listings for city '$city': ${e.message}")
+        val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val browser = createBrowser(browserScope) { headless = true }
+
+        try {
+            for (city in cities) {
+                try {
+                    items += fetchCity(city, browser)
+                } catch (e: Exception) {
+                    logRepository.info("Pararius: failed to fetch listings for city '$city': ${e.message}")
+                }
             }
+        } finally {
+            runCatching { browser.stop() }
+            browserScope.coroutineContext[Job]?.cancel()
         }
+
         return Page(nextPageToken = null, items = items)
     }
 
-    private suspend fun fetchCity(city: String): List<Item> {
+    private suspend fun fetchCity(
+        city: String,
+        browser: Browser,
+    ): List<Item> {
         val url = buildCityUrl(city)
-        val response = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).execute()
-        if (response.statusCode() != 200) {
-            logRepository.info("Pararius: HTTP ${response.statusCode()} for '$city' at $url")
-            return emptyList()
-        }
-        val document = response.parse()
+        val html = fetchWithBrowser(url, browser)
+        val document = Jsoup.parse(html, url)
+
         val links =
             document
                 .select("section.listing-search-item a.listing-search-item__link--title")
@@ -59,7 +74,7 @@ class ParariusItemRepository(
 
         return links.mapNotNull { listingUrl ->
             try {
-                fetchListing(listingUrl, city)
+                fetchListing(listingUrl, city, browser)
             } catch (e: Exception) {
                 logRepository.info("Pararius: failed to fetch listing '$listingUrl': ${e.message}")
                 null
@@ -67,16 +82,32 @@ class ParariusItemRepository(
         }
     }
 
+    private suspend fun fetchWithBrowser(
+        url: String,
+        browser: Browser,
+    ): String {
+        var pageContent: String? = null
+        for (i in 1..5) {
+            try {
+                val page = browser.get(url)
+                page.waitForReadyState(ReadyState.COMPLETE, timeout = 10000)
+                pageContent = page.getContent()
+                break
+            } catch (e: NoSuchElementException) {
+                delay(500)
+            }
+        }
+        if (pageContent == null) throw IllegalStateException("Could not get page from browser")
+        return pageContent
+    }
+
     private suspend fun fetchListing(
         url: String,
         city: String,
+        browser: Browser,
     ): Item? {
-        val response = defaultJSoupClient(url, timeout, randomProxy?.invoke(), userAgent).execute()
-        if (response.statusCode() != 200) {
-            logRepository.info("Pararius: HTTP ${response.statusCode()} for listing '$url'")
-            return null
-        }
-        val doc = response.parse()
+        val html = fetchWithBrowser(url, browser)
+        val doc = Jsoup.parse(html, url)
 
         val rawTitle = doc.selectFirst("h1.listing-detail-summary__title")?.text()?.trim() ?: ""
         val title = rawTitle.removePrefix("For rent:").trim()
@@ -140,8 +171,6 @@ class ParariusItemRepository(
     companion object {
         fun parsePrice(raw: String): BigDecimal? {
             if (raw.isBlank()) return null
-            // Strip all non-digit characters and parse as a whole-euro amount.
-            // Handles Dutch formatting (€2.750,- p/m, €2,750 pcm, €2750 per month, etc.)
             val digits = raw.replace(Regex("[^\\d]"), "")
             return digits.toBigDecimalOrNull()
         }
@@ -157,3 +186,4 @@ class ParariusItemRepository(
         }
     }
 }
+
