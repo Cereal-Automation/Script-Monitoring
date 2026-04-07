@@ -200,11 +200,12 @@ class FundaItemRepository(
     }
 
     private fun buildCityUrl(city: String): String {
-        val segments = buildList<String> {
-            add("https://www.funda.nl/huur/$city")
-            propertyType?.let { add(it.fundaSegment) }
-            furnishing?.let { add(it.fundaSegment) }
-        }
+        val segments =
+            buildList<String> {
+                add("https://www.funda.nl/huur/$city")
+                propertyType?.let { add(it.fundaSegment) }
+                furnishing?.let { add(it.fundaSegment) }
+            }
         val base = segments.joinToString("/") + "/"
         return if (maxPrice != null) "$base?prijsmax=$maxPrice" else base
     }

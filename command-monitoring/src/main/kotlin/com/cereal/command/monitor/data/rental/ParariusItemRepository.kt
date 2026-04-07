@@ -159,12 +159,13 @@ class ParariusItemRepository(
     }
 
     private fun buildCityUrl(city: String): String {
-        val segments = buildList<String> {
-            add("https://www.pararius.com/apartments/$city")
-            propertyType?.parariusSegment?.let { add(it) }
-            furnishing?.let { add(it.parariusSegment) }
-            maxPrice?.let { add("0-$it") }
-        }
+        val segments =
+            buildList<String> {
+                add("https://www.pararius.com/apartments/$city")
+                propertyType?.parariusSegment?.let { add(it) }
+                furnishing?.let { add(it.parariusSegment) }
+                maxPrice?.let { add("0-$it") }
+            }
         return segments.joinToString("/")
     }
 
@@ -186,4 +187,3 @@ class ParariusItemRepository(
         }
     }
 }
-
