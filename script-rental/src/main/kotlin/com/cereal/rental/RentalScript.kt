@@ -53,7 +53,7 @@ class RentalScript : Script<RentalConfiguration> {
         val cities = parseCities(configuration.cities())
         val furnishing = configuration.furnishing()
         val propertyType = configuration.propertyType()
-        val strategy = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now())
+        val strategy = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now(), requiresBaseline = false)
         val strategies = listOf(strategy)
 
         return buildList {

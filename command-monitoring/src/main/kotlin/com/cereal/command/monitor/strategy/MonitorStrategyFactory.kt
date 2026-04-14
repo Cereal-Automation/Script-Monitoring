@@ -27,7 +27,10 @@ object MonitorStrategyFactory {
 
     fun stockChangedMonitorStrategy(): MonitorStrategy = StockChangedMonitorStrategy()
 
-    fun newItemAvailableMonitorStrategy(since: Instant): MonitorStrategy = NewItemAvailableMonitorStrategy(since)
+    fun newItemAvailableMonitorStrategy(
+        since: Instant,
+        requiresBaseline: Boolean = true,
+    ): MonitorStrategy = NewItemAvailableMonitorStrategy(since, requiresBaseline)
 
     fun equalsOrBelowPriceMonitorStrategy(
         price: java.math.BigDecimal,
