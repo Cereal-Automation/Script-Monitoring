@@ -9,6 +9,9 @@ import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.commands.RunDecision
 import com.cereal.script.repository.LogRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlin.time.Duration
 
 class MonitorCommand(
@@ -28,31 +31,20 @@ class MonitorCommand(
     override suspend fun execute(context: ChainContext) {
         val monitorStatus = context.getOrCreate<MonitorStatus> { MonitorStatus() }
 
-        var totalNumberOfItems = 0
-        var totalNotifications = 0
+        val allItems =
+            coroutineScope {
+                itemRepositories
+                    .map { repository -> async { fetchAllItems(repository) } }
+                    .awaitAll()
+                    .flatten()
+            }
+
         val items: MutableMap<String, Item> = monitorStatus.monitorItems?.toMutableMap() ?: hashMapOf()
-
-        for (itemRepository in itemRepositories) {
-            var nextPageToken: String? = null
-            do {
-                val message =
-                    nextPageToken?.let {
-                        "Retrieving items from $it"
-                    } ?: "Retrieving items from first page"
-                logRepository.info(message)
-
-                val page = itemRepository.getItems(nextPageToken)
-                logRepository.debug("Retrieved ${page.items.size} items.")
-
-                totalNotifications += tryExecuteStrategies(page.items, monitorStatus.monitorItems)
-                page.items.forEach { item -> items[item.id] = item }
-                totalNumberOfItems += page.items.size
-                nextPageToken = page.nextPageToken
-            } while (nextPageToken != null)
-        }
+        val totalNotifications = tryExecuteStrategies(allItems, monitorStatus.monitorItems)
+        allItems.forEach { item -> items[item.id] = item }
 
         logRepository.info(
-            "Found and processed a total of $totalNumberOfItems items.",
+            "Found and processed a total of ${allItems.size} items.",
         )
 
         if (totalNotifications == 0) {
@@ -68,6 +60,25 @@ class MonitorCommand(
     }
 
     override fun getDescription(): String = "Monitoring new products"
+
+    private suspend fun fetchAllItems(itemRepository: ItemRepository): List<Item> {
+        val items = mutableListOf<Item>()
+        var nextPageToken: String? = null
+        do {
+            val message =
+                nextPageToken?.let {
+                    "Retrieving items from $it"
+                } ?: "Retrieving items from first page"
+            logRepository.info(message)
+
+            val page = itemRepository.getItems(nextPageToken)
+            logRepository.debug("Retrieved ${page.items.size} items.")
+
+            items += page.items
+            nextPageToken = page.nextPageToken
+        } while (nextPageToken != null)
+        return items
+    }
 
     private suspend fun tryExecuteStrategies(
         items: List<Item>,
