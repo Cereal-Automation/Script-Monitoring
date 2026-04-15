@@ -67,8 +67,8 @@ class MonitorCommand(
         do {
             val message =
                 nextPageToken?.let {
-                    "Retrieving items from $it"
-                } ?: "Retrieving items from first page"
+                    "[${itemRepository.name}] Retrieving items from $it"
+                } ?: "[${itemRepository.name}] Retrieving items from first page"
             logRepository.info(message)
 
             val page = itemRepository.getItems(nextPageToken)

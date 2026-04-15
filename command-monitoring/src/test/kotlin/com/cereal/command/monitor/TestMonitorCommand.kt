@@ -15,6 +15,7 @@ import com.cereal.script.commands.RunDecision
 import com.cereal.script.repository.LogRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -34,6 +35,10 @@ class TestMonitorCommand {
     private val notificationRepository = mockk<NotificationRepository>(relaxed = true)
     private val logRepository = mockk<LogRepository>(relaxed = true)
     private val mockStrategy = mockk<MonitorStrategy>(relaxed = true)
+
+    init {
+        every { itemRepository.name } returns "Test"
+    }
 
     @Test
     fun `test execute with single page of items`() =

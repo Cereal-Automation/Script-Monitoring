@@ -27,6 +27,8 @@ class ShopifyItemRepository(
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
+    override val name: String = website.name
+
     private val defaultHeaders =
         mapOf(
             HttpHeaders.UserAgent to MOBILE_USER_AGENTS.random(),

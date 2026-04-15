@@ -32,6 +32,8 @@ class ParariusItemRepository(
     private val logRepository: LogRepository,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
+    override val name: String = "Pararius"
+
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
         val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())

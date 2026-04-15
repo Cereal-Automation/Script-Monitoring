@@ -16,9 +16,11 @@ class TestFundaItemRepository {
             val repository =
                 FundaItemRepository(
                     cities = listOf(data.city),
-                    maxPrice = null,
-                    minSizeM2 = null,
-                    minRooms = null,
+                    maxPrice = 6000,
+                    minSizeM2 = 10,
+                    minRooms = 1,
+                    furnishing = Furnishing.FURNISHED,
+                    propertyType = PropertyType.APARTMENT,
                     logRepository = FakeLogRepository(),
                 )
 

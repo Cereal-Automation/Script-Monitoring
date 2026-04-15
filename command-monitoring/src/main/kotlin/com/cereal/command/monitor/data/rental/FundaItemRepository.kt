@@ -33,6 +33,8 @@ class FundaItemRepository(
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
+    override val name: String = "Funda"
+
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
         val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
