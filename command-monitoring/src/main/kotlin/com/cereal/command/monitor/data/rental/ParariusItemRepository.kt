@@ -143,6 +143,7 @@ class ParariusItemRepository(
                     if (available.isNotBlank()) add(ItemProperty.Custom("Available", available))
                     if (energyLabel.isNotBlank()) add(ItemProperty.Custom("Energy label", energyLabel))
                     if (offeredSince.isNotBlank()) add(ItemProperty.Custom("Offered since", offeredSince))
+                    add(ItemProperty.Custom("Source", "Pararius"))
                 },
         )
     }
