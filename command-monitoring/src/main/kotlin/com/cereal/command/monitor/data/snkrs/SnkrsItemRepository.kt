@@ -9,6 +9,8 @@ class SnkrsItemRepository(
     private val snkrsApiClient: SnkrsApiClient,
     private val locale: Locale,
 ) : ItemRepository {
+    override val name: String = "Nike SNKRS"
+
     override suspend fun getItems(nextPageToken: String?): Page {
         val anchor = nextPageToken?.toInt() ?: 0
 

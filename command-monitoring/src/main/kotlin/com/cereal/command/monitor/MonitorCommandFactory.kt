@@ -15,19 +15,27 @@ class MonitorCommandFactory(
     private val provider: ComponentProvider,
 ) {
     fun monitorCommand(
-        itemRepository: ItemRepository,
+        itemRepositories: List<ItemRepository>,
         logRepository: LogRepository,
         notificationRepository: NotificationRepository,
         strategies: List<MonitorStrategy>,
         scrapeInterval: Duration? = null,
     ): MonitorCommand =
         MonitorCommand(
-            itemRepository = itemRepository,
+            itemRepositories = itemRepositories,
             notificationRepository = notificationRepository,
             logRepository = logRepository,
             delayBetweenScrapes = scrapeInterval ?: Random.nextInt(15, 31).seconds,
             strategies = strategies,
         )
+
+    fun monitorCommand(
+        itemRepository: ItemRepository,
+        logRepository: LogRepository,
+        notificationRepository: NotificationRepository,
+        strategies: List<MonitorStrategy>,
+        scrapeInterval: Duration? = null,
+    ): MonitorCommand = monitorCommand(listOf(itemRepository), logRepository, notificationRepository, strategies, scrapeInterval)
 
     fun logRepository(statusUpdate: suspend (message: String) -> Unit): LogRepository = ScriptLogRepository(provider.logger(), statusUpdate)
 

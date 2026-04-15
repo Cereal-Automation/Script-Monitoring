@@ -2,6 +2,8 @@ package com.cereal.command.monitor.data
 
 import com.cereal.command.monitor.data.nike.NikeItemRepository
 import com.cereal.command.monitor.data.nike.ScrapeCategory
+import com.cereal.command.monitor.data.rental.FundaItemRepository
+import com.cereal.command.monitor.data.rental.ParariusItemRepository
 import com.cereal.command.monitor.data.shopify.ShopifyItemRepository
 import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.data.snkrs.Locale
@@ -72,6 +74,20 @@ class TestItemRepositoryIntegrations {
 //                    ZalandoWebsite.UK,
 //                    ZalandoMonitorType.NewReleases,
 //                ),
+                ParariusItemRepository(
+                    cities = listOf("amsterdam"),
+                    maxPrice = null,
+                    minSizeM2 = null,
+                    minRooms = null,
+                    logRepository = FakeLogRepository(),
+                ),
+                FundaItemRepository(
+                    cities = listOf("amsterdam"),
+                    maxPrice = null,
+                    minSizeM2 = null,
+                    minRooms = null,
+                    logRepository = FakeLogRepository(),
+                ),
             )
     }
 }

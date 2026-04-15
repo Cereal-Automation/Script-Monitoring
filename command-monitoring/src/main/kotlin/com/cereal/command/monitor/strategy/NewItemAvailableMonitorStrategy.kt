@@ -17,12 +17,13 @@ import kotlin.time.Instant
  *
  * The reference point can be customized through the `since` parameter or defaults to the current time.
  *
- * Provides a [requiresBaseline] method which indicates that the strategy requires an initial baseline
- * or previous item for consistent notification behavior.
+ * The [requiresBaseline] behaviour can be controlled via the `requiresBaseline` parameter. When `false`,
+ * the strategy will notify for every item it has not seen before, even on the very first run.
  */
 @OptIn(ExperimentalTime::class)
 class NewItemAvailableMonitorStrategy(
     private val since: Instant = Clock.System.now(),
+    private val baseline: Boolean = true,
 ) : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
@@ -40,5 +41,5 @@ class NewItemAvailableMonitorStrategy(
         }
     }
 
-    override fun requiresBaseline(): Boolean = true
+    override fun requiresBaseline(): Boolean = baseline
 }
