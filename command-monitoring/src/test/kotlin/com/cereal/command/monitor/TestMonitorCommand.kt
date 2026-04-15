@@ -44,7 +44,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -75,7 +75,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -98,7 +98,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -118,7 +118,7 @@ class TestMonitorCommand {
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -132,7 +132,7 @@ class TestMonitorCommand {
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -201,7 +201,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository,
+                    listOf(itemRepository),
                     notificationRepository,
                     logRepository,
                     delayBetweenScrapes = Duration.ZERO,

@@ -56,53 +56,47 @@ class RentalScript : Script<RentalConfiguration> {
         val strategy = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now(), requiresBaseline = false)
         val strategies = listOf(strategy)
 
-        return buildList {
-            if (configuration.enablePararius()) {
-                val parariusRepository =
-                    ParariusItemRepository(
-                        cities = cities,
-                        maxPrice = configuration.maxPrice(),
-                        minSizeM2 = configuration.minSizeM2(),
-                        minRooms = configuration.minRooms(),
-                        furnishing = furnishing,
-                        propertyType = propertyType,
-                        randomProxy = null,
-                        logRepository = logRepository,
+        val repositories =
+            buildList {
+                if (configuration.enablePararius()) {
+                    add(
+                        ParariusItemRepository(
+                            cities = cities,
+                            maxPrice = configuration.maxPrice(),
+                            minSizeM2 = configuration.minSizeM2(),
+                            minRooms = configuration.minRooms(),
+                            furnishing = furnishing,
+                            propertyType = propertyType,
+                            randomProxy = null,
+                            logRepository = logRepository,
+                        ),
                     )
-                add(
-                    factory.monitorCommand(
-                        itemRepository = parariusRepository,
-                        logRepository = logRepository,
-                        notificationRepository = notificationRepository,
-                        strategies = strategies,
-                        scrapeInterval = configuration.monitorInterval()?.let { it * 60 }?.seconds,
-                    ),
-                )
+                }
+                if (configuration.enableFunda()) {
+                    add(
+                        FundaItemRepository(
+                            cities = cities,
+                            maxPrice = configuration.maxPrice(),
+                            minSizeM2 = configuration.minSizeM2(),
+                            minRooms = configuration.minRooms(),
+                            furnishing = furnishing,
+                            propertyType = propertyType,
+                            logRepository = logRepository,
+                            randomProxy = null,
+                        ),
+                    )
+                }
             }
 
-            if (configuration.enableFunda()) {
-                val fundaRepository =
-                    FundaItemRepository(
-                        cities = cities,
-                        maxPrice = configuration.maxPrice(),
-                        minSizeM2 = configuration.minSizeM2(),
-                        minRooms = configuration.minRooms(),
-                        furnishing = furnishing,
-                        propertyType = propertyType,
-                        logRepository = logRepository,
-                        randomProxy = null,
-                    )
-                add(
-                    factory.monitorCommand(
-                        itemRepository = fundaRepository,
-                        logRepository = logRepository,
-                        notificationRepository = notificationRepository,
-                        strategies = strategies,
-                        scrapeInterval = configuration.monitorInterval()?.let { it * 60 }?.seconds,
-                    ),
-                )
-            }
-        }
+        return listOf(
+            factory.monitorCommand(
+                itemRepositories = repositories,
+                logRepository = logRepository,
+                notificationRepository = notificationRepository,
+                strategies = strategies,
+                scrapeInterval = configuration.monitorInterval()?.let { it * 60 }?.seconds,
+            ),
+        )
     }
 
     private fun parseCities(input: String): List<String> = input.split(",").map { it.trim().lowercase() }.filter { it.isNotBlank() }

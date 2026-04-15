@@ -12,7 +12,7 @@ import com.cereal.script.repository.LogRepository
 import kotlin.time.Duration
 
 class MonitorCommand(
-    private val itemRepository: ItemRepository,
+    private val itemRepositories: List<ItemRepository>,
     private val notificationRepository: NotificationRepository,
     private val logRepository: LogRepository,
     private val delayBetweenScrapes: Duration,
@@ -28,26 +28,28 @@ class MonitorCommand(
     override suspend fun execute(context: ChainContext) {
         val monitorStatus = context.getOrCreate<MonitorStatus> { MonitorStatus() }
 
-        var nextPageToken: String? = null
         var totalNumberOfItems = 0
         var totalNotifications = 0
         val items: MutableMap<String, Item> = monitorStatus.monitorItems?.toMutableMap() ?: hashMapOf()
 
-        do {
-            val message =
-                nextPageToken?.let {
-                    "Retrieving items from $it"
-                } ?: "Retrieving items from first page"
-            logRepository.info(message)
+        for (itemRepository in itemRepositories) {
+            var nextPageToken: String? = null
+            do {
+                val message =
+                    nextPageToken?.let {
+                        "Retrieving items from $it"
+                    } ?: "Retrieving items from first page"
+                logRepository.info(message)
 
-            val page = itemRepository.getItems(nextPageToken)
-            logRepository.debug("Retrieved ${page.items.size} items.")
+                val page = itemRepository.getItems(nextPageToken)
+                logRepository.debug("Retrieved ${page.items.size} items.")
 
-            totalNotifications += tryExecuteStrategies(page.items, monitorStatus.monitorItems)
-            page.items.forEach { item -> items[item.id] = item }
-            totalNumberOfItems += page.items.size
-            nextPageToken = page.nextPageToken
-        } while (nextPageToken != null)
+                totalNotifications += tryExecuteStrategies(page.items, monitorStatus.monitorItems)
+                page.items.forEach { item -> items[item.id] = item }
+                totalNumberOfItems += page.items.size
+                nextPageToken = page.nextPageToken
+            } while (nextPageToken != null)
+        }
 
         logRepository.info(
             "Found and processed a total of $totalNumberOfItems items.",
