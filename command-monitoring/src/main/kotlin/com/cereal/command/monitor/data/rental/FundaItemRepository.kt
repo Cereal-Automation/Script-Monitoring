@@ -169,11 +169,11 @@ class FundaItemRepository(
             properties =
                 buildList {
                     price?.let { add(ItemProperty.Price(it, Currency.EUR)) }
-                    sizeM2?.let { add(ItemProperty.Custom("size_m2", "$it m²")) }
-                    rooms?.let { add(ItemProperty.Custom("rooms", it.toString())) }
-                    if (available.isNotBlank()) add(ItemProperty.Custom("available", available))
-                    if (energyLabel.isNotBlank()) add(ItemProperty.Custom("energy_label", energyLabel))
-                    if (offeredSince.isNotBlank()) add(ItemProperty.Custom("offered_since", offeredSince))
+                    sizeM2?.let { add(ItemProperty.Custom("Size", "$it m²")) }
+                    rooms?.let { add(ItemProperty.Custom("Rooms", it.toString())) }
+                    if (available.isNotBlank()) add(ItemProperty.Custom("Available", available))
+                    if (energyLabel.isNotBlank()) add(ItemProperty.Custom("Energy label", energyLabel))
+                    if (offeredSince.isNotBlank()) add(ItemProperty.Custom("Offered since", offeredSince))
                 },
         )
     }
