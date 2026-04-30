@@ -9,10 +9,10 @@ class MarketPriceComparisonStrategy(
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
+    ): MonitorStrategy.NotifyResult {
         // TODO: Implement market price comparison logic
-        // TODO: Returning null for now (no notification)
-        return null
+        // TODO: Returning Skip for now (no notification)
+        return MonitorStrategy.NotifyResult.Skip("Not implemented")
     }
 
     override fun requiresBaseline(): Boolean = false
