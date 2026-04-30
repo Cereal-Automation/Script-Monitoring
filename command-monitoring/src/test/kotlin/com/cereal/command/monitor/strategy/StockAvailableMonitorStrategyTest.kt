@@ -6,8 +6,7 @@ import com.cereal.command.monitor.models.Variant
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.assertIs
 
 class StockAvailableMonitorStrategyTest {
     private val monitorStrategy = StockAvailableMonitorStrategy()
@@ -31,7 +30,7 @@ class StockAvailableMonitorStrategyTest {
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
-        assertNotNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Notify>(result)
     }
 
     @Test
@@ -52,7 +51,7 @@ class StockAvailableMonitorStrategyTest {
             )
         val result = runBlocking { monitorStrategy.shouldNotify(item, previousItem) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -74,7 +73,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertEquals("Test Item is in stock (5)!", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Test Item is in stock (5)!"), result)
     }
 
     @Test
@@ -96,7 +95,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -140,7 +139,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertEquals("New variant variant2 is in stock: HIGH", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("New variant variant2 is in stock: HIGH"), result)
     }
 
     @Test
@@ -178,7 +177,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertEquals("Variant variant1 is in stock: HIGH", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Variant variant1 is in stock: HIGH"), result)
     }
 
     @Test
@@ -216,7 +215,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategy.shouldNotify(currentItem, previousItem) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     // Tests for initial run notification functionality
@@ -233,7 +232,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
-        assertEquals("Test Item is in stock (5)!", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Test Item is in stock (5)!"), result)
     }
 
     @Test
@@ -248,7 +247,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -278,7 +277,7 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
-        assertEquals("Variant Size M is in stock: 3\nVariant Size L is in stock: HIGH", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Variant Size M is in stock: 3\nVariant Size L is in stock: HIGH"), result)
     }
 
     @Test
@@ -302,14 +301,11 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
     fun `should not notify on initial run with default strategy (backwards compatibility)`() {
-        // This test verifies that the default strategy requires a baseline
-        // In practice, the monitoring system won't call shouldNotify with null previousItem
-        // for strategies that require baseline, but we test the behavior directly here
         val item =
             Item(
                 id = "1",
@@ -318,12 +314,9 @@ class StockAvailableMonitorStrategyTest {
                 properties = listOf(ItemProperty.Stock(isInStock = true, amount = 5, "HIGH")),
             )
 
-        // The default strategy should not notify on initial run even if called directly
-        // This is a defensive test - in practice this won't happen due to requiresBaseline check
         val result = runBlocking { monitorStrategy.shouldNotify(item, null) }
 
-        // The strategy should return null because it doesn't have notifyOnInitialRun enabled
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -358,7 +351,7 @@ class StockAvailableMonitorStrategyTest {
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(item, null) }
 
         // Should prioritize item-level notification over variant notifications
-        assertEquals("Test Item is in stock (2)!", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Test Item is in stock (2)!"), result)
     }
 
     @Test
@@ -380,6 +373,6 @@ class StockAvailableMonitorStrategyTest {
 
         val result = runBlocking { monitorStrategyWithInitialRun.shouldNotify(currentItem, previousItem) }
 
-        assertEquals("Test Item is in stock (5)!", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Test Item is in stock (5)!"), result)
     }
 }
