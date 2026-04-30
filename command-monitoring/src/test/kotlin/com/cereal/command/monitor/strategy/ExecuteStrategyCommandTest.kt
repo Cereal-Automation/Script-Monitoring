@@ -65,12 +65,13 @@ class ExecuteStrategyCommandTest {
             val item = Item("TestItem", "url", "item", properties = emptyList())
 
             coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Skip("no reason")
+            coJustRun { logRepository.info(any()) }
 
             executeStrategyCommand =
                 ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
             executeStrategyCommand.execute()
 
             coVerify(exactly = 0) { notificationRepository.notify(any(), any()) }
-            coVerify(exactly = 0) { logRepository.info("Sending notification for 'TestItem'.") }
+            coVerify { logRepository.info("No notification for 'item': no reason") }
         }
 }
