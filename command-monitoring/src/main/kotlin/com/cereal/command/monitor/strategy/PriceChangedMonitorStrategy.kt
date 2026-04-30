@@ -19,23 +19,32 @@ class PriceChangedMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
-        if (previousItem == null) return null
+    ): MonitorStrategy.NotifyResult {
+        if (previousItem == null) return MonitorStrategy.NotifyResult.Skip("No previous item")
 
-        val currentPrice = item.getValue<ItemProperty.Price>() ?: return null
-        val previousPrice = previousItem.getValue<ItemProperty.Price>() ?: return null
+        val currentPrice = item.getValue<ItemProperty.Price>()
+            ?: return MonitorStrategy.NotifyResult.Skip("Price property missing on current item")
+        val previousPrice = previousItem.getValue<ItemProperty.Price>()
+            ?: return MonitorStrategy.NotifyResult.Skip("Price property missing on previous item")
 
-        if (currentPrice.currency != previousPrice.currency) return null
+        if (currentPrice.currency != previousPrice.currency) {
+            return MonitorStrategy.NotifyResult.Skip("Currency mismatch")
+        }
 
-        val stock = item.getValue<ItemProperty.Stock>() ?: return null
-        if (!stock.isInStock) return null
+        val stock = item.getValue<ItemProperty.Stock>()
+            ?: return MonitorStrategy.NotifyResult.Skip("Stock property missing")
+        if (!stock.isInStock) return MonitorStrategy.NotifyResult.Skip("Item is not in stock")
 
-        if (currentPrice.value.compareTo(previousPrice.value) == 0) return null
+        if (currentPrice.value.compareTo(previousPrice.value) == 0) {
+            return MonitorStrategy.NotifyResult.Skip("Price is unchanged")
+        }
 
         val direction = if (currentPrice.value < previousPrice.value) "↓" else "↑"
         val currency = currentPrice.currency.code
 
-        return "Price for ${item.name} changed: ${previousPrice.value} $currency → ${currentPrice.value} $currency ($direction)"
+        return MonitorStrategy.NotifyResult.Notify(
+            "Price for ${item.name} changed: ${previousPrice.value} $currency → ${currentPrice.value} $currency ($direction)",
+        )
     }
 
     override fun requiresBaseline(): Boolean = true
