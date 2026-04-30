@@ -43,7 +43,7 @@ class ExecuteStrategyCommand(
                 }
             }
             is MonitorStrategy.NotifyResult.Skip ->
-                logRepository.info("No notification for '${item.name}': ${result.reason}")
+                logRepository.debug("No notification for '${item.name}': ${result.reason}")
             null -> Unit
         }
     }

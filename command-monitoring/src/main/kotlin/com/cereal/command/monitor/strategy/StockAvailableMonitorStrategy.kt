@@ -27,7 +27,13 @@ class StockAvailableMonitorStrategy(
         // Handle initial run case when notifyOnInitialRun is enabled
         if (notifyOnInitialRun && previousItem == null) {
             val msg = generateInitialRunMessage(item)
-            return if (msg != null) MonitorStrategy.NotifyResult.Notify(msg) else MonitorStrategy.NotifyResult.Skip("Not in stock on initial run")
+            return if (msg != null) {
+                MonitorStrategy.NotifyResult.Notify(
+                    msg,
+                )
+            } else {
+                MonitorStrategy.NotifyResult.Skip("Not in stock on initial run")
+            }
         }
 
         // If notifyOnInitialRun is false and there's no previous item, don't notify
@@ -39,7 +45,13 @@ class StockAvailableMonitorStrategy(
         if (availableStockMessage != null) return MonitorStrategy.NotifyResult.Notify(availableStockMessage)
 
         val variantMsg = generateVariantChangesMessage(item, previousItem)
-        return if (variantMsg != null) MonitorStrategy.NotifyResult.Notify(variantMsg) else MonitorStrategy.NotifyResult.Skip("No stock changes")
+        return if (variantMsg != null) {
+            MonitorStrategy.NotifyResult.Notify(
+                variantMsg,
+            )
+        } else {
+            MonitorStrategy.NotifyResult.Skip("No stock changes")
+        }
     }
 
     private fun generateInitialRunMessage(item: Item): String? {

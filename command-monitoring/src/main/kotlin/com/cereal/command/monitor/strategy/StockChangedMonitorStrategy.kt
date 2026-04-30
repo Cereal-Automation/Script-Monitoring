@@ -25,7 +25,13 @@ class StockChangedMonitorStrategy : MonitorStrategy {
         if (stockMessage != null) return MonitorStrategy.NotifyResult.Notify(stockMessage)
 
         val variantMsg = generateVariantChangesMessage(item, previousItem)
-        return if (variantMsg != null) MonitorStrategy.NotifyResult.Notify(variantMsg) else MonitorStrategy.NotifyResult.Skip("No stock changes")
+        return if (variantMsg != null) {
+            MonitorStrategy.NotifyResult.Notify(
+                variantMsg,
+            )
+        } else {
+            MonitorStrategy.NotifyResult.Skip("No stock changes")
+        }
     }
 
     private fun generateStockChangeMessage(

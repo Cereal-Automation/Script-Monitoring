@@ -16,10 +16,11 @@ class FilteredNewItemMonitorStrategy(
         previousItem: Item?,
     ): MonitorStrategy.NotifyResult {
         // Delegate baseline newness check; propagate Skip directly
-        val baselineMessage = when (val baselineResult = baselineStrategy.shouldNotify(item, previousItem)) {
-            is MonitorStrategy.NotifyResult.Skip -> return baselineResult
-            is MonitorStrategy.NotifyResult.Notify -> baselineResult.message
-        }
+        val baselineMessage =
+            when (val baselineResult = baselineStrategy.shouldNotify(item, previousItem)) {
+                is MonitorStrategy.NotifyResult.Skip -> return baselineResult
+                is MonitorStrategy.NotifyResult.Notify -> baselineResult.message
+            }
 
         // If no filters configured, behave identically to original
         if (keywords.isEmpty() && authors.isEmpty() && categories.isEmpty()) {

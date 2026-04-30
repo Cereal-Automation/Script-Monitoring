@@ -22,17 +22,20 @@ class PriceChangedMonitorStrategy : MonitorStrategy {
     ): MonitorStrategy.NotifyResult {
         if (previousItem == null) return MonitorStrategy.NotifyResult.Skip("No previous item")
 
-        val currentPrice = item.getValue<ItemProperty.Price>()
-            ?: return MonitorStrategy.NotifyResult.Skip("Price property missing on current item")
-        val previousPrice = previousItem.getValue<ItemProperty.Price>()
-            ?: return MonitorStrategy.NotifyResult.Skip("Price property missing on previous item")
+        val currentPrice =
+            item.getValue<ItemProperty.Price>()
+                ?: return MonitorStrategy.NotifyResult.Skip("Price property missing on current item")
+        val previousPrice =
+            previousItem.getValue<ItemProperty.Price>()
+                ?: return MonitorStrategy.NotifyResult.Skip("Price property missing on previous item")
 
         if (currentPrice.currency != previousPrice.currency) {
             return MonitorStrategy.NotifyResult.Skip("Currency mismatch")
         }
 
-        val stock = item.getValue<ItemProperty.Stock>()
-            ?: return MonitorStrategy.NotifyResult.Skip("Stock property missing")
+        val stock =
+            item.getValue<ItemProperty.Stock>()
+                ?: return MonitorStrategy.NotifyResult.Skip("Stock property missing")
         if (!stock.isInStock) return MonitorStrategy.NotifyResult.Skip("Item is not in stock")
 
         if (currentPrice.value.compareTo(previousPrice.value) == 0) {

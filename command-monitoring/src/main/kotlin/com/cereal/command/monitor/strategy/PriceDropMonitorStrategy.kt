@@ -22,7 +22,9 @@ class PriceDropMonitorStrategy : MonitorStrategy {
         if (previousItem == null) return MonitorStrategy.NotifyResult.Skip("No previous item")
 
         val price = item.getValue<ItemProperty.Price>()?.value ?: return MonitorStrategy.NotifyResult.Skip("No price")
-        val previousPrice = previousItem.getValue<ItemProperty.Price>()?.value ?: return MonitorStrategy.NotifyResult.Skip("No previous price")
+        val previousPrice =
+            previousItem.getValue<ItemProperty.Price>()?.value
+                ?: return MonitorStrategy.NotifyResult.Skip("No previous price")
 
         return if (previousPrice.compareTo(price) == 1) {
             MonitorStrategy.NotifyResult.Notify("Price for ${item.name} dropped to $price.")
