@@ -72,6 +72,6 @@ class ExecuteStrategyCommandTest {
             executeStrategyCommand.execute()
 
             coVerify(exactly = 0) { notificationRepository.notify(any(), any()) }
-            coVerify { logRepository.debug("No notification for 'item': no reason") }
+            coVerify { logRepository.debug(match { it.startsWith("No notification for 'item'") && it.contains("no reason") }) }
         }
 }
