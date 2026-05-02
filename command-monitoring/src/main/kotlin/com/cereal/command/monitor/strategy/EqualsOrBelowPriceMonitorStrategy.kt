@@ -34,12 +34,12 @@ class EqualsOrBelowPriceMonitorStrategy(
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
+    ): MonitorStrategy.NotifyResult {
         val itemPrice = item.requireValue<ItemProperty.Price>()
         val previousItemPrice = previousItem?.requireValue<ItemProperty.Price>()
 
         // Do not notify when the price is the same as before.
-        if (itemPrice.value == previousItemPrice?.value) return null
+        if (itemPrice.value == previousItemPrice?.value) return MonitorStrategy.NotifyResult.Skip("Price unchanged")
 
         if (itemPrice.currency.code != currency.code) {
             throw CurrencyMismatchException(itemPrice.currency, currency)
@@ -48,9 +48,9 @@ class EqualsOrBelowPriceMonitorStrategy(
         val isCheaper = itemPrice.value <= price.min(previousItemPrice?.value ?: price)
 
         return if (isCheaper) {
-            "${item.name} is available for $itemPrice"
+            MonitorStrategy.NotifyResult.Notify("${item.name} is available for $itemPrice")
         } else {
-            null
+            MonitorStrategy.NotifyResult.Skip("Price not below threshold")
         }
     }
 

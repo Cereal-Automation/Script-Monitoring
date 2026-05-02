@@ -30,7 +30,7 @@ class ExecuteStrategyCommandTest {
             val item = Item("1", "url", "TestItem", properties = emptyList())
             val message = "Notify Message"
 
-            coEvery { strategy.shouldNotify(item, any()) } returns message
+            coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Notify(message)
             coJustRun { notificationRepository.notify(message, item) }
 
             executeStrategyCommand =
@@ -47,7 +47,7 @@ class ExecuteStrategyCommandTest {
             val message = "Notify Message"
             val exceptionMessage = "Notification Exception"
 
-            coEvery { strategy.shouldNotify(item, any()) } returns message
+            coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Notify(message)
             coEvery { notificationRepository.notify(any(), any()) } throws RuntimeException(exceptionMessage)
 
             executeStrategyCommand =
@@ -62,13 +62,14 @@ class ExecuteStrategyCommandTest {
         runBlocking {
             val item = Item("TestItem", "url", "item", properties = emptyList())
 
-            coEvery { strategy.shouldNotify(item, any()) } returns null
+            coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Skip("no reason")
+            coJustRun { logRepository.debug(any()) }
 
             executeStrategyCommand =
                 ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
             executeStrategyCommand.execute()
 
             coVerify(exactly = 0) { notificationRepository.notify(any(), any()) }
-            coVerify(exactly = 0) { logRepository.info("Sending notification for 'TestItem'.") }
+            coVerify { logRepository.debug(match { it.startsWith("No notification for 'item'") && it.contains("no reason") }) }
         }
 }

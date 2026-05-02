@@ -8,8 +8,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal
 import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.assertIs
 
 class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
     @Test
@@ -25,7 +24,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
             val result = strategy.shouldNotify(item, null)
 
-            assertNotNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Notify>(result)
             Unit
         }
 
@@ -42,7 +41,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("200.00"), Currency.USD)
             val result = strategy.shouldNotify(item, null)
 
-            assertNotNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Notify>(result)
             Unit
         }
 
@@ -79,7 +78,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             val strategy = EqualsOrBelowPriceMonitorStrategy(BigDecimal("150.00"), Currency.USD)
             val result = strategy.shouldNotify(item, null)
 
-            assertNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Skip>(result)
         }
 
     @Test
@@ -104,7 +103,7 @@ class EqualsOrBelowPriceCommandExecutionScriptStrategyTest {
             strategy.shouldNotify(item1, null)
             val result = strategy.shouldNotify(item2, item1)
 
-            assertNotNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Notify>(result)
             Unit
         }
 }
