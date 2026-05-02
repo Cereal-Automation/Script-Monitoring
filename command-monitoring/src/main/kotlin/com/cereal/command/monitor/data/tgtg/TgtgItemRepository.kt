@@ -32,6 +32,8 @@ class TgtgItemRepository(
     private val favoritesOnly: Boolean = true,
     private val minimumRating: Double? = null,
 ) : ItemRepository {
+    override val name: String = "Too Good To Go"
+
     override suspend fun getItems(nextPageToken: String?): Page {
         // TGTG API doesn't support pagination in the traditional sense
         // The nextPageToken is ignored as the API returns all items in one call

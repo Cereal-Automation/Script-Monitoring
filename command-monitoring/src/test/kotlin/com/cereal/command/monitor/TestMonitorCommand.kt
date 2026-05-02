@@ -15,6 +15,7 @@ import com.cereal.script.commands.RunDecision
 import com.cereal.script.repository.LogRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -35,6 +36,10 @@ class TestMonitorCommand {
     private val logRepository = mockk<LogRepository>(relaxed = true)
     private val mockStrategy = mockk<MonitorStrategy>(relaxed = true)
 
+    init {
+        every { itemRepository.name } returns "Test"
+    }
+
     @Test
     fun `test execute with single page of items`() =
         runTest {
@@ -44,7 +49,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -75,7 +80,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -98,7 +103,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -118,7 +123,7 @@ class TestMonitorCommand {
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -132,7 +137,7 @@ class TestMonitorCommand {
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -201,7 +206,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository,
+                    listOf(itemRepository),
                     notificationRepository,
                     logRepository,
                     delayBetweenScrapes = Duration.ZERO,
