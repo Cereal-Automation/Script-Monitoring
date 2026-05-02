@@ -38,6 +38,7 @@ class BDGAStoreScript : Script<BDGAStoreConfiguration> {
                 factory.monitorCommand(
                     itemRepository =
                         ShopifyItemRepository(
+                            logRepository = logRepository,
                             website = ShopifyWebsite("New Arrivals", "https://bdgastore.com/collections/newarrivals"),
                             randomProxy = configuration.proxy(),
                         ),

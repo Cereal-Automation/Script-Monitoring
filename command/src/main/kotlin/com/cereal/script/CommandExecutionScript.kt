@@ -67,6 +67,7 @@ class CommandExecutionScript(
             interactor(commands, context).collect()
         } catch (e: Exception) {
             if (e is CancellationException) throw e
+            provider.logger().error("Error while running script", e)
             return ExecutionResult.Error("Error after ${start.untilNow()} while running script: ${e.message}")
         }
 

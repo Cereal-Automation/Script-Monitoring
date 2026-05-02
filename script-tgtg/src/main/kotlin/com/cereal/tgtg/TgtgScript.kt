@@ -73,6 +73,7 @@ class TgtgScript : Script<TgtgConfiguration> {
 
         val tgtgRepository =
             TgtgItemRepository(
+                logRepository = logRepository,
                 tgtgApiClient = tgtgApiClient,
                 latitude = configuration.latitude(),
                 longitude = configuration.longitude(),
