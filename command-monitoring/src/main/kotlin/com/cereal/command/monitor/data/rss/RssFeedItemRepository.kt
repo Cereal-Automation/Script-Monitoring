@@ -69,8 +69,9 @@ class RssFeedItemRepository(
         return try {
             ItemProperty.PublishDate(ZonedDateTime.parse(pubDate, dateTimeFormatter).toInstant().toKotlinInstant())
         } catch (e: Exception) {
-            logger.warn(
+            logger.error(
                 "Expected to find a publish date for RSS item with guid ${rssItem.guid} but couldn't read the date because: ${e.message}",
+                e,
             )
             null
         }

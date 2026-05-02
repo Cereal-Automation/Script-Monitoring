@@ -54,9 +54,11 @@ class TestItemRepositoryIntegrations {
                     Locale.BE_NL,
                 ),
                 ShopifyItemRepository(
+                    FakeLogRepository(),
                     ShopifyWebsite("Test", "https://www.fillingpieces.com/collections/men-new-arrivals"),
                 ),
                 TgtgItemRepository(
+                    FakeLogRepository(),
                     TgtgApiClient(
                         FakeLogRepository(),
                         mockk<PreferenceComponent>(relaxed = true),

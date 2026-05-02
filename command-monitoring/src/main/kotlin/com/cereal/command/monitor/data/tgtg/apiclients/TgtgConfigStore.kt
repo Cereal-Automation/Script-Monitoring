@@ -21,7 +21,7 @@ internal class TgtgConfigStore(
         return try {
             json.decodeFromString(TgtgConfig.serializer(), configJson)
         } catch (e: Exception) {
-            logRepository.debug("Failed to deserialize stored config: ${e.message}")
+            logRepository.error("Failed to deserialize stored config", e)
             TgtgConfig()
         }
     }

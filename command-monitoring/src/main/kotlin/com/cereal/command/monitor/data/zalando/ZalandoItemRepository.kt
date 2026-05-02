@@ -101,6 +101,7 @@ class ZalandoItemRepository(
                     },
             )
         } catch (e: Exception) {
+            logRepository.error("Failed to process product data from $url", e)
             throw IllegalStateException("Failed to process product data from $url", e)
         }
     }

@@ -20,11 +20,18 @@ class StockChangedMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
+    ): MonitorStrategy.NotifyResult {
         val stockMessage = generateStockChangeMessage(item, previousItem)
-        if (stockMessage != null) return stockMessage
+        if (stockMessage != null) return MonitorStrategy.NotifyResult.Notify(stockMessage)
 
-        return generateVariantChangesMessage(item, previousItem)
+        val variantMsg = generateVariantChangesMessage(item, previousItem)
+        return if (variantMsg != null) {
+            MonitorStrategy.NotifyResult.Notify(
+                variantMsg,
+            )
+        } else {
+            MonitorStrategy.NotifyResult.Skip("No stock changes")
+        }
     }
 
     private fun generateStockChangeMessage(

@@ -10,6 +10,7 @@ import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
+import com.cereal.script.repository.LogRepository
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter
  * like price, stock availability, distance, and pickup information.
  */
 class TgtgItemRepository(
+    private val logRepository: LogRepository,
     private val tgtgApiClient: TgtgApiClient,
     private val latitude: Double,
     private val longitude: Double,
@@ -65,7 +67,7 @@ class TgtgItemRepository(
     /**
      * Converts a TgtgItem from the API response to the standard Item format.
      */
-    private fun convertTgtgItemToItem(tgtgItem: TgtgItem): Item {
+    private suspend fun convertTgtgItemToItem(tgtgItem: TgtgItem): Item {
         val itemDetails = tgtgItem.item
         val store = tgtgItem.store
 
@@ -98,7 +100,7 @@ class TgtgItemRepository(
     /**
      * Builds a comprehensive description from available TGTG item data.
      */
-    private fun buildDescription(
+    private suspend fun buildDescription(
         tgtgItem: TgtgItem,
         itemDetails: ItemDetails?,
         store: Store?,
@@ -143,7 +145,7 @@ class TgtgItemRepository(
      * Formats a datetime string from TGTG API into a readable format.
      * TGTG typically provides ISO 8601 datetime strings.
      */
-    private fun formatDateTime(dateTimeString: String?): String {
+    private suspend fun formatDateTime(dateTimeString: String?): String {
         if (dateTimeString.isNullOrEmpty()) return "Unknown"
 
         return try {
@@ -153,7 +155,8 @@ class TgtgItemRepository(
                     .ofPattern("MMM dd, yyyy 'at' HH:mm")
                     .withZone(ZoneId.systemDefault())
             formatter.format(instant)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            logRepository.error("Failed to parse datetime string '$dateTimeString'", e)
             // If parsing fails, return the original string
             dateTimeString
         }

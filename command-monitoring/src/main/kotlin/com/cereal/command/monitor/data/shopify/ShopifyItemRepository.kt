@@ -9,6 +9,7 @@ import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.models.Variant
 import com.cereal.command.monitor.repository.ItemRepository
+import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -23,6 +24,7 @@ private const val PRODUCTS_JSON_PATH = "products.json"
 
 @OptIn(ExperimentalTime::class)
 class ShopifyItemRepository(
+    private val logRepository: LogRepository,
     private val website: ShopifyWebsite,
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
@@ -96,12 +98,12 @@ class ShopifyItemRepository(
             "$this/$path"
         }
 
-    private fun String.getBaseUrl(): String? =
+    private suspend fun String.getBaseUrl(): String? =
         try {
             val url = URL(this)
             "${url.protocol}://${url.host}${if (url.port != -1) ":${url.port}" else ""}"
         } catch (e: Exception) {
-            e.printStackTrace()
+            logRepository.error("Failed to parse base URL from $this", e)
             null
         }
 

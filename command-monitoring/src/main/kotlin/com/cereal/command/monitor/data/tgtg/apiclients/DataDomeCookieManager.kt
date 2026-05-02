@@ -133,7 +133,7 @@ internal class DataDomeCookieManager(
             }
             cookie
         } catch (e: Exception) {
-            logRepository.debug("Failed to fetch DataDome cookie: ${e.message}")
+            logRepository.error("Failed to fetch DataDome cookie", e)
             null
         }
 }
