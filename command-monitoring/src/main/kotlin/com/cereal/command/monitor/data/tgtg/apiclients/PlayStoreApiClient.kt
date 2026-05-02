@@ -69,10 +69,10 @@ class PlayStoreApiClient(
                 }
             }
 
-            logRepository.info("Could not find any version information on Google Play page")
+            logRepository.warn("Could not find any version information on Google Play page")
             throw TgtgAppVersionException("Could not find any version information on Google Play page")
         } catch (error: Exception) {
-            logRepository.info("Error while retrieving latest version of TGTG on Google Play page: ${error.message}")
+            logRepository.error("Error while retrieving latest version of TGTG on Google Play page", error)
             throw TgtgAppVersionException(
                 "Error while retrieving latest version of TGTG on Google Play page: ${error.message}",
                 error,
