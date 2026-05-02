@@ -6,7 +6,7 @@ import com.cereal.command.monitor.models.Variant
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertIs
 
 class StockChangedMonitorStrategyTest {
     private val strategy = StockChangedMonitorStrategy()
@@ -30,7 +30,7 @@ class StockChangedMonitorStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(current, previous) }
 
-        assertEquals("Item A is now in stock (3)!", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Item A is now in stock (3)!"), result)
     }
 
     @Test
@@ -52,7 +52,7 @@ class StockChangedMonitorStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(current, previous) }
 
-        assertEquals("Item A is now out of stock", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Item A is now out of stock"), result)
     }
 
     @Test
@@ -74,7 +74,7 @@ class StockChangedMonitorStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(current, previous) }
 
-        assertEquals("Item A stock level changed: 2 → 5", result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify("Item A stock level changed: 2 → 5"), result)
     }
 
     @Test
@@ -96,7 +96,7 @@ class StockChangedMonitorStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(current, previous) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -152,7 +152,7 @@ class StockChangedMonitorStrategyTest {
             Variant Size 9 stock level changed: 2 → 5
             """.trimIndent()
 
-        assertEquals(expected, result)
+        assertEquals(MonitorStrategy.NotifyResult.Notify(expected), result)
     }
 
     @Test

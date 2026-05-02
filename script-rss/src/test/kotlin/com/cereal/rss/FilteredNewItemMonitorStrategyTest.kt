@@ -10,7 +10,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertIs
 
 class FilteredNewItemMonitorStrategyTest {
     private val baselineStrategy: MonitorStrategy = mockk()
@@ -34,7 +34,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `no filters configured passes through baseline message`() =
         runTest {
             val item = newItem()
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -45,16 +45,17 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
-    // --- Baseline returns null ---
+    // --- Baseline returns Skip ---
 
     @Test
-    fun `baseline returns null always returns null regardless of filters`() =
+    fun `baseline returns skip always returns skip regardless of filters`() =
         runTest {
             val item = newItem(name = "Kotlin Tutorial", author = "Alice", categories = listOf("tech"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns null
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Skip("no match")
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -65,7 +66,7 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Skip>(result)
         }
 
     // --- Keyword matches ---
@@ -74,7 +75,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `keyword matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Kotlin Tutorial")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -85,7 +86,8 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     // --- Author matches ---
@@ -94,7 +96,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `author matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Some Post", author = "Alice")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -105,7 +107,8 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     // --- Category matches ---
@@ -114,7 +117,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `category matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Some Post", categories = listOf("tech"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -125,16 +128,17 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     // --- Nothing matches ---
 
     @Test
-    fun `nothing matches returns null`() =
+    fun `nothing matches returns skip`() =
         runTest {
             val item = newItem(name = "Java Tutorial", author = "Bob", categories = listOf("general"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -145,7 +149,7 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Skip>(result)
         }
 
     // --- Only keywords configured ---
@@ -154,7 +158,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `only keywords configured keyword matches returns baseline message`() =
         runTest {
             val item = newItem(name = "Kotlin Tutorial")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -165,14 +169,15 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     @Test
-    fun `only keywords configured keyword does not match returns null`() =
+    fun `only keywords configured keyword does not match returns skip`() =
         runTest {
             val item = newItem(name = "Java Tutorial")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -183,7 +188,7 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Skip>(result)
         }
 
     // --- Case-insensitive matching ---
@@ -192,7 +197,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `keyword matching is case-insensitive`() =
         runTest {
             val item = newItem(name = "KOTLIN tutorial")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -203,14 +208,15 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     @Test
     fun `keyword matching in description is case-insensitive`() =
         runTest {
             val item = newItem(name = "Some Post", description = "KOTLIN programming")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -221,14 +227,15 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     @Test
     fun `author matching is case-insensitive`() =
         runTest {
             val item = newItem(name = "Some Post", author = "ALICE")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -239,14 +246,15 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     @Test
     fun `category matching is case-insensitive`() =
         runTest {
             val item = newItem(name = "Some Post", categories = listOf("TECH"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -257,7 +265,8 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     // --- Only authors configured ---
@@ -266,7 +275,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `only authors configured author matches returns baseline message`() =
         runTest {
             val item = newItem(author = "Jane Doe")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -277,14 +286,15 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     @Test
-    fun `only authors configured author does not match returns null`() =
+    fun `only authors configured author does not match returns skip`() =
         runTest {
             val item = newItem(author = "Other Author")
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -295,7 +305,7 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Skip>(result)
         }
 
     // --- Only categories configured ---
@@ -304,7 +314,7 @@ class FilteredNewItemMonitorStrategyTest {
     fun `only categories configured category matches returns baseline message`() =
         runTest {
             val item = newItem(categories = listOf("tech"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -315,14 +325,15 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertEquals(baselineMessage, result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals(baselineMessage, notify.message)
         }
 
     @Test
-    fun `only categories configured category does not match returns null`() =
+    fun `only categories configured category does not match returns skip`() =
         runTest {
             val item = newItem(categories = listOf("sports"))
-            coEvery { baselineStrategy.shouldNotify(item, null) } returns baselineMessage
+            coEvery { baselineStrategy.shouldNotify(item, null) } returns MonitorStrategy.NotifyResult.Notify(baselineMessage)
 
             val strategy =
                 FilteredNewItemMonitorStrategy(
@@ -333,7 +344,7 @@ class FilteredNewItemMonitorStrategyTest {
                 )
 
             val result = strategy.shouldNotify(item, null)
-            assertNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Skip>(result)
         }
 
     // --- requiresBaseline delegates ---

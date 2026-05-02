@@ -4,8 +4,7 @@ import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.assertIs
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -25,7 +24,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, null) }
 
-        assertNotNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Notify>(result)
     }
 
     @Test
@@ -42,7 +41,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, null) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -54,7 +53,7 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, previousItem) }
 
-        assertNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result)
     }
 
     @Test
@@ -79,8 +78,8 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
         val result1 = runBlocking { strategy.shouldNotify(item, null) }
         val result2 = runBlocking { strategy.shouldNotify(item, previousItem) }
 
-        assertNotNull(result1)
-        assertNull(result2)
+        assertIs<MonitorStrategy.NotifyResult.Notify>(result1)
+        assertIs<MonitorStrategy.NotifyResult.Skip>(result2)
     }
 
     @Test
@@ -105,8 +104,8 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
         val result1 = runBlocking { strategy.shouldNotify(item1, null) }
         val result2 = runBlocking { strategy.shouldNotify(item2, null) }
 
-        assertNotNull(result1)
-        assertNotNull(result2)
+        assertIs<MonitorStrategy.NotifyResult.Notify>(result1)
+        assertIs<MonitorStrategy.NotifyResult.Notify>(result2)
     }
 
     @Test
@@ -117,6 +116,6 @@ class NewItemAvailableCommandExecutionScriptStrategyTest {
 
         val result = runBlocking { strategy.shouldNotify(item, null) }
 
-        assertNotNull(result)
+        assertIs<MonitorStrategy.NotifyResult.Notify>(result)
     }
 }

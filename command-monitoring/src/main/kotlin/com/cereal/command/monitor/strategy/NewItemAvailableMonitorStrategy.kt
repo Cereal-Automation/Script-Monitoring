@@ -27,16 +27,16 @@ class NewItemAvailableMonitorStrategy(
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
+    ): MonitorStrategy.NotifyResult {
         val isNewItem =
             item.getValue<ItemProperty.PublishDate>()?.value?.let {
                 it > since
             } ?: (previousItem == null)
 
         return if (isNewItem) {
-            "Found new item: ${item.name}."
+            MonitorStrategy.NotifyResult.Notify("Found new item: ${item.name}.")
         } else {
-            null
+            MonitorStrategy.NotifyResult.Skip("Not a new item")
         }
     }
 

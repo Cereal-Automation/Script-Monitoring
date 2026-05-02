@@ -18,16 +18,18 @@ class PriceDropMonitorStrategy : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
-        if (previousItem == null) return null
+    ): MonitorStrategy.NotifyResult {
+        if (previousItem == null) return MonitorStrategy.NotifyResult.Skip("No previous item")
 
-        val price = item.getValue<ItemProperty.Price>()?.value ?: return null
-        val previousPrice = previousItem.getValue<ItemProperty.Price>()?.value ?: return null
+        val price = item.getValue<ItemProperty.Price>()?.value ?: return MonitorStrategy.NotifyResult.Skip("No price")
+        val previousPrice =
+            previousItem.getValue<ItemProperty.Price>()?.value
+                ?: return MonitorStrategy.NotifyResult.Skip("No previous price")
 
         return if (previousPrice.compareTo(price) == 1) {
-            "Price for ${item.name} dropped to $price."
+            MonitorStrategy.NotifyResult.Notify("Price for ${item.name} dropped to $price.")
         } else {
-            null
+            MonitorStrategy.NotifyResult.Skip("Price did not drop")
         }
     }
 

@@ -14,13 +14,17 @@ class FilteredNewItemMonitorStrategy(
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
-    ): String? {
-        // Delegate baseline newness check
-        val baselineMessage = baselineStrategy.shouldNotify(item, previousItem) ?: return null
+    ): MonitorStrategy.NotifyResult {
+        // Delegate baseline newness check; propagate Skip directly
+        val baselineMessage =
+            when (val baselineResult = baselineStrategy.shouldNotify(item, previousItem)) {
+                is MonitorStrategy.NotifyResult.Skip -> return baselineResult
+                is MonitorStrategy.NotifyResult.Notify -> baselineResult.message
+            }
 
         // If no filters configured, behave identically to original
         if (keywords.isEmpty() && authors.isEmpty() && categories.isEmpty()) {
-            return baselineMessage
+            return MonitorStrategy.NotifyResult.Notify(baselineMessage)
         }
 
         val matchesKeyword =
@@ -52,7 +56,11 @@ class FilteredNewItemMonitorStrategy(
 
         val passed = matchesKeyword || matchesAuthor || matchesCategory
 
-        return if (passed) baselineMessage else null
+        return if (passed) {
+            MonitorStrategy.NotifyResult.Notify(baselineMessage)
+        } else {
+            MonitorStrategy.NotifyResult.Skip("Item did not match any configured keywords, authors, or categories")
+        }
     }
 
     override fun requiresBaseline(): Boolean = baselineStrategy.requiresBaseline()

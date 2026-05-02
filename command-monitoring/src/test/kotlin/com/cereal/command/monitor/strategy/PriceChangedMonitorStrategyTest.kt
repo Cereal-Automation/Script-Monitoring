@@ -7,9 +7,7 @@ import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.assertIs
 
 class PriceChangedMonitorStrategyTest {
     private val subject = PriceChangedMonitorStrategy()
@@ -41,28 +39,28 @@ class PriceChangedMonitorStrategyTest {
     )
 
     @Test
-    fun `returns null when previousItem is null`() =
+    fun `returns Skip when previousItem is null`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("3.99"))
-            assertNull(subject.shouldNotify(current, null))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(current, null))
         }
 
     @Test
-    fun `returns null when price is unchanged`() =
+    fun `returns Skip when price is unchanged`() =
         runBlocking {
             val item = itemWithPriceAndStock(BigDecimal("3.99"))
-            assertNull(subject.shouldNotify(item, item))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(item, item))
         }
 
     @Test
-    fun `returns message with down arrow when price decreases while in stock`() =
+    fun `returns Notify with down arrow when price decreases while in stock`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("2.99"))
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
             val result = subject.shouldNotify(current, previous)
-            assertNotNull(result)
-            assertTrue(result.contains("↓"), "Expected ↓ in message: $result")
-            assertTrue(result.contains("Spar"), "Expected item name in message: $result")
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assert(notify.message.contains("↓")) { "Expected ↓ in message: ${notify.message}" }
+            assert(notify.message.contains("Spar")) { "Expected item name in message: ${notify.message}" }
         }
 
     @Test
@@ -71,30 +69,31 @@ class PriceChangedMonitorStrategyTest {
             val current = itemWithPriceAndStock(BigDecimal("2.99"))
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
             val result = subject.shouldNotify(current, previous)
-            assertEquals("Price for Spar changed: 3.99 EUR → 2.99 EUR (↓)", result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals("Price for Spar changed: 3.99 EUR → 2.99 EUR (↓)", notify.message)
         }
 
     @Test
-    fun `returns message with up arrow when price increases while in stock`() =
+    fun `returns Notify with up arrow when price increases while in stock`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("4.99"))
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
             val result = subject.shouldNotify(current, previous)
-            assertNotNull(result)
-            assertTrue(result.contains("↑"), "Expected ↑ in message: $result")
-            assertTrue(result.contains("Spar"), "Expected item name in message: $result")
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assert(notify.message.contains("↑")) { "Expected ↑ in message: ${notify.message}" }
+            assert(notify.message.contains("Spar")) { "Expected item name in message: ${notify.message}" }
         }
 
     @Test
-    fun `returns null when price changes but item is out of stock`() =
+    fun `returns Skip when price changes but item is out of stock`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("2.99"), isInStock = false, amount = 0)
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
-            assertNull(subject.shouldNotify(current, previous))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(current, previous))
         }
 
     @Test
-    fun `returns null when current item has no price`() =
+    fun `returns Skip when current item has no price`() =
         runBlocking {
             val current =
                 Item(
@@ -104,11 +103,11 @@ class PriceChangedMonitorStrategyTest {
                     properties = listOf(ItemProperty.Stock(isInStock = true, amount = 3, level = null)),
                 )
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
-            assertNull(subject.shouldNotify(current, previous))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(current, previous))
         }
 
     @Test
-    fun `returns null when previous item has no price`() =
+    fun `returns Skip when previous item has no price`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("2.99"))
             val previous =
@@ -118,19 +117,19 @@ class PriceChangedMonitorStrategyTest {
                     name = "Spar",
                     properties = listOf(ItemProperty.Stock(isInStock = true, amount = 3, level = null)),
                 )
-            assertNull(subject.shouldNotify(current, previous))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(current, previous))
         }
 
     @Test
-    fun `returns null when current item has no stock property`() =
+    fun `returns Skip when current item has no stock property`() =
         runBlocking {
             val current = itemWithPriceOnly(BigDecimal("2.99"))
             val previous = itemWithPriceAndStock(BigDecimal("3.99"))
-            assertNull(subject.shouldNotify(current, previous))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(current, previous))
         }
 
     @Test
-    fun `returns null when currencies differ between current and previous`() =
+    fun `returns Skip when currencies differ between current and previous`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("2.99"), currency = Currency.EUR)
             val previous =
@@ -144,16 +143,15 @@ class PriceChangedMonitorStrategyTest {
                             ItemProperty.Stock(isInStock = true, amount = 3, level = null),
                         ),
                 )
-            assertNull(subject.shouldNotify(current, previous))
+            assertIs<MonitorStrategy.NotifyResult.Skip>(subject.shouldNotify(current, previous))
         }
 
     @Test
-    fun `returns notification when previous item has no stock property but current item is in stock and price changed`() =
+    fun `returns Notify when previous item has no stock property but current item is in stock and price changed`() =
         runBlocking {
             val current = itemWithPriceAndStock(BigDecimal("2.99"))
             val previous = itemWithPriceOnly(BigDecimal("3.99"))
-            val result = subject.shouldNotify(current, previous)
-            assertNotNull(result)
+            assertIs<MonitorStrategy.NotifyResult.Notify>(subject.shouldNotify(current, previous))
         }
 
     @Test
@@ -162,11 +160,12 @@ class PriceChangedMonitorStrategyTest {
             val current = itemWithPriceAndStock(BigDecimal("3.99"))
             val previous = itemWithPriceAndStock(BigDecimal("2.99"))
             val result = subject.shouldNotify(current, previous)
-            assertEquals("Price for Spar changed: 2.99 EUR → 3.99 EUR (↑)", result)
+            val notify = assertIs<MonitorStrategy.NotifyResult.Notify>(result)
+            assertEquals("Price for Spar changed: 2.99 EUR → 3.99 EUR (↑)", notify.message)
         }
 
     @Test
     fun `requiresBaseline returns true`() {
-        assertTrue(subject.requiresBaseline())
+        assert(subject.requiresBaseline())
     }
 }
