@@ -8,36 +8,49 @@ class ScriptLogRepository(
     private val statusUpdate:
         suspend (message: String) -> Unit,
 ) : LogRepository {
+    override suspend fun error(
+        message: String,
+        throwable: Throwable?,
+        args: Map<String, Any>?,
+    ) {
+        val formattedMessage = formatMessage(message, args)
+        statusUpdate(formattedMessage)
+        loggerComponent.error(formattedMessage, throwable)
+    }
+
+    override suspend fun warn(
+        message: String,
+        args: Map<String, Any>?,
+    ) {
+        val formattedMessage = formatMessage(message, args)
+        statusUpdate(formattedMessage)
+        loggerComponent.warn(formattedMessage)
+    }
+
     override suspend fun info(
         message: String,
         args: Map<String, Any>?,
     ) {
-        addLog(message, args, true)
+        val formattedMessage = formatMessage(message, args)
+        statusUpdate(formattedMessage)
+        loggerComponent.info(formattedMessage)
     }
 
     override suspend fun debug(
         message: String,
         args: Map<String, Any>?,
     ) {
-        addLog(message, args, false)
+        val formattedMessage = formatMessage(message, args)
+        loggerComponent.debug(formattedMessage)
     }
 
-    private suspend fun addLog(
+    private fun formatMessage(
         message: String,
         args: Map<String, Any>?,
-        includeStatusUpdate: Boolean = false,
-    ) {
-        val formattedMessage =
-            if (args.isNullOrEmpty()) {
-                message
-            } else {
-                "$message [${args.entries.joinToString(", ") { "${it.key}=${it.value}" }}]"
-            }
-
-        if (includeStatusUpdate) {
-            statusUpdate(formattedMessage)
+    ): String =
+        if (args.isNullOrEmpty()) {
+            message
+        } else {
+            "$message [${args.entries.joinToString(", ") { "${it.key}=${it.value}" }}]"
         }
-
-        loggerComponent.info(formattedMessage)
-    }
 }
