@@ -25,8 +25,9 @@ class ExecuteStrategyCommand(
             try {
                 strategy.shouldNotify(item, previousItem)
             } catch (e: Exception) {
-                logRepository.info(
-                    "Unable to determine if a notification needs to be triggered for '${item.name}' because: ${e.message}",
+                logRepository.error(
+                    "Unable to determine if a notification needs to be triggered for '${item.name}'",
+                    e,
                 )
                 null
             }
@@ -39,7 +40,7 @@ class ExecuteStrategyCommand(
                     )
                     notificationRepository.notify(result.message, item)
                 } catch (e: Exception) {
-                    logRepository.info("Unable to create a notification for '${item.name}' because: ${e.message}")
+                    logRepository.error("Unable to create a notification for '${item.name}'", e)
                 }
             }
             is MonitorStrategy.NotifyResult.Skip ->

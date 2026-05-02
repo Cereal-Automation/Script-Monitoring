@@ -112,7 +112,7 @@ class InvalidChainContextExceptionTest {
             assertTrue(result.isNotEmpty(), "Should have at least one context update")
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to an error") }
+            coVerify { logRepository.warn("Restarting command chain due to an error") }
         }
 
     /**
@@ -182,7 +182,7 @@ class InvalidChainContextExceptionTest {
             assertEquals(5, result.size)
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to an error") }
+            coVerify { logRepository.warn("Restarting command chain due to an error") }
         }
 
     /**
@@ -253,7 +253,7 @@ class InvalidChainContextExceptionTest {
             assertEquals(3, result.size)
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to an error") }
+            coVerify { logRepository.warn("Restarting command chain due to an error") }
         }
 
     /**
@@ -334,7 +334,7 @@ class InvalidChainContextExceptionTest {
             assertTrue(result.isNotEmpty(), "Should have at least one context update")
 
             // Verify that the restarts were logged
-            coVerify(exactly = 2) { logRepository.info("Restarting command chain due to an error") }
+            coVerify(exactly = 2) { logRepository.warn("Restarting command chain due to an error") }
         }
 
     /**
@@ -381,7 +381,7 @@ class InvalidChainContextExceptionTest {
             assertEquals(2, executionCount)
 
             // Verify that the restart was logged
-            coVerify { logRepository.info("Restarting command chain due to an error") }
+            coVerify { logRepository.warn("Restarting command chain due to an error") }
         }
 
     /**

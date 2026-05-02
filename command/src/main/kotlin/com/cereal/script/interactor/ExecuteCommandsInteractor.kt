@@ -74,11 +74,11 @@ class ExecuteCommandsInteractor(
                 is CancellationException -> false
                 is InvalidChainContextException -> {
                     if (attemptIndex < CHAIN_RESTART_MAX_ATTEMPTS) {
-                        logRepository.info("Restarting command chain due to an error")
+                        logRepository.warn("Restarting command chain due to an error")
                         attemptIndex += 1
                         true
                     } else {
-                        logRepository.info("Maximum restarts reached ($CHAIN_RESTART_MAX_ATTEMPTS). Aborting.")
+                        logRepository.error("Maximum restarts reached ($CHAIN_RESTART_MAX_ATTEMPTS). Aborting.")
                         false
                     }
                 }

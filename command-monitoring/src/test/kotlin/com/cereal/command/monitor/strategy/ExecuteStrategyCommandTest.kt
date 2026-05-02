@@ -20,7 +20,7 @@ class ExecuteStrategyCommandTest {
     @BeforeEach
     fun setup() {
         notificationRepository = mockk()
-        logRepository = mockk()
+        logRepository = mockk(relaxed = true)
         strategy = mockk()
     }
 
@@ -32,7 +32,6 @@ class ExecuteStrategyCommandTest {
 
             coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Notify(message)
             coJustRun { notificationRepository.notify(message, item) }
-            coJustRun { logRepository.info(any()) }
 
             executeStrategyCommand =
                 ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
@@ -50,13 +49,12 @@ class ExecuteStrategyCommandTest {
 
             coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Notify(message)
             coEvery { notificationRepository.notify(any(), any()) } throws RuntimeException(exceptionMessage)
-            coJustRun { logRepository.info(any()) }
 
             executeStrategyCommand =
                 ExecuteStrategyCommand(notificationRepository, logRepository, strategy, item, null)
             executeStrategyCommand.execute()
 
-            coVerify { logRepository.info("Unable to create a notification for 'TestItem' because: $exceptionMessage") }
+            coVerify { logRepository.error("Unable to create a notification for 'TestItem'", any<RuntimeException>()) }
         }
 
     @Test

@@ -53,7 +53,7 @@ fun <T> Flow<T>.withRetry(
                     RETRY_DELAY * 2.0.pow(backoffAttempt.toDouble()).toLong()
                 }
 
-            logRepository.info(
+            logRepository.warn(
                 "Retrying '$action' in ${delayTime.milliseconds} due to '${cause.message}'",
             )
             delay(delayTime)
@@ -83,7 +83,7 @@ fun Flow<ChainContext>.withLogging(
         }.onCompletion { error ->
             error?.let {
                 if (error !is CancellationException) {
-                    logRepository.debug("Error executing '$action': \n${error.stackTraceToString()}")
+                    logRepository.error("Error executing '$action'", error)
                 }
             }
         }

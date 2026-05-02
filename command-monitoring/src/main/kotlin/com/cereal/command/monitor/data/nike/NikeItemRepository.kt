@@ -80,6 +80,7 @@ class NikeItemRepository(
                     throw Exception("Script element with ID '__NEXT_DATA__' not found.")
                 }
             } catch (e: Exception) {
+                logRepository.error("Error fetching data from $scrapeUrl", e)
                 throw Exception("Error fetching data from $scrapeUrl: ${e.message}")
             } finally {
                 webClient.close()

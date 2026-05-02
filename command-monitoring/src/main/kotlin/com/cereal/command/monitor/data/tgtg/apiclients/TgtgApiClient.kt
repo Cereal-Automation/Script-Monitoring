@@ -135,7 +135,7 @@ class TgtgApiClient(
         return if (session?.refreshToken != null) {
             refreshToken()
         } else {
-            logRepository.info("No refresh token available. Please authenticate first.")
+            logRepository.warn("No refresh token available. Please authenticate first.")
             false
         }
     }
@@ -143,7 +143,7 @@ class TgtgApiClient(
     suspend fun listItems(request: ListItemsRequest): ListItemsResponse? {
         val session = getConfig().session
         if (session?.refreshToken == null) {
-            logRepository.info("You are not logged in.")
+            logRepository.warn("You are not logged in.")
             return null
         }
         return httpExecutor.postWith403Retry(

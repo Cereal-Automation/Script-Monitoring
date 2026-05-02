@@ -99,7 +99,7 @@ class CommandFlowExtTest {
             // Then
             assertEquals(listOf(RETRY_ATTEMPTS_LINEAR + 1), result)
             repeat(RETRY_ATTEMPTS_LINEAR) {
-                coVerify { logRepository.info("Retrying 'test action' in ${RETRY_DELAY.milliseconds} due to 'Test exception'") }
+                coVerify { logRepository.warn("Retrying 'test action' in ${RETRY_DELAY.milliseconds} due to 'Test exception'") }
             }
         }
 
@@ -124,19 +124,19 @@ class CommandFlowExtTest {
 
             // Verify linear backoff for first RETRY_ATTEMPTS_LINEAR attempts
             repeat(RETRY_ATTEMPTS_LINEAR) {
-                coVerify { logRepository.info("Retrying 'test action' in ${RETRY_DELAY.milliseconds} due to 'Test exception'") }
+                coVerify { logRepository.warn("Retrying 'test action' in ${RETRY_DELAY.milliseconds} due to 'Test exception'") }
             }
 
             // Verify exponential backoff for attempts after RETRY_ATTEMPTS_LINEAR
             coVerify {
-                logRepository.info(
+                logRepository.warn(
                     "Retrying 'test action' in ${
                         (RETRY_DELAY * 2.0.pow(0.0).toLong()).milliseconds
                     } due to 'Test exception'",
                 )
             }
             coVerify {
-                logRepository.info(
+                logRepository.warn(
                     "Retrying 'test action' in ${
                         (RETRY_DELAY * 2.0.pow(1.0).toLong()).milliseconds
                     } due to 'Test exception'",
@@ -204,7 +204,7 @@ class CommandFlowExtTest {
             // Then
             assertTrue(result.isFailure)
             coVerify { logRepository.info("Starting test action.") }
-            coVerify { logRepository.debug("Error executing 'test action': \n${testException.stackTraceToString()}") }
+            coVerify { logRepository.error("Error executing 'test action'", testException) }
         }
 
     @Test
@@ -226,6 +226,6 @@ class CommandFlowExtTest {
             // Then
             assertTrue(result.isFailure)
             coVerify { logRepository.info("Starting test action.") }
-            coVerify(exactly = 0) { logRepository.debug(any()) }
+            coVerify(exactly = 0) { logRepository.error(any(), any<Throwable>()) }
         }
 }
