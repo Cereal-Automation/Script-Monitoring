@@ -23,7 +23,7 @@ import kotlin.time.Instant
 @OptIn(ExperimentalTime::class)
 class NewItemAvailableMonitorStrategy(
     private val since: Instant = Clock.System.now(),
-    private val baseline: Boolean = true,
+    private val requiresBaseline: Boolean = true,
 ) : MonitorStrategy {
     override suspend fun shouldNotify(
         item: Item,
@@ -41,5 +41,5 @@ class NewItemAvailableMonitorStrategy(
         }
     }
 
-    override fun requiresBaseline(): Boolean = baseline
+    override fun requiresBaseline(): Boolean = requiresBaseline
 }

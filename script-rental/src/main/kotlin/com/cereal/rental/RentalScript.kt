@@ -67,7 +67,6 @@ class RentalScript : Script<RentalConfiguration> {
                             minRooms = configuration.minRooms(),
                             furnishing = furnishing,
                             propertyType = propertyType,
-                            randomProxy = null,
                             logRepository = logRepository,
                         ),
                     )
@@ -82,7 +81,6 @@ class RentalScript : Script<RentalConfiguration> {
                             furnishing = furnishing,
                             propertyType = propertyType,
                             logRepository = logRepository,
-                            randomProxy = null,
                         ),
                     )
                 }

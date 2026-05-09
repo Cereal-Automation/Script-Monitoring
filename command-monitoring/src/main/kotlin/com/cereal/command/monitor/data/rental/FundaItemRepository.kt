@@ -6,7 +6,6 @@ import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.script.repository.LogRepository
-import com.cereal.sdk.models.proxy.RandomProxy
 import dev.kdriver.core.browser.Browser
 import dev.kdriver.core.browser.createBrowser
 import dev.kdriver.core.tab.ReadyState
@@ -16,11 +15,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.math.BigDecimal
 import java.util.NoSuchElementException
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 class FundaItemRepository(
     private val cities: List<String>,
@@ -30,8 +26,6 @@ class FundaItemRepository(
     private val furnishing: Furnishing? = null,
     private val propertyType: PropertyType? = null,
     private val logRepository: LogRepository,
-    private val randomProxy: RandomProxy? = null,
-    private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
     override val name: String = "Funda"
 
@@ -100,19 +94,16 @@ class FundaItemRepository(
         url: String,
         browser: Browser,
     ): String {
-        var pageContent: String? = null
-        for (i in 1..5) {
+        repeat(5) {
             try {
                 val page = browser.get(url)
                 page.waitForReadyState(ReadyState.COMPLETE, timeout = 10000)
-                pageContent = page.getContent()
-                break
+                return page.getContent()
             } catch (e: NoSuchElementException) {
                 delay(500)
             }
         }
-        if (pageContent == null) throw IllegalStateException("Could not get page from browser")
-        return pageContent
+        throw IllegalStateException("Could not get page from browser")
     }
 
     private suspend fun fetchListing(
@@ -179,16 +170,6 @@ class FundaItemRepository(
                     add(ItemProperty.Custom("Source", "Funda"))
                 },
         )
-    }
-
-    private fun kenmerkenValue(
-        doc: Document,
-        key: String,
-    ): String {
-        val dt =
-            doc.select("dl.object-kenmerken-list dt")
-                .firstOrNull { it.text().contains(key, ignoreCase = true) }
-        return dt?.nextElementSibling()?.text()?.trim() ?: ""
     }
 
     internal fun passesFilters(
