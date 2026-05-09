@@ -88,6 +88,7 @@ subprojects {
                     "${rootDir.absolutePath}/proguard-rules/ktor.pro",
                     "${rootDir.absolutePath}/proguard-rules/okhttp.pro",
                     "${rootDir.absolutePath}/proguard-rules/okio.pro",
+                    "${rootDir.absolutePath}/proguard-rules/commons-logging.pro",
                 ),
             )
         }
