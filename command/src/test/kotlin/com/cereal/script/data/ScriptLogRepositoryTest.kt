@@ -31,7 +31,7 @@ class ScriptLogRepositoryTest {
             scriptLogRepository.error(message, throwable, args)
 
             val expected = "Test error message [key1=value1, key2=42]"
-            coVerify(exactly = 1) { loggerComponent.error(expected, throwable) }
+            coVerify(exactly = 0) { loggerComponent.error(any(), any()) }
             coVerify(exactly = 1) { statusUpdate(expected) }
         }
 
@@ -42,7 +42,7 @@ class ScriptLogRepositoryTest {
 
             scriptLogRepository.error(message, null, null)
 
-            coVerify(exactly = 1) { loggerComponent.error(message, null) }
+            coVerify(exactly = 0) { loggerComponent.error(any(), any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
@@ -59,7 +59,7 @@ class ScriptLogRepositoryTest {
             scriptLogRepository.warn(message, args)
 
             val expected = "Test warn message [key1=value1, key2=42]"
-            coVerify(exactly = 1) { loggerComponent.warn(expected) }
+            coVerify(exactly = 0) { loggerComponent.warn(any()) }
             coVerify(exactly = 1) { statusUpdate(expected) }
         }
 
@@ -70,7 +70,7 @@ class ScriptLogRepositoryTest {
 
             scriptLogRepository.warn(message, null)
 
-            coVerify(exactly = 1) { loggerComponent.warn(message) }
+            coVerify(exactly = 0) { loggerComponent.warn(any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
@@ -87,7 +87,7 @@ class ScriptLogRepositoryTest {
             scriptLogRepository.info(message, args)
 
             val expected = "Test info message [key1=value1, key2=42]"
-            coVerify(exactly = 1) { loggerComponent.info(expected) }
+            coVerify(exactly = 0) { loggerComponent.info(any()) }
             coVerify(exactly = 1) { statusUpdate(expected) }
         }
 
@@ -98,7 +98,7 @@ class ScriptLogRepositoryTest {
 
             scriptLogRepository.info(message, null)
 
-            coVerify(exactly = 1) { loggerComponent.info(message) }
+            coVerify(exactly = 0) { loggerComponent.info(any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
@@ -110,7 +110,7 @@ class ScriptLogRepositoryTest {
 
             scriptLogRepository.info(message, args)
 
-            coVerify(exactly = 1) { loggerComponent.info(message) }
+            coVerify(exactly = 0) { loggerComponent.info(any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
