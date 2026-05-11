@@ -22,7 +22,7 @@ class ScriptLogRepositoryTest {
     // region error
 
     @Test
-    fun `error logs message, updates status, and passes throwable`() =
+    fun `error formats message and updates status`() =
         runTest {
             val message = "Test error message"
             val args = mapOf("key1" to "value1", "key2" to 42)
@@ -36,7 +36,7 @@ class ScriptLogRepositoryTest {
         }
 
     @Test
-    fun `error logs message without args`() =
+    fun `error formats message without args and updates status`() =
         runTest {
             val message = "Test error message without args"
 
@@ -51,7 +51,7 @@ class ScriptLogRepositoryTest {
     // region warn
 
     @Test
-    fun `warn logs message and updates status`() =
+    fun `warn formats message and updates status`() =
         runTest {
             val message = "Test warn message"
             val args = mapOf("key1" to "value1", "key2" to 42)
@@ -64,7 +64,7 @@ class ScriptLogRepositoryTest {
         }
 
     @Test
-    fun `warn logs message without args`() =
+    fun `warn formats message without args and updates status`() =
         runTest {
             val message = "Test warn message without args"
 
@@ -79,7 +79,7 @@ class ScriptLogRepositoryTest {
     // region info
 
     @Test
-    fun `info logs message and updates status`() =
+    fun `info formats message and updates status`() =
         runTest {
             val message = "Test info message"
             val args = mapOf("key1" to "value1", "key2" to 42)
@@ -92,7 +92,7 @@ class ScriptLogRepositoryTest {
         }
 
     @Test
-    fun `info logs message without args`() =
+    fun `info formats message without args and updates status`() =
         runTest {
             val message = "Test info message without args"
 
