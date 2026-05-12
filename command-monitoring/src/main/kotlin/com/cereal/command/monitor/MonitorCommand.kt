@@ -1,6 +1,8 @@
 package com.cereal.command.monitor
 
 import com.cereal.command.monitor.models.Item
+import com.cereal.command.monitor.models.ItemFilter
+import com.cereal.command.monitor.models.passes
 import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.command.monitor.repository.NotificationRepository
 import com.cereal.command.monitor.strategy.ExecuteStrategyCommand
@@ -20,6 +22,7 @@ class MonitorCommand(
     private val logRepository: LogRepository,
     private val delayBetweenScrapes: Duration,
     private val strategies: List<MonitorStrategy>,
+    private val filters: List<ItemFilter> = emptyList(),
 ) : Command {
     override suspend fun shouldRun(context: ChainContext): RunDecision {
         val monitorStatus = context.get<MonitorStatus>()
@@ -39,12 +42,14 @@ class MonitorCommand(
                     .flatten()
             }
 
+        val filteredItems = allItems.filter { it.passes(filters) }
+
         val items: MutableMap<String, Item> = monitorStatus.monitorItems?.toMutableMap() ?: hashMapOf()
-        val totalNotifications = tryExecuteStrategies(allItems, monitorStatus.monitorItems)
-        allItems.forEach { item -> items[item.id] = item }
+        val totalNotifications = tryExecuteStrategies(filteredItems, monitorStatus.monitorItems)
+        filteredItems.forEach { item -> items[item.id] = item }
 
         logRepository.info(
-            "Found and processed a total of ${allItems.size} items.",
+            "Found and processed a total of ${filteredItems.size} items (${allItems.size - filteredItems.size} excluded by filters).",
         )
 
         if (totalNotifications == 0) {

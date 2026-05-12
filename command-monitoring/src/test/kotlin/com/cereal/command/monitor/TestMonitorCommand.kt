@@ -61,7 +61,7 @@ class TestMonitorCommand {
 
             coVerify {
                 logRepository.info(
-                    "Found and processed a total of 2 items.",
+                    "Found and processed a total of 2 items (0 excluded by filters).",
                     any(),
                 )
             }
