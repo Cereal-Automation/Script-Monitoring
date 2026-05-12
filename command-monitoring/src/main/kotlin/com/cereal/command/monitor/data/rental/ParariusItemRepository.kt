@@ -20,9 +20,6 @@ import java.util.NoSuchElementException
 
 class ParariusItemRepository(
     private val cities: List<String>,
-    private val maxPrice: Int?,
-    private val minSizeM2: Int?,
-    private val minRooms: Int?,
     private val furnishing: Furnishing? = null,
     private val propertyType: PropertyType? = null,
     private val logRepository: LogRepository,
@@ -121,8 +118,6 @@ class ParariusItemRepository(
         val rooms = parseRooms(rawRooms)
         val imageUrl = doc.selectFirst("meta[property=og:image]")?.attr("content")?.trim()
 
-        if (!passesFilters(price, sizeM2, rooms)) return null
-
         return Item(
             id = url,
             url = url,
@@ -142,24 +137,12 @@ class ParariusItemRepository(
         )
     }
 
-    internal fun passesFilters(
-        price: BigDecimal?,
-        sizeM2: Int?,
-        rooms: Int?,
-    ): Boolean {
-        if (maxPrice != null && price != null && price > maxPrice.toBigDecimal()) return false
-        if (minSizeM2 != null && sizeM2 != null && sizeM2 < minSizeM2) return false
-        if (minRooms != null && rooms != null && rooms < minRooms) return false
-        return true
-    }
-
     private fun buildCityUrl(city: String): String {
         val segments =
             buildList<String> {
                 add("https://www.pararius.com/apartments/$city")
                 propertyType?.parariusSegment?.let { add(it) }
                 furnishing?.let { add(it.parariusSegment) }
-                maxPrice?.let { add("0-$it") }
             }
         return segments.joinToString("/")
     }

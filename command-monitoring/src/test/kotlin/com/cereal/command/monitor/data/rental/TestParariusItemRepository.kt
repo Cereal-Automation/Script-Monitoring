@@ -16,9 +16,6 @@ class TestParariusItemRepository {
             val repository =
                 ParariusItemRepository(
                     cities = listOf(data.city),
-                    maxPrice = null,
-                    minSizeM2 = null,
-                    minRooms = null,
                     logRepository = FakeLogRepository(),
                 )
 

@@ -3,6 +3,7 @@ package com.cereal.rental
 import com.cereal.command.monitor.MonitorCommandFactory
 import com.cereal.command.monitor.data.rental.FundaItemRepository
 import com.cereal.command.monitor.data.rental.ParariusItemRepository
+import com.cereal.command.monitor.models.ItemFilter
 import com.cereal.command.monitor.strategy.MonitorStrategyFactory
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
@@ -56,15 +57,19 @@ class RentalScript : Script<RentalConfiguration> {
         val strategy = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now(), requiresBaseline = false)
         val strategies = listOf(strategy)
 
+        val filters =
+            buildList<ItemFilter> {
+                configuration.maxPrice()?.let { add(ItemFilter.PriceAtMost(it.toBigDecimal())) }
+                configuration.minSizeM2()?.let { add(ItemFilter.CustomValueAtLeast("Size", it.toDouble())) }
+                configuration.minRooms()?.let { add(ItemFilter.CustomValueAtLeast("Rooms", it.toDouble())) }
+            }
+
         val repositories =
             buildList {
                 if (configuration.enablePararius()) {
                     add(
                         ParariusItemRepository(
                             cities = cities,
-                            maxPrice = configuration.maxPrice(),
-                            minSizeM2 = configuration.minSizeM2(),
-                            minRooms = configuration.minRooms(),
                             furnishing = furnishing,
                             propertyType = propertyType,
                             logRepository = logRepository,
@@ -75,9 +80,6 @@ class RentalScript : Script<RentalConfiguration> {
                     add(
                         FundaItemRepository(
                             cities = cities,
-                            maxPrice = configuration.maxPrice(),
-                            minSizeM2 = configuration.minSizeM2(),
-                            minRooms = configuration.minRooms(),
                             furnishing = furnishing,
                             propertyType = propertyType,
                             logRepository = logRepository,
@@ -92,6 +94,7 @@ class RentalScript : Script<RentalConfiguration> {
                 logRepository = logRepository,
                 notificationRepository = notificationRepository,
                 strategies = strategies,
+                filters = filters,
                 scrapeInterval = configuration.monitorInterval()?.let { it * 60 }?.seconds,
             ),
         )

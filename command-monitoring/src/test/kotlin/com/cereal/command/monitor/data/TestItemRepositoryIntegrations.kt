@@ -78,16 +78,10 @@ class TestItemRepositoryIntegrations {
 //                ),
                 ParariusItemRepository(
                     cities = listOf("amsterdam"),
-                    maxPrice = null,
-                    minSizeM2 = null,
-                    minRooms = null,
                     logRepository = FakeLogRepository(),
                 ),
                 FundaItemRepository(
                     cities = listOf("amsterdam"),
-                    maxPrice = null,
-                    minSizeM2 = null,
-                    minRooms = null,
                     logRepository = FakeLogRepository(),
                 ),
             )

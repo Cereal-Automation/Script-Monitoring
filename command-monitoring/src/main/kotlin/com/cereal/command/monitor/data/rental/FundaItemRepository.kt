@@ -20,9 +20,6 @@ import java.util.NoSuchElementException
 
 class FundaItemRepository(
     private val cities: List<String>,
-    private val maxPrice: Int?,
-    private val minSizeM2: Int?,
-    private val minRooms: Int?,
     private val furnishing: Furnishing? = null,
     private val propertyType: PropertyType? = null,
     private val logRepository: LogRepository,
@@ -151,8 +148,6 @@ class FundaItemRepository(
         val rooms = parseRooms(rawRooms)
         val imageUrl = doc.selectFirst("meta[property=og:image]")?.attr("content")?.trim()
 
-        if (!passesFilters(price, sizeM2, rooms)) return null
-
         return Item(
             id = url,
             url = url,
@@ -172,17 +167,6 @@ class FundaItemRepository(
         )
     }
 
-    internal fun passesFilters(
-        price: BigDecimal?,
-        sizeM2: Int?,
-        rooms: Int?,
-    ): Boolean {
-        if (maxPrice != null && price != null && price > maxPrice.toBigDecimal()) return false
-        if (minSizeM2 != null && sizeM2 != null && sizeM2 < minSizeM2) return false
-        if (minRooms != null && rooms != null && rooms < minRooms) return false
-        return true
-    }
-
     private fun buildCityUrl(city: String): String {
         val segments =
             buildList<String> {
@@ -190,8 +174,7 @@ class FundaItemRepository(
                 propertyType?.let { add(it.fundaSegment) }
                 furnishing?.let { add(it.fundaSegment) }
             }
-        val base = segments.joinToString("/") + "/"
-        return if (maxPrice != null) "$base?prijsmax=$maxPrice" else base
+        return segments.joinToString("/") + "/"
     }
 
     companion object {
