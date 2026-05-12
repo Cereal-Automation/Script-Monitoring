@@ -1,6 +1,7 @@
 package com.cereal.command.monitor
 
 import com.cereal.command.monitor.data.ScriptNotificationRepository
+import com.cereal.command.monitor.models.ItemFilter
 import com.cereal.command.monitor.repository.ItemRepository
 import com.cereal.command.monitor.repository.NotificationRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
@@ -20,6 +21,7 @@ class MonitorCommandFactory(
         notificationRepository: NotificationRepository,
         strategies: List<MonitorStrategy>,
         scrapeInterval: Duration? = null,
+        filters: List<ItemFilter> = emptyList(),
     ): MonitorCommand =
         MonitorCommand(
             itemRepositories = itemRepositories,
@@ -27,6 +29,7 @@ class MonitorCommandFactory(
             logRepository = logRepository,
             delayBetweenScrapes = scrapeInterval ?: Random.nextInt(15, 31).seconds,
             strategies = strategies,
+            filters = filters,
         )
 
     fun monitorCommand(
@@ -35,7 +38,8 @@ class MonitorCommandFactory(
         notificationRepository: NotificationRepository,
         strategies: List<MonitorStrategy>,
         scrapeInterval: Duration? = null,
-    ): MonitorCommand = monitorCommand(listOf(itemRepository), logRepository, notificationRepository, strategies, scrapeInterval)
+        filters: List<ItemFilter> = emptyList(),
+    ): MonitorCommand = monitorCommand(listOf(itemRepository), logRepository, notificationRepository, strategies, scrapeInterval, filters)
 
     fun logRepository(statusUpdate: suspend (message: String) -> Unit): LogRepository = ScriptLogRepository(provider.logger(), statusUpdate)
 
