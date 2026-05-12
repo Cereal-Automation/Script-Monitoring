@@ -37,6 +37,8 @@ class NikeItemRepository(
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 20.seconds,
 ) : ItemRepository {
+    override val name: String = "Nike"
+
     private val json = defaultJson()
     private val defaultCurrencyCode = Currency.USD
     private val defaultHeaders =

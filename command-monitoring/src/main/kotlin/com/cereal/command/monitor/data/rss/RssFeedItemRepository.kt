@@ -17,6 +17,8 @@ class RssFeedItemRepository(
     private val logger: LoggerComponent,
     private val rssParser: RssParser = RssParser(),
 ) : ItemRepository {
+    override val name: String = rssFeedUrl
+
     companion object {
         const val PROPERTY_AUTHOR = "author"
         const val PROPERTY_CATEGORY = "category"

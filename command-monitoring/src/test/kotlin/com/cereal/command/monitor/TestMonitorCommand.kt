@@ -2,6 +2,7 @@ package com.cereal.command.monitor
 
 import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
+import com.cereal.command.monitor.models.ItemFilter
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
@@ -15,6 +16,7 @@ import com.cereal.script.commands.RunDecision
 import com.cereal.script.repository.LogRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -35,6 +37,10 @@ class TestMonitorCommand {
     private val logRepository = mockk<LogRepository>(relaxed = true)
     private val mockStrategy = mockk<MonitorStrategy>(relaxed = true)
 
+    init {
+        every { itemRepository.name } returns "Test"
+    }
+
     @Test
     fun `test execute with single page of items`() =
         runTest {
@@ -44,7 +50,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -56,7 +62,7 @@ class TestMonitorCommand {
 
             coVerify {
                 logRepository.info(
-                    "Found and processed a total of 2 items.",
+                    "Found and processed a total of 2 items (0 excluded by filters).",
                     any(),
                 )
             }
@@ -75,7 +81,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -98,7 +104,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -118,7 +124,7 @@ class TestMonitorCommand {
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -132,7 +138,7 @@ class TestMonitorCommand {
         runBlocking {
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository = itemRepository,
+                    itemRepositories = listOf(itemRepository),
                     notificationRepository = notificationRepository,
                     logRepository = logRepository,
                     delayBetweenScrapes = 1.seconds,
@@ -201,7 +207,7 @@ class TestMonitorCommand {
 
             val monitorCommand =
                 MonitorCommand(
-                    itemRepository,
+                    listOf(itemRepository),
                     notificationRepository,
                     logRepository,
                     delayBetweenScrapes = Duration.ZERO,
@@ -221,6 +227,74 @@ class TestMonitorCommand {
         val strategy: MonitorStrategy,
         val numberOfNotifications: Int,
     )
+
+    @Test
+    fun `filters exclude items before strategies are called`() =
+        runTest {
+            val matchingItem =
+                Item(
+                    id = "1",
+                    url = "http://foo.bar",
+                    name = "Cheap",
+                    properties = listOf(ItemProperty.Price(BigDecimal("1500"), Currency.EUR)),
+                )
+            val excludedItem =
+                Item(
+                    id = "2",
+                    url = "http://foo.bar",
+                    name = "Expensive",
+                    properties = listOf(ItemProperty.Price(BigDecimal("3000"), Currency.EUR)),
+                )
+            coEvery { itemRepository.getItems(null) } returns Page(null, listOf(matchingItem, excludedItem))
+
+            val monitorCommand =
+                MonitorCommand(
+                    itemRepositories = listOf(itemRepository),
+                    notificationRepository = notificationRepository,
+                    logRepository = logRepository,
+                    delayBetweenScrapes = 1.seconds,
+                    strategies = listOf(mockStrategy),
+                    filters = listOf(ItemFilter.PriceAtMost(BigDecimal("2000"))),
+                )
+
+            val context = ChainContext()
+            monitorCommand.execute(context)
+
+            val monitorStatus = context.get<MonitorStatus>()
+            assertNotNull(monitorStatus?.monitorItems)
+            // Only the matching item should be stored in baseline
+            assert(monitorStatus?.monitorItems?.size == 1)
+            assert(monitorStatus?.monitorItems?.containsKey("1") == true)
+            assert(monitorStatus?.monitorItems?.containsKey("2") == false)
+        }
+
+    @Test
+    fun `empty filters list passes all items through`() =
+        runTest {
+            val items =
+                listOf(
+                    Item("1", url = "http://foo.bar", name = "Foo"),
+                    Item("2", url = "http://foo.bar", name = "Bar"),
+                )
+            coEvery { itemRepository.getItems(null) } returns Page(null, items)
+
+            val monitorCommand =
+                MonitorCommand(
+                    itemRepositories = listOf(itemRepository),
+                    notificationRepository = notificationRepository,
+                    logRepository = logRepository,
+                    delayBetweenScrapes = 1.seconds,
+                    strategies = listOf(mockStrategy),
+                    filters = emptyList(),
+                )
+
+            val context = ChainContext()
+            monitorCommand.execute(context)
+
+            val monitorStatus = context.get<MonitorStatus>()
+            assertNotNull(monitorStatus?.monitorItems)
+            assert(monitorStatus?.monitorItems?.size == 2)
+        }
 
     companion object {
         @JvmStatic

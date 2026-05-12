@@ -11,6 +11,7 @@ dependencies {
     }
     implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.web.scraping)
+    implementation(libs.kdriver)
     implementation(libs.bundles.kotlin.coroutines)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.bundles.ktor.client)
@@ -44,7 +45,7 @@ tasks.register<Test>("integrationTest") {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 apply(from = "${rootProject.projectDir}/gradle/publishing.gradle.kts")

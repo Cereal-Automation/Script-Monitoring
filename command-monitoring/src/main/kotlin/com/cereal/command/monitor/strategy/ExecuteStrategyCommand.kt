@@ -20,7 +20,7 @@ class ExecuteStrategyCommand(
     private val item: Item,
     private val previousItem: Item?,
 ) {
-    suspend fun execute() {
+    suspend fun execute(): Boolean {
         val result =
             try {
                 strategy.shouldNotify(item, previousItem)
@@ -32,20 +32,24 @@ class ExecuteStrategyCommand(
                 null
             }
 
-        when (result) {
+        return when (result) {
             is MonitorStrategy.NotifyResult.Notify -> {
                 try {
                     logRepository.info(
                         "Notification triggered for item '${item.name}': ${result.message}",
                     )
                     notificationRepository.notify(result.message, item)
+                    true
                 } catch (e: Exception) {
                     logRepository.error("Unable to create a notification for '${item.name}'", e)
+                    false
                 }
             }
-            is MonitorStrategy.NotifyResult.Skip ->
+            is MonitorStrategy.NotifyResult.Skip -> {
                 logRepository.debug("No notification for '${item.name}' using strategy '${strategy::class.simpleName}': ${result.reason}")
-            null -> Unit
+                false
+            }
+            null -> false
         }
     }
 }

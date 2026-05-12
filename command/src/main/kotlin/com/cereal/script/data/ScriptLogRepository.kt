@@ -15,7 +15,6 @@ class ScriptLogRepository(
     ) {
         val formattedMessage = formatMessage(message, args)
         statusUpdate(formattedMessage)
-        loggerComponent.error(formattedMessage, throwable)
     }
 
     override suspend fun warn(
@@ -24,7 +23,6 @@ class ScriptLogRepository(
     ) {
         val formattedMessage = formatMessage(message, args)
         statusUpdate(formattedMessage)
-        loggerComponent.warn(formattedMessage)
     }
 
     override suspend fun info(
@@ -33,7 +31,6 @@ class ScriptLogRepository(
     ) {
         val formattedMessage = formatMessage(message, args)
         statusUpdate(formattedMessage)
-        loggerComponent.info(formattedMessage)
     }
 
     override suspend fun debug(

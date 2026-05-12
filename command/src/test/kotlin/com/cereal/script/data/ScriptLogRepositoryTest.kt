@@ -22,7 +22,7 @@ class ScriptLogRepositoryTest {
     // region error
 
     @Test
-    fun `error logs message, updates status, and passes throwable`() =
+    fun `error formats message and updates status`() =
         runTest {
             val message = "Test error message"
             val args = mapOf("key1" to "value1", "key2" to 42)
@@ -31,18 +31,18 @@ class ScriptLogRepositoryTest {
             scriptLogRepository.error(message, throwable, args)
 
             val expected = "Test error message [key1=value1, key2=42]"
-            coVerify(exactly = 1) { loggerComponent.error(expected, throwable) }
+            coVerify(exactly = 0) { loggerComponent.error(any(), any()) }
             coVerify(exactly = 1) { statusUpdate(expected) }
         }
 
     @Test
-    fun `error logs message without args`() =
+    fun `error formats message without args and updates status`() =
         runTest {
             val message = "Test error message without args"
 
             scriptLogRepository.error(message, null, null)
 
-            coVerify(exactly = 1) { loggerComponent.error(message, null) }
+            coVerify(exactly = 0) { loggerComponent.error(any(), any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
@@ -51,7 +51,7 @@ class ScriptLogRepositoryTest {
     // region warn
 
     @Test
-    fun `warn logs message and updates status`() =
+    fun `warn formats message and updates status`() =
         runTest {
             val message = "Test warn message"
             val args = mapOf("key1" to "value1", "key2" to 42)
@@ -59,18 +59,18 @@ class ScriptLogRepositoryTest {
             scriptLogRepository.warn(message, args)
 
             val expected = "Test warn message [key1=value1, key2=42]"
-            coVerify(exactly = 1) { loggerComponent.warn(expected) }
+            coVerify(exactly = 0) { loggerComponent.warn(any()) }
             coVerify(exactly = 1) { statusUpdate(expected) }
         }
 
     @Test
-    fun `warn logs message without args`() =
+    fun `warn formats message without args and updates status`() =
         runTest {
             val message = "Test warn message without args"
 
             scriptLogRepository.warn(message, null)
 
-            coVerify(exactly = 1) { loggerComponent.warn(message) }
+            coVerify(exactly = 0) { loggerComponent.warn(any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
@@ -79,7 +79,7 @@ class ScriptLogRepositoryTest {
     // region info
 
     @Test
-    fun `info logs message and updates status`() =
+    fun `info formats message and updates status`() =
         runTest {
             val message = "Test info message"
             val args = mapOf("key1" to "value1", "key2" to 42)
@@ -87,18 +87,18 @@ class ScriptLogRepositoryTest {
             scriptLogRepository.info(message, args)
 
             val expected = "Test info message [key1=value1, key2=42]"
-            coVerify(exactly = 1) { loggerComponent.info(expected) }
+            coVerify(exactly = 0) { loggerComponent.info(any()) }
             coVerify(exactly = 1) { statusUpdate(expected) }
         }
 
     @Test
-    fun `info logs message without args`() =
+    fun `info formats message without args and updates status`() =
         runTest {
             val message = "Test info message without args"
 
             scriptLogRepository.info(message, null)
 
-            coVerify(exactly = 1) { loggerComponent.info(message) }
+            coVerify(exactly = 0) { loggerComponent.info(any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 
@@ -110,7 +110,7 @@ class ScriptLogRepositoryTest {
 
             scriptLogRepository.info(message, args)
 
-            coVerify(exactly = 1) { loggerComponent.info(message) }
+            coVerify(exactly = 0) { loggerComponent.info(any()) }
             coVerify(exactly = 1) { statusUpdate(message) }
         }
 

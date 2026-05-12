@@ -26,6 +26,8 @@ class ZalandoItemRepository(
     private val randomProxy: RandomProxy? = null,
     private val timeout: Duration = 30.seconds,
 ) : ItemRepository {
+    override val name: String = "Zalando"
+
     private val json = defaultJson()
     private val userAgent = DESKTOP_USER_AGENTS.random()
 
