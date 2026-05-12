@@ -231,24 +231,31 @@ class TestMonitorCommand {
     @Test
     fun `filters exclude items before strategies are called`() =
         runTest {
-            val matchingItem = Item(
-                id = "1", url = "http://foo.bar", name = "Cheap",
-                properties = listOf(ItemProperty.Price(BigDecimal("1500"), Currency.EUR)),
-            )
-            val excludedItem = Item(
-                id = "2", url = "http://foo.bar", name = "Expensive",
-                properties = listOf(ItemProperty.Price(BigDecimal("3000"), Currency.EUR)),
-            )
+            val matchingItem =
+                Item(
+                    id = "1",
+                    url = "http://foo.bar",
+                    name = "Cheap",
+                    properties = listOf(ItemProperty.Price(BigDecimal("1500"), Currency.EUR)),
+                )
+            val excludedItem =
+                Item(
+                    id = "2",
+                    url = "http://foo.bar",
+                    name = "Expensive",
+                    properties = listOf(ItemProperty.Price(BigDecimal("3000"), Currency.EUR)),
+                )
             coEvery { itemRepository.getItems(null) } returns Page(null, listOf(matchingItem, excludedItem))
 
-            val monitorCommand = MonitorCommand(
-                itemRepositories = listOf(itemRepository),
-                notificationRepository = notificationRepository,
-                logRepository = logRepository,
-                delayBetweenScrapes = 1.seconds,
-                strategies = listOf(mockStrategy),
-                filters = listOf(ItemFilter.PriceAtMost(BigDecimal("2000"))),
-            )
+            val monitorCommand =
+                MonitorCommand(
+                    itemRepositories = listOf(itemRepository),
+                    notificationRepository = notificationRepository,
+                    logRepository = logRepository,
+                    delayBetweenScrapes = 1.seconds,
+                    strategies = listOf(mockStrategy),
+                    filters = listOf(ItemFilter.PriceAtMost(BigDecimal("2000"))),
+                )
 
             val context = ChainContext()
             monitorCommand.execute(context)
@@ -264,20 +271,22 @@ class TestMonitorCommand {
     @Test
     fun `empty filters list passes all items through`() =
         runTest {
-            val items = listOf(
-                Item("1", url = "http://foo.bar", name = "Foo"),
-                Item("2", url = "http://foo.bar", name = "Bar"),
-            )
+            val items =
+                listOf(
+                    Item("1", url = "http://foo.bar", name = "Foo"),
+                    Item("2", url = "http://foo.bar", name = "Bar"),
+                )
             coEvery { itemRepository.getItems(null) } returns Page(null, items)
 
-            val monitorCommand = MonitorCommand(
-                itemRepositories = listOf(itemRepository),
-                notificationRepository = notificationRepository,
-                logRepository = logRepository,
-                delayBetweenScrapes = 1.seconds,
-                strategies = listOf(mockStrategy),
-                filters = emptyList(),
-            )
+            val monitorCommand =
+                MonitorCommand(
+                    itemRepositories = listOf(itemRepository),
+                    notificationRepository = notificationRepository,
+                    logRepository = logRepository,
+                    delayBetweenScrapes = 1.seconds,
+                    strategies = listOf(mockStrategy),
+                    filters = emptyList(),
+                )
 
             val context = ChainContext()
             monitorCommand.execute(context)

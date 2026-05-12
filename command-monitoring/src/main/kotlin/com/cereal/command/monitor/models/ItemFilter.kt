@@ -10,14 +10,17 @@ import java.math.BigDecimal
  */
 sealed class ItemFilter {
     data class PriceAtMost(val value: BigDecimal) : ItemFilter()
+
     data class PriceAtLeast(val value: BigDecimal) : ItemFilter()
+
     data class CustomValueAtLeast(val name: String, val value: Double) : ItemFilter()
+
     data class CustomValueAtMost(val name: String, val value: Double) : ItemFilter()
+
     data class CustomValueEquals(val name: String, val value: String) : ItemFilter()
 }
 
-private fun parseNumericPrefix(raw: String): Double? =
-    Regex("""^[\d.]+""").find(raw.trim())?.value?.toDoubleOrNull()
+private fun parseNumericPrefix(raw: String): Double? = Regex("""^[\d.]+""").find(raw.trim())?.value?.toDoubleOrNull()
 
 /**
  * Finds the first [ItemProperty.Custom] whose name matches [name], or `null` if absent.

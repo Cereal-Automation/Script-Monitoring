@@ -6,14 +6,21 @@ import java.math.BigDecimal
 import kotlin.test.Test
 
 class ItemFilterTest {
+    private fun itemWithPrice(amount: String) =
+        Item(
+            id = "1",
+            url = null,
+            name = "Test",
+            properties = listOf(ItemProperty.Price(BigDecimal(amount), Currency.EUR)),
+        )
 
-    private fun itemWithPrice(amount: String) = Item(
-        id = "1", url = null, name = "Test",
-        properties = listOf(ItemProperty.Price(BigDecimal(amount), Currency.EUR)),
-    )
-
-    private fun itemWithCustom(name: String, value: String) = Item(
-        id = "1", url = null, name = "Test",
+    private fun itemWithCustom(
+        name: String,
+        value: String,
+    ) = Item(
+        id = "1",
+        url = null,
+        name = "Test",
         properties = listOf(ItemProperty.Custom(name, value)),
     )
 
@@ -147,33 +154,45 @@ class ItemFilterTest {
 
     @Test
     fun `passes returns false when any filter fails`() {
-        val item = Item(
-            id = "1", url = null, name = "Test",
-            properties = listOf(
-                ItemProperty.Price(BigDecimal("1500"), Currency.EUR),
-                ItemProperty.Custom("Rooms", "1"),
-            ),
-        )
-        val filters = listOf(
-            ItemFilter.PriceAtMost(BigDecimal("2000")),   // passes
-            ItemFilter.CustomValueAtLeast("Rooms", 2.0),  // fails
-        )
+        val item =
+            Item(
+                id = "1",
+                url = null,
+                name = "Test",
+                properties =
+                    listOf(
+                        ItemProperty.Price(BigDecimal("1500"), Currency.EUR),
+                        ItemProperty.Custom("Rooms", "1"),
+                    ),
+            )
+        val filters =
+            listOf(
+                // passes
+                ItemFilter.PriceAtMost(BigDecimal("2000")),
+                // fails
+                ItemFilter.CustomValueAtLeast("Rooms", 2.0),
+            )
         assertFalse(item.passes(filters))
     }
 
     @Test
     fun `passes returns true when all filters pass`() {
-        val item = Item(
-            id = "1", url = null, name = "Test",
-            properties = listOf(
-                ItemProperty.Price(BigDecimal("1500"), Currency.EUR),
-                ItemProperty.Custom("Rooms", "3"),
-            ),
-        )
-        val filters = listOf(
-            ItemFilter.PriceAtMost(BigDecimal("2000")),
-            ItemFilter.CustomValueAtLeast("Rooms", 2.0),
-        )
+        val item =
+            Item(
+                id = "1",
+                url = null,
+                name = "Test",
+                properties =
+                    listOf(
+                        ItemProperty.Price(BigDecimal("1500"), Currency.EUR),
+                        ItemProperty.Custom("Rooms", "3"),
+                    ),
+            )
+        val filters =
+            listOf(
+                ItemFilter.PriceAtMost(BigDecimal("2000")),
+                ItemFilter.CustomValueAtLeast("Rooms", 2.0),
+            )
         assertTrue(item.passes(filters))
     }
 }
