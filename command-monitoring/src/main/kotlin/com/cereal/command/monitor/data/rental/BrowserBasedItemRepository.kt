@@ -49,6 +49,8 @@ abstract class BrowserBasedItemRepository(
         } finally {
             runCatching {
                 withTimeout(BROWSER_STOP_TIMEOUT_MS) { browser.stop() }
+            }.onFailure { e ->
+                logRepository.warn("$name: browser failed to stop cleanly: ${e.message}")
             }
             browserScope.coroutineContext[Job]?.cancel()
         }
