@@ -1,0 +1,110 @@
+package com.cereal.command.monitor.data.rental
+
+import com.cereal.command.monitor.models.Item
+import com.cereal.command.monitor.models.Page
+import com.cereal.command.monitor.repository.ItemRepository
+import com.cereal.script.repository.LogRepository
+import dev.kdriver.core.browser.Browser
+import dev.kdriver.core.browser.createBrowser
+import dev.kdriver.core.tab.ReadyState
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
+import java.math.BigDecimal
+
+abstract class BrowserBasedItemRepository(
+    protected val cities: List<String>,
+    protected val logRepository: LogRepository,
+) : ItemRepository {
+    override suspend fun getItems(nextPageToken: String?): Page {
+        val items = mutableListOf<Item>()
+        val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val browser =
+            try {
+                withTimeout(BROWSER_START_TIMEOUT_MS) {
+                    createBrowser(browserScope) { headless = true }
+                }
+            } catch (e: TimeoutCancellationException) {
+                browserScope.coroutineContext[Job]?.cancel()
+                logRepository.warn("$name: browser startup timed out, skipping run: ${e.message}")
+                return Page(nextPageToken = null, items = items)
+            }
+
+        try {
+            for ((index, city) in cities.withIndex()) {
+                logRepository.info("$name: scraping city ${index + 1}/${cities.size}: '$city'")
+                try {
+                    items += fetchCity(city, browser)
+                } catch (e: Exception) {
+                    logRepository.info("$name: failed to fetch listings for city '$city': ${e.message}")
+                }
+            }
+        } finally {
+            runCatching {
+                withTimeout(BROWSER_STOP_TIMEOUT_MS) { browser.stop() }
+            }
+            browserScope.coroutineContext[Job]?.cancel()
+        }
+
+        return Page(nextPageToken = null, items = items)
+    }
+
+    protected abstract suspend fun fetchCity(
+        city: String,
+        browser: Browser,
+    ): List<Item>
+
+    protected suspend fun fetchWithBrowser(
+        url: String,
+        browser: Browser,
+    ): String {
+        var lastError: Throwable? = null
+        repeat(5) {
+            try {
+                return withTimeout(PAGE_FETCH_TIMEOUT_MS) {
+                    val page = browser.get(url)
+                    page.waitForReadyState(ReadyState.COMPLETE, timeout = READY_STATE_TIMEOUT_MS)
+                    page.getContent()
+                }
+            } catch (e: TimeoutCancellationException) {
+                lastError = e
+                delay(500)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                lastError = e
+                delay(500)
+            }
+        }
+        throw IllegalStateException("Could not get page from browser: $url", lastError)
+    }
+
+    companion object {
+        const val BROWSER_START_TIMEOUT_MS: Long = 60_000
+        const val BROWSER_STOP_TIMEOUT_MS: Long = 10_000
+        const val PAGE_FETCH_TIMEOUT_MS: Long = 30_000
+        const val READY_STATE_TIMEOUT_MS: Long = 10_000
+        const val LISTING_PROGRESS_EVERY: Int = 10
+
+        fun parsePrice(raw: String): BigDecimal? {
+            if (raw.isBlank()) return null
+            val digits = raw.replace(Regex("[^\\d]"), "")
+            return digits.toBigDecimalOrNull()
+        }
+
+        fun parseSizeM2(raw: String): Int? {
+            if (raw.isBlank()) return null
+            return Regex("""\d+""").find(raw)?.value?.toIntOrNull()
+        }
+
+        fun parseRooms(raw: String): Int? {
+            if (raw.isBlank()) return null
+            return raw.trim().split(" ").firstOrNull()?.toIntOrNull()
+        }
+    }
+}

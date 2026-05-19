@@ -8,46 +8,46 @@ import java.math.BigDecimal
 class FundaItemRepositoryTest {
     @Test
     fun `parsePrice returns null for blank input`() {
-        assertNull(FundaItemRepository.parsePrice(""))
+        assertNull(BrowserBasedItemRepository.parsePrice(""))
     }
 
     @Test
     fun `parsePrice parses funda price format with slash maand`() {
-        assertEquals(BigDecimal("1500"), FundaItemRepository.parsePrice("€ 1.500 /maand"))
+        assertEquals(BigDecimal("1500"), BrowserBasedItemRepository.parsePrice("€ 1.500 /maand"))
     }
 
     @Test
     fun `parsePrice parses simple price`() {
-        assertEquals(BigDecimal("950"), FundaItemRepository.parsePrice("€ 950"))
+        assertEquals(BigDecimal("950"), BrowserBasedItemRepository.parsePrice("€ 950"))
     }
 
     @Test
     fun `parseSizeM2 returns null for blank input`() {
-        assertNull(FundaItemRepository.parseSizeM2(""))
+        assertNull(BrowserBasedItemRepository.parseSizeM2(""))
     }
 
     @Test
     fun `parseSizeM2 parses m2 value`() {
-        assertEquals(75, FundaItemRepository.parseSizeM2("75 m²"))
+        assertEquals(75, BrowserBasedItemRepository.parseSizeM2("75 m²"))
     }
 
     @Test
     fun `parseSizeM2 parses approximate m2 value with ca prefix`() {
-        assertEquals(75, FundaItemRepository.parseSizeM2("ca. 75 m²"))
+        assertEquals(75, BrowserBasedItemRepository.parseSizeM2("ca. 75 m²"))
     }
 
     @Test
     fun `parseRooms returns null for blank input`() {
-        assertNull(FundaItemRepository.parseRooms(""))
+        assertNull(BrowserBasedItemRepository.parseRooms(""))
     }
 
     @Test
     fun `parseRooms parses Dutch room string`() {
-        assertEquals(3, FundaItemRepository.parseRooms("3 kamers"))
+        assertEquals(3, BrowserBasedItemRepository.parseRooms("3 kamers"))
     }
 
     @Test
     fun `parseRooms parses bare integer`() {
-        assertEquals(2, FundaItemRepository.parseRooms("2"))
+        assertEquals(2, BrowserBasedItemRepository.parseRooms("2"))
     }
 }
