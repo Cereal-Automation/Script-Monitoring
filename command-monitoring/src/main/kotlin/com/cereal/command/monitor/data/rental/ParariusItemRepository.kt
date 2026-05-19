@@ -13,10 +13,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import org.jsoup.Jsoup
 import java.math.BigDecimal
-import java.util.NoSuchElementException
 
 class ParariusItemRepository(
     private val cities: List<String>,
@@ -29,10 +30,20 @@ class ParariusItemRepository(
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
         val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        val browser = createBrowser(browserScope) { headless = true }
+        val browser =
+            try {
+                withTimeout(BROWSER_START_TIMEOUT_MS) {
+                    createBrowser(browserScope) { headless = true }
+                }
+            } catch (e: TimeoutCancellationException) {
+                browserScope.coroutineContext[Job]?.cancel()
+                logRepository.warn("Pararius: browser startup timed out, skipping run: ${e.message}")
+                return Page(nextPageToken = null, items = items)
+            }
 
         try {
-            for (city in cities) {
+            for ((index, city) in cities.withIndex()) {
+                logRepository.info("Pararius: scraping city ${index + 1}/${cities.size}: '$city'")
                 try {
                     items += fetchCity(city, browser)
                 } catch (e: Exception) {
@@ -40,7 +51,9 @@ class ParariusItemRepository(
                 }
             }
         } finally {
-            runCatching { browser.stop() }
+            runCatching {
+                withTimeout(BROWSER_STOP_TIMEOUT_MS) { browser.stop() }
+            }
             browserScope.coroutineContext[Job]?.cancel()
         }
 
@@ -64,9 +77,15 @@ class ParariusItemRepository(
 
         if (links.isEmpty()) {
             logRepository.info("Pararius: no listings found for city '$city' at $url")
+            return emptyList()
         }
 
-        return links.mapNotNull { listingUrl ->
+        logRepository.info("Pararius: fetching ${links.size} listing(s) for city '$city'")
+
+        return links.mapIndexedNotNull { index, listingUrl ->
+            if (index > 0 && index % LISTING_PROGRESS_EVERY == 0) {
+                logRepository.info("Pararius: processed $index/${links.size} listings for '$city'")
+            }
             try {
                 fetchListing(listingUrl, city, browser)
             } catch (e: Exception) {
@@ -80,16 +99,23 @@ class ParariusItemRepository(
         url: String,
         browser: Browser,
     ): String {
+        var lastError: Throwable? = null
         repeat(5) {
             try {
-                val page = browser.get(url)
-                page.waitForReadyState(ReadyState.COMPLETE, timeout = 10000)
-                return page.getContent()
-            } catch (e: NoSuchElementException) {
+                return withTimeout(PAGE_FETCH_TIMEOUT_MS) {
+                    val page = browser.get(url)
+                    page.waitForReadyState(ReadyState.COMPLETE, timeout = READY_STATE_TIMEOUT_MS)
+                    page.getContent()
+                }
+            } catch (e: TimeoutCancellationException) {
+                lastError = e
+                delay(500)
+            } catch (e: Exception) {
+                lastError = e
                 delay(500)
             }
         }
-        throw IllegalStateException("Could not get page from browser")
+        throw IllegalStateException("Could not get page from browser: $url", lastError)
     }
 
     private suspend fun fetchListing(
@@ -148,6 +174,12 @@ class ParariusItemRepository(
     }
 
     companion object {
+        private const val BROWSER_START_TIMEOUT_MS: Long = 60_000
+        private const val BROWSER_STOP_TIMEOUT_MS: Long = 10_000
+        private const val PAGE_FETCH_TIMEOUT_MS: Long = 30_000
+        private const val READY_STATE_TIMEOUT_MS: Long = 10_000
+        private const val LISTING_PROGRESS_EVERY: Int = 10
+
         fun parsePrice(raw: String): BigDecimal? {
             if (raw.isBlank()) return null
             val digits = raw.replace(Regex("[^\\d]"), "")
