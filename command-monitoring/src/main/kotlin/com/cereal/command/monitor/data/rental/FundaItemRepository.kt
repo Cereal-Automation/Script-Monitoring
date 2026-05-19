@@ -9,6 +9,7 @@ import com.cereal.script.repository.LogRepository
 import dev.kdriver.core.browser.Browser
 import dev.kdriver.core.browser.createBrowser
 import dev.kdriver.core.tab.ReadyState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -121,6 +122,8 @@ class FundaItemRepository(
             } catch (e: TimeoutCancellationException) {
                 lastError = e
                 delay(500)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 lastError = e
                 delay(500)
