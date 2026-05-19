@@ -101,6 +101,5 @@ class RentalScript : Script<RentalConfiguration> {
         )
     }
 
-    private fun parseCities(input: String): List<String> =
-        input.split(",").map { it.trim().lowercase() }.filter { it.isNotBlank() }
+    private fun parseCities(input: String): List<String> = input.split(",").map { it.trim().lowercase() }.filter { it.isNotBlank() }
 }
