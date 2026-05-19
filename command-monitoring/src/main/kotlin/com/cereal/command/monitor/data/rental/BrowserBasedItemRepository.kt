@@ -8,6 +8,7 @@ import dev.kdriver.core.browser.Browser
 import dev.kdriver.core.browser.createBrowser
 import dev.kdriver.core.tab.ReadyState
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,10 +21,11 @@ import java.math.BigDecimal
 abstract class BrowserBasedItemRepository(
     protected val cities: List<String>,
     protected val logRepository: LogRepository,
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ItemRepository {
     override suspend fun getItems(nextPageToken: String?): Page {
         val items = mutableListOf<Item>()
-        val browserScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val browserScope = CoroutineScope(coroutineDispatcher + SupervisorJob())
         val browser =
             try {
                 withTimeout(BROWSER_START_TIMEOUT_MS) {
