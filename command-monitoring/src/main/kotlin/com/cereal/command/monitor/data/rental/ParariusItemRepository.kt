@@ -6,7 +6,6 @@ import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.script.repository.LogRepository
 import dev.kdriver.core.browser.Browser
 import org.jsoup.Jsoup
-import java.math.BigDecimal
 
 class ParariusItemRepository(
     cities: List<String>,
