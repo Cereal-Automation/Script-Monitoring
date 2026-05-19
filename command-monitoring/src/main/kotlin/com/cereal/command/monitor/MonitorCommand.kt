@@ -53,7 +53,7 @@ class MonitorCommand(
         )
 
         if (totalNotifications == 0) {
-            logRepository.info("No items matched the configured filters — no notifications sent.")
+            logRepository.info("No notifications sent.")
         }
 
         return context.put(
