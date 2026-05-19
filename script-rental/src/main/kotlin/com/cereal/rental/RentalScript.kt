@@ -54,7 +54,8 @@ class RentalScript : Script<RentalConfiguration> {
         val cities = parseCities(configuration.cities())
         val furnishing = configuration.furnishing()
         val propertyType = configuration.propertyType()
-        val strategy = MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now(), requiresBaseline = false)
+        val strategy =
+            MonitorStrategyFactory.newItemAvailableMonitorStrategy(Clock.System.now(), requiresBaseline = true)
         val strategies = listOf(strategy)
 
         val filters =
