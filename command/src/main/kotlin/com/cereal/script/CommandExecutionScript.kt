@@ -5,6 +5,7 @@ import com.cereal.licensechecker.LicenseState
 import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.data.ScriptLogRepository
+import com.cereal.script.exception.ChromeNotInstalledException
 import com.cereal.script.interactor.ExecuteCommandsInteractor
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
@@ -93,21 +94,9 @@ class CommandExecutionScript(
         return this.until(now, DateTimeUnit.SECOND).seconds
     }
 
-    /**
-     * Returns a user-friendly error message. Walks the cause chain so wrapped exceptions
-     * are handled correctly too.
-     */
-    private fun Exception.toDisplayMessage(start: Instant): String {
-        var cause: Throwable? = this
-        while (cause != null) {
-            when (cause.javaClass.simpleName) {
-                "NoBrowserExecutablePathException",
-                "BrowserExecutableNotFoundException",
-                -> return "Google Chrome is not installed or could not be found. " +
-                    "Please install Google Chrome and try again."
-            }
-            cause = cause.cause
+    private fun Exception.toDisplayMessage(start: Instant): String =
+        when (this) {
+            is ChromeNotInstalledException -> message ?: "Google Chrome is not installed."
+            else -> "Error after ${start.untilNow()} while running script: $message"
         }
-        return "Error after ${start.untilNow()} while running script: ${message}"
-    }
 }

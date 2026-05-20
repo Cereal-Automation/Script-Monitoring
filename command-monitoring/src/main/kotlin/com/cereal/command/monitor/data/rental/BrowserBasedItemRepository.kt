@@ -3,9 +3,12 @@ package com.cereal.command.monitor.data.rental
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.Page
 import com.cereal.command.monitor.repository.ItemRepository
+import com.cereal.script.exception.ChromeNotInstalledException
 import com.cereal.script.repository.LogRepository
 import dev.kdriver.core.browser.Browser
 import dev.kdriver.core.browser.createBrowser
+import dev.kdriver.core.exceptions.BrowserExecutableNotFoundException
+import dev.kdriver.core.exceptions.NoBrowserExecutablePathException
 import dev.kdriver.core.tab.ReadyState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,6 +38,12 @@ abstract class BrowserBasedItemRepository(
                 browserScope.coroutineContext[Job]?.cancel()
                 logRepository.warn("$name: browser startup timed out, skipping run: ${e.message}")
                 return Page(nextPageToken = null, items = items)
+            } catch (e: NoBrowserExecutablePathException) {
+                browserScope.coroutineContext[Job]?.cancel()
+                throw ChromeNotInstalledException(e)
+            } catch (e: BrowserExecutableNotFoundException) {
+                browserScope.coroutineContext[Job]?.cancel()
+                throw ChromeNotInstalledException(e)
             }
 
         try {
