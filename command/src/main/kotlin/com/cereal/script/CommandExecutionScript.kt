@@ -67,7 +67,7 @@ class CommandExecutionScript(
             interactor(commands, context).collect()
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            return ExecutionResult.Error("Error after ${start.untilNow()} while running script: ${e.message}")
+            return ExecutionResult.Error(e.toDisplayMessage(start))
         }
 
         return ExecutionResult.Success("Script completed successfully in ${start.untilNow()}.")
@@ -91,5 +91,23 @@ class CommandExecutionScript(
     private fun Instant.untilNow(): Duration {
         val now = Clock.System.now()
         return this.until(now, DateTimeUnit.SECOND).seconds
+    }
+
+    /**
+     * Returns a user-friendly error message. Walks the cause chain so wrapped exceptions
+     * are handled correctly too.
+     */
+    private fun Exception.toDisplayMessage(start: Instant): String {
+        var cause: Throwable? = this
+        while (cause != null) {
+            when (cause.javaClass.simpleName) {
+                "NoBrowserExecutablePathException",
+                "BrowserExecutableNotFoundException",
+                -> return "Google Chrome is not installed or could not be found. " +
+                    "Please install Google Chrome and try again."
+            }
+            cause = cause.cause
+        }
+        return "Error after ${start.untilNow()} while running script: ${message}"
     }
 }
