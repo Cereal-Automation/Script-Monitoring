@@ -5,6 +5,7 @@ import com.cereal.licensechecker.LicenseState
 import com.cereal.script.commands.ChainContext
 import com.cereal.script.commands.Command
 import com.cereal.script.data.ScriptLogRepository
+import com.cereal.script.exception.ChromeNotInstalledException
 import com.cereal.script.interactor.ExecuteCommandsInteractor
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.component.ComponentProvider
@@ -67,7 +68,7 @@ class CommandExecutionScript(
             interactor(commands, context).collect()
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            return ExecutionResult.Error("Error after ${start.untilNow()} while running script: ${e.message}")
+            return ExecutionResult.Error(e.toDisplayMessage(start))
         }
 
         return ExecutionResult.Success("Script completed successfully in ${start.untilNow()}.")
@@ -92,4 +93,10 @@ class CommandExecutionScript(
         val now = Clock.System.now()
         return this.until(now, DateTimeUnit.SECOND).seconds
     }
+
+    private fun Exception.toDisplayMessage(start: Instant): String =
+        when (this) {
+            is ChromeNotInstalledException -> message ?: "Google Chrome is not installed."
+            else -> "Error after ${start.untilNow()} while running script: $message"
+        }
 }
