@@ -19,5 +19,10 @@ jobs:
           cache: 'gradle'
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+      - name: Allow Chrome sandbox on Ubuntu 24.04
+        # Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor, which
+        # breaks Chrome's sandbox when kdriver launches it as the non-root runner
+        # user, causing FailedToConnectToBrowserException. Relax the restriction.
+        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
       - name: Test
         run: ./gradlew integrationTest
