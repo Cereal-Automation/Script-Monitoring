@@ -20,6 +20,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.encodeURLParameter
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -62,16 +63,27 @@ class BolcomWebDataSource(
     /**
      * Fetches a list of items by querying an external service using the provided EAN (European Article Number).
      *
-     * The method performs an HTTP GET request to fetch product data associated with the given EAN. It parses
-     * the response, processes the resulting data, and maps the processed data to a list of `Item` objects.
+     * Convenience wrapper around [fetchItems]: an EAN is just a specific search term.
      *
      * @param ean The European Article Number used to fetch product data.
      * @return A list of `Item` objects corresponding to the products found for the given EAN. Returns an empty list if no products are found or in case of an error.
      */
-    suspend fun fetchItemsByEan(ean: String): List<Item> {
+    suspend fun fetchItemsByEan(ean: String): List<Item> = fetchItems(ean)
+
+    /**
+     * Fetches a list of items by querying bol.com's search endpoint with the provided free-text query.
+     *
+     * The method performs an HTTP GET request to fetch product data for the given search text (a keyword
+     * such as "pokémon kaarten" or an EAN). It parses the response, processes the resulting data, and maps
+     * it to a list of `Item` objects.
+     *
+     * @param searchText The free-text query (keyword or EAN) used to fetch product data.
+     * @return A list of `Item` objects corresponding to the products found. Returns an empty list if no products are found or in case of an error.
+     */
+    suspend fun fetchItems(searchText: String): List<Item> {
         val response =
             performRequest(
-                url = "$BOL_COM_BASE_URL/nl/nl/s.data?searchtext=$ean",
+                url = "$BOL_COM_BASE_URL/nl/nl/s.data?searchtext=${searchText.encodeURLParameter()}",
                 method = HttpMethod.Get,
             ) {}
 
