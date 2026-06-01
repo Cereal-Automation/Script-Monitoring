@@ -81,31 +81,38 @@ class PokemonScript : Script<PokemonConfiguration> {
 
     companion object {
         /**
-         * Hard-coded list of bol.com search terms (Dutch, matching bol.com's vocabulary).
-         * The set-name group is a maintenance point: refresh it as new expansions release.
+         * Hard-coded list of bol.com search terms, one per Pokémon TCG set/product line.
+         *
+         * This mirrors the notification taxonomy used by the StockMonster Pokémon community, which
+         * tracks bol.com drops/restocks by set name rather than by product format. Refresh this list
+         * as new expansions release.
          */
         private val SEARCH_TERMS =
             listOf(
-                // Product formats (evergreen)
-                "pokémon kaarten",
-                "pokémon booster box",
-                "pokémon booster pack",
-                "pokémon elite trainer box",
-                "pokémon build & battle box",
-                "pokémon booster bundle",
-                "pokémon blister",
-                "pokémon tin",
-                "pokémon special box",
-                "pokémon premium collection",
-                "pokémon battle deck",
-                // Current sets (refresh as new sets drop)
+                // Scarlet & Violet era
+                "pokémon scarlet & violet",
+                "pokémon obsidian flames",
+                "pokémon 151",
+                "pokémon paldea evolved",
+                "pokémon paradox rift",
+                "pokémon paldean fates",
+                "pokémon temporal forces",
+                "pokémon twilight masquerade",
+                "pokémon shrouded fable",
+                "pokémon stellar crown",
+                "pokémon surging sparks",
                 "pokémon prismatic evolutions",
+                "pokémon journey together",
                 "pokémon destined rivals",
                 "pokémon black bolt",
                 "pokémon white flare",
-                "pokémon surging sparks",
+                // Mega Evolution era
                 "pokémon mega evolution",
-                "pokémon 151",
+                "pokémon phantasmal flames",
+                "pokémon ascended heroes",
+                "pokémon perfect order",
+                "pokémon chaos rising",
+                "pokémon pitch black",
             )
     }
 }
