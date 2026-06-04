@@ -60,7 +60,7 @@ class OAuthTokenProvider(
             refreshToken = tokenData.refresh_token
             expiresAt = System.currentTimeMillis() + (tokenData.expires_in * 1000)
 
-            currentToken!!
+            requireNotNull(currentToken) { "Access token was unexpectedly null after authorization code exchange" }
         }
 
     suspend fun refreshToken(): String? =
@@ -92,7 +92,7 @@ class OAuthTokenProvider(
             refreshToken = tokenData.refresh_token
             expiresAt = System.currentTimeMillis() + (tokenData.expires_in * 1000)
 
-            currentToken!!
+            requireNotNull(currentToken) { "Access token was unexpectedly null after token refresh" }
         }
 
     suspend fun getToken(): String? {
