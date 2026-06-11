@@ -32,18 +32,29 @@ abstract class BrowserBasedItemRepository(
         val browser =
             try {
                 withTimeout(BROWSER_START_TIMEOUT_MS) {
-                    createBrowser(browserScope) { headless = true }
+                    startBrowser(browserScope)
                 }
             } catch (e: TimeoutCancellationException) {
                 browserScope.coroutineContext[Job]?.cancel()
                 logRepository.warn("$name: browser startup timed out, skipping run: ${e.message}")
                 return Page(nextPageToken = null, items = items)
+            } catch (e: CancellationException) {
+                browserScope.coroutineContext[Job]?.cancel()
+                throw e
             } catch (e: NoBrowserExecutablePathException) {
                 browserScope.coroutineContext[Job]?.cancel()
                 throw ChromeNotInstalledException(e)
             } catch (e: BrowserExecutableNotFoundException) {
                 browserScope.coroutineContext[Job]?.cancel()
                 throw ChromeNotInstalledException(e)
+            } catch (e: Exception) {
+                // Browser startup can fail transiently (e.g. a stale Chrome process or profile lock).
+                // Skip this run instead of killing the script; the next scheduled run starts fresh.
+                browserScope.coroutineContext[Job]?.cancel()
+                logRepository.warn(
+                    "$name: browser failed to start, skipping run: ${e.message ?: e::class.simpleName}",
+                )
+                return Page(nextPageToken = null, items = items)
             }
 
         try {
@@ -66,6 +77,8 @@ abstract class BrowserBasedItemRepository(
 
         return Page(nextPageToken = null, items = items)
     }
+
+    protected open suspend fun startBrowser(scope: CoroutineScope): Browser = createBrowser(scope) { headless = true }
 
     protected abstract suspend fun fetchCity(
         city: String,

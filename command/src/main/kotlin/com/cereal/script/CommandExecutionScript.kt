@@ -97,6 +97,6 @@ class CommandExecutionScript(
     private fun Exception.toDisplayMessage(start: Instant): String =
         when (this) {
             is ChromeNotInstalledException -> message ?: "Google Chrome is not installed."
-            else -> "Error after ${start.untilNow()} while running script: $message"
+            else -> "Error after ${start.untilNow()} while running script: ${message ?: this::class.simpleName ?: "unknown error"}"
         }
 }
