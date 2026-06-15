@@ -153,9 +153,18 @@ class BolcomProductMapper(
 
         productData.price?.let { price ->
             properties.add(
+                ItemProperty.Price(
+                    value = BigDecimal.valueOf(price),
+                    currency = Currency.EUR,
+                ),
+            )
+        }
+
+        productData.regularPrice?.let { regularPrice ->
+            properties.add(
                 ItemProperty.Custom(
-                    name = "Price",
-                    value = formatPrice(price, productData.regularPrice),
+                    name = "Regular price",
+                    value = formatCurrency(regularPrice),
                 ),
             )
         }
@@ -171,21 +180,6 @@ class BolcomProductMapper(
 
         return properties
     }
-
-    /**
-     * Formats a price with optional strikethrough for regular price.
-     */
-    private fun formatPrice(
-        price: Double,
-        regularPrice: Double?,
-    ): String =
-        buildString {
-            append(formatCurrency(price))
-            regularPrice?.let {
-                append(" ")
-                append("~~${formatCurrency(it)}~~")
-            }
-        }
 
     /**
      * Formats a currency value.

@@ -15,6 +15,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -166,9 +167,13 @@ class BolcomWebDataSourceTest {
             assertNotNull(brandProperty)
             assertEquals("Test Brand", brandProperty.value)
 
-            val priceProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Price" }
+            val priceProperty = item.properties.filterIsInstance<ItemProperty.Price>().firstOrNull()
             assertNotNull(priceProperty)
-            assertTrue(priceProperty.value.contains("19") || priceProperty.value.contains("20"))
+            assertEquals(0, priceProperty.value.compareTo(BigDecimal.valueOf(19.99)))
+
+            val regularPriceProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Regular price" }
+            assertNotNull(regularPriceProperty)
+            assertTrue(regularPriceProperty.value.contains("24"))
 
             val discountProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Discount" }
             assertNotNull(discountProperty)
@@ -560,10 +565,14 @@ class BolcomWebDataSourceTest {
             val discountProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Discount" }
             assertNotNull(discountProperty)
 
-            // Verify price property includes strikethrough
-            val priceProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Price" }
+            // Verify structured price and the strikethrough regular price
+            val priceProperty = item.properties.filterIsInstance<ItemProperty.Price>().firstOrNull()
             assertNotNull(priceProperty)
-            assertTrue(priceProperty.value.contains("~~"))
+            assertEquals(0, priceProperty.value.compareTo(BigDecimal.valueOf(79.99)))
+
+            val regularPriceProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Regular price" }
+            assertNotNull(regularPriceProperty)
+            assertTrue(regularPriceProperty.value.contains("99"))
 
             mockClient.close()
         }

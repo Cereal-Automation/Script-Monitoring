@@ -1,0 +1,6 @@
+{
+  "package_name": "com.cereal-automation.monitor.pokemon",
+  "name": "Pokémon Card Monitor (bol.com)",
+  "version_code": 1,
+  "script": "com.cereal.pokemon.PokemonScript"
+}
