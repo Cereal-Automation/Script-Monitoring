@@ -20,6 +20,8 @@ import com.cereal.command.monitor.models.requireValue
 class StockAvailableMonitorStrategy(
     private val notifyOnInitialRun: Boolean = false,
 ) : MonitorStrategy {
+    override val name: String = "Stock available"
+
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,

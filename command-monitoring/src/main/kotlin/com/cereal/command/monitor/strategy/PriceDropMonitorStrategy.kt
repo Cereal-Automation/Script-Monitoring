@@ -15,6 +15,8 @@ import com.cereal.command.monitor.models.getValue
  * for the accurate functioning of the strategy.
  */
 class PriceDropMonitorStrategy : MonitorStrategy {
+    override val name: String = "Price drop"
+
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,

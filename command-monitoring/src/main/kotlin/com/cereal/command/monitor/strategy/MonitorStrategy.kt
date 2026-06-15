@@ -4,6 +4,14 @@ import com.cereal.command.monitor.models.Item
 
 interface MonitorStrategy {
     /**
+     * A stable, human-readable name identifying this strategy. Used for logging.
+     *
+     * This must not rely on the class name (e.g. via reflection), as class names are obfuscated
+     * in release builds and would produce meaningless output like 'cj'.
+     */
+    val name: String
+
+    /**
      * Sealed result type for [shouldNotify].
      */
     sealed class NotifyResult {

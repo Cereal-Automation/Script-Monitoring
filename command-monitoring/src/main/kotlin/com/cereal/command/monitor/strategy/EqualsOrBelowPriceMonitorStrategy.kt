@@ -24,6 +24,8 @@ class EqualsOrBelowPriceMonitorStrategy(
     private val price: BigDecimal,
     private val currency: Currency,
 ) : MonitorStrategy {
+    override val name: String = "Equals or below price"
+
     /**
      * Determines if the user should be notified about the item based on its price.
      *
