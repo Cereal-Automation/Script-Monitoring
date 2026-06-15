@@ -36,7 +36,7 @@ kdriver = "0.5.8"
 moshi = "1.15.2"
 
 # Spotless (for stockx-api-client)
-spotless = "6.25.0"
+spotless = "8.6.0"
 
 # Kotlin Gradle Plugin (for stockx-api-client)
 kotlin-gradle-plugin = "1.9.24"
