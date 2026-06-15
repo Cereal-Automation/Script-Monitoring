@@ -11,7 +11,7 @@ class FilteredNewItemMonitorStrategy(
     private val authors: List<String>,
     private val categories: List<String>,
 ) : MonitorStrategy {
-    override val name: String = baselineStrategy.name
+    override val name: String get() = baselineStrategy.name
 
     override suspend fun shouldNotify(
         item: Item,
