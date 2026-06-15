@@ -29,7 +29,7 @@ logging-interceptor = "5.3.2"
 # Web Scraping & Parsing
 htmlunit = "4.8.0"
 jsoup = "1.21.2"
-rssparser = "6.1.0"
+rssparser = "6.1.5"
 kdriver = "0.5.8"
 
 # JSON Processing
