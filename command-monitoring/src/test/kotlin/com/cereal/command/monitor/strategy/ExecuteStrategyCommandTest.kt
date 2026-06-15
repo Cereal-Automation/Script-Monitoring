@@ -6,6 +6,7 @@ import com.cereal.script.repository.LogRepository
 import io.mockk.coEvery
 import io.mockk.coJustRun
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -62,6 +63,7 @@ class ExecuteStrategyCommandTest {
         runBlocking {
             val item = Item("TestItem", "url", "item", properties = emptyList())
 
+            every { strategy.name } returns "Test strategy"
             coEvery { strategy.shouldNotify(item, any()) } returns MonitorStrategy.NotifyResult.Skip("no reason")
             coJustRun { logRepository.debug(any()) }
 
@@ -70,6 +72,14 @@ class ExecuteStrategyCommandTest {
             executeStrategyCommand.execute()
 
             coVerify(exactly = 0) { notificationRepository.notify(any(), any()) }
-            coVerify { logRepository.debug(match { it.startsWith("No notification for 'item'") && it.contains("no reason") }) }
+            coVerify {
+                logRepository.debug(
+                    match {
+                        it.startsWith("No notification for 'item'") &&
+                            it.contains("Test strategy") &&
+                            it.contains("no reason")
+                    },
+                )
+            }
         }
 }

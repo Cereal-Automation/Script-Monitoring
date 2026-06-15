@@ -25,6 +25,8 @@ class NewItemAvailableMonitorStrategy(
     private val since: Instant = Clock.System.now(),
     private val requiresBaseline: Boolean = true,
 ) : MonitorStrategy {
+    override val name: String = "New item available"
+
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,

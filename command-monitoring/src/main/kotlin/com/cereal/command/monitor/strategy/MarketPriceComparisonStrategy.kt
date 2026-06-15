@@ -6,6 +6,8 @@ import com.cereal.command.monitor.repository.MarketItemRepository
 class MarketPriceComparisonStrategy(
     private val marketItemRepository: MarketItemRepository,
 ) : MonitorStrategy {
+    override val name: String = "Market price comparison"
+
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,

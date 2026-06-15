@@ -16,6 +16,8 @@ import com.cereal.command.monitor.models.getValue
  * - Suppressed when price or stock data is missing.
  */
 class PriceChangedMonitorStrategy : MonitorStrategy {
+    override val name: String = "Price changed"
+
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,

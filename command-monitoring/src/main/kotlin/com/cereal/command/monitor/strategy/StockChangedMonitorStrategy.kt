@@ -17,6 +17,8 @@ import com.cereal.command.monitor.models.requireValue
  * and still remain silent if no difference is determinable.
  */
 class StockChangedMonitorStrategy : MonitorStrategy {
+    override val name: String = "Stock changed"
+
     override suspend fun shouldNotify(
         item: Item,
         previousItem: Item?,
