@@ -1,9 +1,9 @@
 [versions]
 # Kotlin
-kotlin = "2.2.21"
+kotlin = "2.4.0"
 kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.9.0"
-kotlinx-datetime = "0.7.1"
+kotlinx-serialization = "1.11.0"
+kotlinx-datetime = "0.8.0"
 
 # Gradle Plugins
 gradleup-shadow = "8.3.9"
@@ -39,7 +39,7 @@ moshi = "1.15.2"
 spotless = "6.25.0"
 
 # Kotlin Gradle Plugin (for stockx-api-client)
-kotlin-gradle-plugin = "1.9.24"
+kotlin-gradle-plugin = "2.4.0"
 
 [libraries]
 # Kotlin
