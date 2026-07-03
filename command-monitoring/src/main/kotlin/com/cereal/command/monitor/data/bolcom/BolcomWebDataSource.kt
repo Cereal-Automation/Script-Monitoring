@@ -91,17 +91,18 @@ class BolcomWebDataSource(
 
     private fun BolProduct.toItem(): Item {
         val offer = bestSellingOffer
-        val properties = buildList {
-            price?.toBigDecimalOrNull()?.let { add(ItemProperty.Price(it, Currency.EUR)) }
-            brandName?.let { add(ItemProperty.Custom("Brand", it)) }
-            offer?.retailer?.name?.let { add(ItemProperty.Custom("Seller", it)) }
-            discountPercentage?.let { pct ->
-                val was = referencePrice
-                add(ItemProperty.Custom("Discount", if (was != null) "$pct% (was €$was)" else "$pct%"))
+        val properties =
+            buildList {
+                price?.toBigDecimalOrNull()?.let { add(ItemProperty.Price(it, Currency.EUR)) }
+                brandName?.let { add(ItemProperty.Custom("Brand", it)) }
+                offer?.retailer?.name?.let { add(ItemProperty.Custom("Seller", it)) }
+                discountPercentage?.let { pct ->
+                    val was = referencePrice
+                    add(ItemProperty.Custom("Discount", if (was != null) "$pct% (was €$was)" else "$pct%"))
+                }
+                offer?.bestDeliveryOption?.deliveryDescription?.let { add(ItemProperty.Custom("Shipping", it)) }
+                add(stockProperty)
             }
-            offer?.bestDeliveryOption?.deliveryDescription?.let { add(ItemProperty.Custom("Shipping", it)) }
-            add(stockProperty)
-        }
 
         return Item(
             id = id,
@@ -121,8 +122,9 @@ class BolcomWebDataSource(
      */
     private val BolProduct.stockProperty: ItemProperty.Stock
         get() {
-            val offer = bestSellingOffer
-                ?: return ItemProperty.Stock(isInStock = false, amount = null, level = "Unavailable")
+            val offer =
+                bestSellingOffer
+                    ?: return ItemProperty.Stock(isInStock = false, amount = null, level = "Unavailable")
             if (offer.bestDeliveryOption?.productReleaseDate != null) {
                 return ItemProperty.Stock(isInStock = false, amount = null, level = "Preorder")
             }

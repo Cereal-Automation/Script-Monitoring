@@ -26,18 +26,25 @@ class BolcomWebDataSourceTest {
     private val mockRandomProxy = mockk<RandomProxy>(relaxed = true)
 
     private suspend fun dataSourceRespondingWith(jsonResponse: String): BolcomWebDataSource {
-        val mockEngine = MockEngine { _ ->
-            respond(
-                content = jsonResponse,
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
-        val mockClient = HttpClient(mockEngine) {
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true; isLenient = true })
+        val mockEngine =
+            MockEngine { _ ->
+                respond(
+                    content = jsonResponse,
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
             }
-        }
+        val mockClient =
+            HttpClient(mockEngine) {
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            ignoreUnknownKeys = true
+                            isLenient = true
+                        },
+                    )
+                }
+            }
 
         val dataSource = BolcomWebDataSource(mockLogRepository, mockRandomProxy)
         val clientField = dataSource.javaClass.getDeclaredField("client")
@@ -55,34 +62,35 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should parse product from search result with full data`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "1234567890",
-                      "title": "Test Product",
-                      "url": "/nl/nl/p/test-product/1234567890/",
-                      "relatedParties": [
-                        { "role": "BRAND", "party": { "name": "Test Brand" } }
-                      ],
-                      "assets": [
-                        { "renditions": [ { "url": "https://example.com/image.jpg" } ] }
-                      ],
-                      "attributes": [
-                        { "name": "Description", "values": [ { "value": "Test Description" } ] }
-                      ],
-                      "bestSellingOffer": {
-                        "sellingPrice": { "price": { "amount": "19.99" } },
-                        "retailer": { "name": "Test Seller" },
-                        "bestDeliveryOption": { "deliveryDescription": "Op voorraad. Voor 23:59 uur besteld, morgen in huis" },
-                        "promotionalLabels": [ { "titleText": "deal" } ]
-                      }
+                      "products": [
+                        {
+                          "id": "1234567890",
+                          "title": "Test Product",
+                          "url": "/nl/nl/p/test-product/1234567890/",
+                          "relatedParties": [
+                            { "role": "BRAND", "party": { "name": "Test Brand" } }
+                          ],
+                          "assets": [
+                            { "renditions": [ { "url": "https://example.com/image.jpg" } ] }
+                          ],
+                          "attributes": [
+                            { "name": "Description", "values": [ { "value": "Test Description" } ] }
+                          ],
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "19.99" } },
+                            "retailer": { "name": "Test Seller" },
+                            "bestDeliveryOption": { "deliveryDescription": "Op voorraad. Voor 23:59 uur besteld, morgen in huis" },
+                            "promotionalLabels": [ { "titleText": "deal" } ]
+                          }
+                        }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("1234567890")
 
@@ -116,23 +124,24 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should parse product with minimal data`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "9876543210",
-                      "title": "Minimal Product",
-                      "url": "/nl/nl/p/minimal/9876543210/",
-                      "bestSellingOffer": {
-                        "sellingPrice": { "price": { "amount": "9.99" } },
-                        "deliveredWithin48Hours": true
-                      }
+                      "products": [
+                        {
+                          "id": "9876543210",
+                          "title": "Minimal Product",
+                          "url": "/nl/nl/p/minimal/9876543210/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "9.99" } },
+                            "deliveredWithin48Hours": true
+                          }
+                        }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("9876543210")
 
@@ -160,19 +169,20 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should mark product as unavailable when there is no selling offer`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "5555555555",
-                      "title": "Unavailable Product",
-                      "url": "/nl/nl/p/unavailable/5555555555/"
+                      "products": [
+                        {
+                          "id": "5555555555",
+                          "title": "Unavailable Product",
+                          "url": "/nl/nl/p/unavailable/5555555555/"
+                        }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("5555555555")
 
@@ -185,23 +195,24 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should mark product as preorder when a release date is set`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "6666666666",
-                      "title": "Preorder Product",
-                      "url": "/nl/nl/p/preorder/6666666666/",
-                      "bestSellingOffer": {
-                        "sellingPrice": { "price": { "amount": "59.99" } },
-                        "bestDeliveryOption": { "productReleaseDate": "2026-08-01" }
-                      }
+                      "products": [
+                        {
+                          "id": "6666666666",
+                          "title": "Preorder Product",
+                          "url": "/nl/nl/p/preorder/6666666666/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "59.99" } },
+                            "bestDeliveryOption": { "productReleaseDate": "2026-08-01" }
+                          }
+                        }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("6666666666")
 
@@ -214,23 +225,24 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should mark product as low stock when scarce`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "4444444444",
-                      "title": "Scarce Product",
-                      "url": "/nl/nl/p/scarce/4444444444/",
-                      "bestSellingOffer": {
-                        "sellingPrice": { "price": { "amount": "15.00" } },
-                        "isScarce": true
-                      }
+                      "products": [
+                        {
+                          "id": "4444444444",
+                          "title": "Scarce Product",
+                          "url": "/nl/nl/p/scarce/4444444444/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "15.00" } },
+                            "isScarce": true
+                          }
+                        }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("4444444444")
 
@@ -243,29 +255,30 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should derive discount from savings, not from promotional labels`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "7777777777",
-                      "title": "Discounted Product",
-                      "url": "/nl/nl/p/discounted/7777777777/",
-                      "bestSellingOffer": {
-                        "sellingPrice": { "price": { "amount": "30.42" } },
-                        "promotionalLabels": [ { "titleText": "deal" } ],
-                        "savings": {
-                          "reference": {
-                            "referencePrice": { "amount": 34.99 },
-                            "sellingPriceDiscount": { "percentage": 13, "amount": { "amount": 4.57 } }
+                      "products": [
+                        {
+                          "id": "7777777777",
+                          "title": "Discounted Product",
+                          "url": "/nl/nl/p/discounted/7777777777/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "30.42" } },
+                            "promotionalLabels": [ { "titleText": "deal" } ],
+                            "savings": {
+                              "reference": {
+                                "referencePrice": { "amount": 34.99 },
+                                "sellingPriceDiscount": { "percentage": 13, "amount": { "amount": 4.57 } }
+                              }
+                            }
                           }
                         }
-                      }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("7777777777")
 
@@ -283,24 +296,25 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should handle multiple products in search results`() =
         runTest {
-            val dataSource = dataSourceRespondingWith(
-                """
-                {
-                  "products": [
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
                     {
-                      "id": "1111111111",
-                      "title": "Product 1",
-                      "url": "/nl/nl/p/product1/1111111111/"
-                    },
-                    {
-                      "id": "2222222222",
-                      "title": "Product 2",
-                      "url": "/nl/nl/p/product2/2222222222/"
+                      "products": [
+                        {
+                          "id": "1111111111",
+                          "title": "Product 1",
+                          "url": "/nl/nl/p/product1/1111111111/"
+                        },
+                        {
+                          "id": "2222222222",
+                          "title": "Product 2",
+                          "url": "/nl/nl/p/product2/2222222222/"
+                        }
+                      ]
                     }
-                  ]
-                }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("test")
 

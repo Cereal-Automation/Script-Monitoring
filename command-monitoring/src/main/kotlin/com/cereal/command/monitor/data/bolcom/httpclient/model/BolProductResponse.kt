@@ -74,7 +74,6 @@ data class BolProduct(
     val specifications: ProductSpecifications? = null,
     val showProductQuantityOptions: Boolean = false,
     val availabilityNotificationRegistered: Boolean = false,
-
     // ---- Pricing / offers -------------------------------------------------
     @Serializable(with = NullableSellingOfferSerializer::class)
     val bestSellingOffer: SellingOffer? = null,
@@ -90,13 +89,15 @@ data class BolProduct(
 ) {
     /** HTML product description (from the "Description" attribute). */
     val description: String?
-        get() = attributes.firstOrNull { it.name.equals("Description", ignoreCase = true) }
-            ?.values?.firstOrNull()?.value
+        get() =
+            attributes.firstOrNull { it.name.equals("Description", ignoreCase = true) }
+                ?.values?.firstOrNull()?.value
 
     /** URL of the primary product image (largest available rendition). */
     val primaryImageUrl: String?
-        get() = (assets.firstOrNull { it.usage == "primary" } ?: assets.firstOrNull())
-            ?.renditions?.firstOrNull()?.url
+        get() =
+            (assets.firstOrNull { it.usage == "primary" } ?: assets.firstOrNull())
+                ?.renditions?.firstOrNull()?.url
 
     /** Current selling price amount, e.g. "899.00". */
     val price: String?
@@ -137,7 +138,8 @@ data class ProductCategory(
 
 @Serializable
 data class ProductPartyRelation(
-    val role: String, // BRAND | PUBLISHER | CHARACTER
+    // BRAND | PUBLISHER | CHARACTER
+    val role: String,
     val party: Party,
 )
 
@@ -157,8 +159,10 @@ data class ProductReviews(
 @Serializable
 data class Asset(
     val id: String? = null,
-    val mediaType: String? = null, // e.g. IMAGE
-    val usage: String? = null, // e.g. primary
+    // e.g. IMAGE
+    val mediaType: String? = null,
+    // e.g. primary
+    val usage: String? = null,
     val renditions: List<AssetRendition> = emptyList(),
     // `order` is poisoned in this dump and therefore not mapped.
 )
@@ -167,7 +171,8 @@ data class Asset(
 data class AssetRendition(
     val url: String,
     val mimeType: String? = null,
-    val preset: String? = null, // e.g. large
+    // e.g. large
+    val preset: String? = null,
     // width/height are poisoned in this dump and therefore not mapped.
 )
 
@@ -202,7 +207,8 @@ data class ProductSpecificationAttribute(
 @Serializable
 data class SellingOffer(
     val offerUid: String? = null,
-    val offerType: String? = null, // e.g. STANDARD
+    // e.g. STANDARD
+    val offerType: String? = null,
     val revisionId: String? = null,
     val condition: OfferCondition? = null,
     val deliveredWithin48Hours: Boolean = false,
@@ -264,12 +270,15 @@ data class SellingOfferSavings(
 
 @Serializable
 data class SellingOfferSavingsReference(
-    val referencePrice: Money? = null, // "most-shown" price (shown struck through)
+    // "most-shown" price (shown struck through)
+    val referencePrice: Money? = null,
     val strikethrough: Boolean = false,
+    // discount vs. the reference price
     @Serializable(with = NullableDiscountSerializer::class)
-    val sellingPriceDiscount: Discount? = null, // discount vs. the reference price
+    val sellingPriceDiscount: Discount? = null,
+    // extra discount for Select members
     @Serializable(with = NullableDiscountSerializer::class)
-    val selectPriceDiscount: Discount? = null, // extra discount for Select members
+    val selectPriceDiscount: Discount? = null,
     val savingsText: LocalizedText? = null,
     val infoLink: ReferencePriceInfoLink? = null,
     val text: ReferencePriceText? = null,
@@ -277,8 +286,10 @@ data class SellingOfferSavingsReference(
 
 @Serializable
 data class Discount(
-    val amount: Money? = null, // discount in currency, e.g. "4.57"
-    val percentage: Int? = null, // discount percent, e.g. 13
+    // discount in currency, e.g. "4.57"
+    val amount: Money? = null,
+    // discount percent, e.g. 13
+    val percentage: Int? = null,
 )
 
 @Serializable
@@ -295,7 +306,8 @@ data class ReferencePriceInfoLink(
 
 @Serializable
 data class ReferencePriceText(
-    val shortText: LocalizedText? = null, // e.g. "Meestal"
+    // e.g. "Meestal"
+    val shortText: LocalizedText? = null,
     val description: LocalizedText? = null,
     val screenReaderText: LocalizedText? = null,
 )
@@ -303,13 +315,16 @@ data class ReferencePriceText(
 @Serializable
 data class BestDeliveryOption(
     val deliveryDescription: String? = null,
-    val maxDateAtCustomer: String? = null, // ISO date
-    val productReleaseDate: String? = null, // ISO date; non-null means the product is a pre-order
+    // ISO date
+    val maxDateAtCustomer: String? = null,
+    // ISO date; non-null means the product is a pre-order
+    val productReleaseDate: String? = null,
 )
 
 @Serializable
 data class DiscountLabel(
-    val titleText: String? = null, // campaign/cross-sell banner text, e.g. "deal" — not a discount value
+    // campaign/cross-sell banner text, e.g. "deal" — not a discount value
+    val titleText: String? = null,
     val link: PromotionalLabelLink? = null,
     val retailAction: RetailAction? = null,
 )
@@ -359,7 +374,10 @@ abstract class SentinelNullableSerializer<T : Any>(
         return if (element is JsonObject) json.json.decodeFromJsonElement(delegate, element) else null
     }
 
-    override fun serialize(encoder: Encoder, value: T?) {
+    override fun serialize(
+        encoder: Encoder,
+        value: T?,
+    ) {
         if (value == null) encoder.encodeNull() else delegate.serialize(encoder, value)
     }
 }
@@ -385,7 +403,10 @@ object StringOrNumberSerializer : KSerializer<String?> {
         return (element as? JsonPrimitive)?.content
     }
 
-    override fun serialize(encoder: Encoder, value: String?) {
+    override fun serialize(
+        encoder: Encoder,
+        value: String?,
+    ) {
         if (value == null) encoder.encodeNull() else encoder.encodeString(value)
     }
 }
@@ -406,9 +427,13 @@ object SentinelElementSerializer : KSerializer<JsonElement?> {
         return element
     }
 
-    override fun serialize(encoder: Encoder, value: JsonElement?) {
-        val json = encoder as? JsonEncoder
-            ?: throw SerializationException("SentinelElementSerializer supports JSON only")
+    override fun serialize(
+        encoder: Encoder,
+        value: JsonElement?,
+    ) {
+        val json =
+            encoder as? JsonEncoder
+                ?: throw SerializationException("SentinelElementSerializer supports JSON only")
         json.encodeJsonElement(value ?: JsonNull)
     }
 
@@ -429,23 +454,26 @@ private class SentinelListSerializer<T>(elementSerializer: KSerializer<T>) : KSe
         return if (element is JsonArray) json.json.decodeFromJsonElement(delegate, element) else emptyList()
     }
 
-    override fun serialize(encoder: Encoder, value: List<T>) = delegate.serialize(encoder, value)
+    override fun serialize(
+        encoder: Encoder,
+        value: List<T>,
+    ) = delegate.serialize(encoder, value)
 }
 
 object RetailActionListSerializer : KSerializer<List<RetailAction>> by SentinelListSerializer(RetailAction.serializer())
 
 // ---- Ready-to-use Json + helper ------------------------------------------
 
-val BolJson: Json = Json {
-    ignoreUnknownKeys = true
-    isLenient = true
-    coerceInputValues = true
-    explicitNulls = false
-    allowTrailingComma = true
-}
+val BolJson: Json =
+    Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+        explicitNulls = false
+        allowTrailingComma = true
+    }
 
-fun parseBolProducts(jsonText: String): List<BolProduct> =
-    BolJson.decodeFromString(BolProductResponse.serializer(), jsonText).products
+fun parseBolProducts(jsonText: String): List<BolProduct> = BolJson.decodeFromString(BolProductResponse.serializer(), jsonText).products
 
 /**
  * Same as [parseBolProducts], but for an already-parsed [JsonElement] tree
@@ -456,5 +484,4 @@ fun parseBolProducts(element: JsonElement): List<BolProduct> =
     BolJson.decodeFromJsonElement(BolProductResponse.serializer(), element).products
 
 /** Decode a single product node (one `Product` object) from a [JsonElement]. */
-fun parseBolProduct(element: JsonElement): BolProduct =
-    BolJson.decodeFromJsonElement(BolProduct.serializer(), element)
+fun parseBolProduct(element: JsonElement): BolProduct = BolJson.decodeFromJsonElement(BolProduct.serializer(), element)
