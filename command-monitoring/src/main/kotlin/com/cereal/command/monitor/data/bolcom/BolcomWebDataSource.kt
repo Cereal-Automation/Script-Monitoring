@@ -1,11 +1,13 @@
 package com.cereal.command.monitor.data.bolcom
 
+import com.bol.mapping.BolProduct
+import com.bol.mapping.parseBolProducts
 import com.cereal.command.monitor.data.bolcom.httpclient.defaultBolComHttpClient
 import com.cereal.command.monitor.data.bolcom.httpclient.exception.ProductUnavailableException
 import com.cereal.command.monitor.data.bolcom.httpclient.exception.ProxyUnavailableException
-import com.cereal.command.monitor.data.bolcom.httpclient.model.BolProduct
-import com.cereal.command.monitor.data.bolcom.httpclient.model.BolcomSearchResponse
+import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
+import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.RandomProxy
 import io.ktor.client.HttpClient
@@ -24,7 +26,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.decodeFromJsonElement
 
 class BolcomWebDataSource(
     private val logRepository: LogRepository,
@@ -46,7 +47,6 @@ class BolcomWebDataSource(
             explicitNulls = false
         }
     }
-    private val productMapper = BolcomProductMapper(baseUrl = BOL_COM_BASE_URL)
 
     private suspend fun getHttpClient(): HttpClient =
         client ?: run {
@@ -84,20 +84,50 @@ class BolcomWebDataSource(
                 asJson
             }
         val normalized: JsonElement = decoded ?: asJson ?: JsonNull
-        val products = extractProducts(normalized)
-        if (products.isEmpty()) return emptyList()
+        val products = parseBolProducts(normalized)
 
-        return products.mapNotNull { productData -> productMapper.mapBolProductToItem(productData) }
+        return products.map { it.toItem() }
     }
 
-    private fun extractProducts(el: JsonElement): List<BolProduct> {
-        val response =
-            runCatching {
-                json.decodeFromJsonElement<BolcomSearchResponse>(el)
-            }.getOrNull() ?: return emptyList()
+    private fun BolProduct.toItem(): Item {
+        val offer = bestSellingOffer
+        val properties = buildList {
+            price?.toBigDecimalOrNull()?.let { add(ItemProperty.Price(it, Currency.EUR)) }
+            brandName?.let { add(ItemProperty.Custom("Brand", it)) }
+            offer?.retailer?.name?.let { add(ItemProperty.Custom("Seller", it)) }
+            discountPercentage?.let { pct ->
+                val was = referencePrice
+                add(ItemProperty.Custom("Discount", if (was != null) "$pct% (was €$was)" else "$pct%"))
+            }
+            offer?.bestDeliveryOption?.deliveryDescription?.let { add(ItemProperty.Custom("Shipping", it)) }
+            add(stockProperty)
+        }
 
-        return productMapper.extractProductsFromResponse(response)
+        return Item(
+            id = id,
+            url = "$BOL_COM_BASE_URL$url",
+            name = title,
+            description = description,
+            imageUrl = primaryImageUrl,
+            properties = properties,
+        )
     }
+
+    /**
+     * There's no explicit "in stock" flag; availability is inferred from whether a
+     * selling offer exists at all, whether it's a pre-order (future release date), and
+     * whether it's running low (`isScarce`). `bestDeliveryOption.deliveryDescription` is
+     * display text about shipping time, not a reliable stock signal, so it isn't used here.
+     */
+    private val BolProduct.stockProperty: ItemProperty.Stock
+        get() {
+            val offer = bestSellingOffer
+                ?: return ItemProperty.Stock(isInStock = false, amount = null, level = "Unavailable")
+            if (offer.bestDeliveryOption?.productReleaseDate != null) {
+                return ItemProperty.Stock(isInStock = false, amount = null, level = "Preorder")
+            }
+            return ItemProperty.Stock(isInStock = true, amount = null, level = if (offer.isScarce) "Low stock" else null)
+        }
 
     private suspend fun performRequest(
         url: String,
