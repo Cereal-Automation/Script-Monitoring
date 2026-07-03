@@ -84,7 +84,7 @@ class BolcomWebDataSource(
                 asJson
             }
         val normalized: JsonElement = decoded ?: asJson ?: JsonNull
-        val products = parseBolProducts(normalized)
+        val products = runCatching { parseBolProducts(normalized) }.getOrElse { emptyList() }
 
         return products.map { it.toItem() }
     }

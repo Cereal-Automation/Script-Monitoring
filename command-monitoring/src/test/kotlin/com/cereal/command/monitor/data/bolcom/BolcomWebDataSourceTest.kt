@@ -167,6 +167,16 @@ class BolcomWebDataSourceTest {
         }
 
     @Test
+    fun `should return empty list instead of throwing when the response body is not valid JSON`() =
+        runTest {
+            val dataSource = dataSourceRespondingWith("<html><body>Service Unavailable</body></html>")
+
+            val items = dataSource.fetchItemsByEan("0000000000")
+
+            assertEquals(0, items.size)
+        }
+
+    @Test
     fun `should mark product as unavailable when there is no selling offer`() =
         runTest {
             val dataSource =

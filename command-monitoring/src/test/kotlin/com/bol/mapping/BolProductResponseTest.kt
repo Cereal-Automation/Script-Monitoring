@@ -1,9 +1,33 @@
 package com.bol.mapping
 
+import kotlinx.serialization.json.JsonNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BolProductResponseTest {
+    @Test
+    fun `parseBolProducts skips a malformed product without losing the rest of the batch`() {
+        val json =
+            """
+            {
+              "products": [
+                { "id": "1", "title": "Valid product 1", "url": "/one" },
+                { "id": "2", "url": "/missing-title" },
+                { "id": "3", "title": "Valid product 2", "url": "/two" }
+              ]
+            }
+            """.trimIndent()
+
+        val products = parseBolProducts(json)
+
+        assertEquals(listOf("1", "3"), products.map { it.id })
+    }
+
+    @Test
+    fun `parseBolProducts returns an empty list instead of throwing for an unexpected element shape`() {
+        assertEquals(emptyList(), parseBolProducts(JsonNull))
+    }
+
     @Test
     fun `parseBolProducts treats a sentinel value in place of retailActions as an empty list`() {
         val json =

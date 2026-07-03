@@ -48,8 +48,7 @@ import kotlinx.serialization.json.JsonPrimitive
  *    selling offer exists, `isScarce`, and `bestDeliveryOption.productReleaseDate`.
  *
  * Usage:
- *   val products = BolJson.decodeFromString(BolProductResponse.serializer(), text).products
- *   // or: parseBolProducts(text)
+ *   val products = parseBolProducts(text)
  */
 
 @Serializable
@@ -473,15 +472,20 @@ val BolJson: Json =
         allowTrailingComma = true
     }
 
-fun parseBolProducts(jsonText: String): List<BolProduct> = BolJson.decodeFromString(BolProductResponse.serializer(), jsonText).products
+/**
+ * Parses the top-level `products` array, decoding each product independently so that one
+ * malformed entry (e.g. missing a required field) is skipped instead of failing the batch.
+ */
+fun parseBolProducts(jsonText: String): List<BolProduct> = parseBolProducts(BolJson.parseToJsonElement(jsonText))
 
 /**
  * Same as [parseBolProducts], but for an already-parsed [JsonElement] tree
- * (e.g. from `Json.parseToJsonElement(text)`). The sentinel-tolerant serializers
- * work here too, because `decodeFromJsonElement` drives a tree-based [JsonDecoder].
+ * (e.g. from `Json.parseToJsonElement(text)`).
  */
-fun parseBolProducts(element: JsonElement): List<BolProduct> =
-    BolJson.decodeFromJsonElement(BolProductResponse.serializer(), element).products
+fun parseBolProducts(element: JsonElement): List<BolProduct> {
+    val productsArray = (element as? JsonObject)?.get("products") as? JsonArray ?: return emptyList()
+    return productsArray.mapNotNull { runCatching { parseBolProduct(it) }.getOrNull() }
+}
 
 /** Decode a single product node (one `Product` object) from a [JsonElement]. */
 fun parseBolProduct(element: JsonElement): BolProduct = BolJson.decodeFromJsonElement(BolProduct.serializer(), element)
