@@ -1,10 +1,10 @@
 package com.cereal.command.monitor.data.bolcom
 
-import com.bol.mapping.BolProduct
-import com.bol.mapping.parseBolProducts
 import com.cereal.command.monitor.data.bolcom.httpclient.defaultBolComHttpClient
 import com.cereal.command.monitor.data.bolcom.httpclient.exception.ProductUnavailableException
 import com.cereal.command.monitor.data.bolcom.httpclient.exception.ProxyUnavailableException
+import com.cereal.command.monitor.data.bolcom.model.BolProduct
+import com.cereal.command.monitor.data.bolcom.model.parseBolProducts
 import com.cereal.command.monitor.models.Currency
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty

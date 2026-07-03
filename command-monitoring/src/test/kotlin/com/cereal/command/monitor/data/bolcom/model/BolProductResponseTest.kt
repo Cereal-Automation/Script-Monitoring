@@ -1,4 +1,4 @@
-package com.bol.mapping
+package com.cereal.command.monitor.data.bolcom.model
 
 import kotlinx.serialization.json.JsonNull
 import kotlin.test.Test

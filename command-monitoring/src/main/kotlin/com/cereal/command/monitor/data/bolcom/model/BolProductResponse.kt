@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalSerializationApi::class)
 
-package com.bol.mapping
+package com.cereal.command.monitor.data.bolcom.model
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -50,11 +50,6 @@ import kotlinx.serialization.json.JsonPrimitive
  * Usage:
  *   val products = parseBolProducts(text)
  */
-
-@Serializable
-data class BolProductResponse(
-    val products: List<BolProduct> = emptyList(),
-)
 
 @Serializable
 data class BolProduct(
