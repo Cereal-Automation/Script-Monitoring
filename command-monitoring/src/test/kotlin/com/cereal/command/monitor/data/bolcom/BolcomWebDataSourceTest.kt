@@ -15,13 +15,43 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class BolcomWebDataSourceTest {
     private val mockLogRepository = mockk<LogRepository>(relaxed = true)
     private val mockRandomProxy = mockk<RandomProxy>(relaxed = true)
+
+    private suspend fun dataSourceRespondingWith(jsonResponse: String): BolcomWebDataSource {
+        val mockEngine =
+            MockEngine { _ ->
+                respond(
+                    content = jsonResponse,
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
+        val mockClient =
+            HttpClient(mockEngine) {
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            ignoreUnknownKeys = true
+                            isLenient = true
+                        },
+                    )
+                }
+            }
+
+        val dataSource = BolcomWebDataSource(mockLogRepository, mockRandomProxy)
+        val clientField = dataSource.javaClass.getDeclaredField("client")
+        clientField.isAccessible = true
+        clientField.set(dataSource, mockClient)
+        return dataSource
+    }
 
     @Test
     fun `should create BolcomWebDataSource successfully`() {
@@ -32,116 +62,35 @@ class BolcomWebDataSourceTest {
     @Test
     fun `should parse product from search result with full data`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "1234567890",
-                                          "title": "Test Product",
-                                          "url": "/nl/nl/p/test-product/1234567890/",
-                                          "relatedParties": [
-                                            {
-                                              "role": "BRAND",
-                                              "party": {
-                                                "name": "Test Brand"
-                                              }
-                                            }
-                                          ],
-                                          "assets": [
-                                            {
-                                              "renditions": [
-                                                {
-                                                  "url": "https://example.com/image.jpg"
-                                                }
-                                              ]
-                                            }
-                                          ],
-                                          "attributes": [
-                                            {
-                                              "name": "Description",
-                                              "values": [
-                                                {
-                                                  "value": "Test Description"
-                                                }
-                                              ]
-                                            }
-                                          ],
-                                          "bestSellingOffer": {
-                                            "sellingPrice": {
-                                              "price": {
-                                                "amount": 19.99
-                                              }
-                                            },
-                                            "sellingPriceDiscountOnStrikethroughPrice": {
-                                              "amount": {
-                                                "amount": 5.00
-                                              }
-                                            },
-                                            "strikethroughPrice": {
-                                              "price": {
-                                                "amount": 24.99
-                                              }
-                                            },
-                                            "retailer": {
-                                              "name": "Test Seller"
-                                            },
-                                            "bestDeliveryOption": {
-                                              "deliveryDescription": "Op voorraad"
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "1234567890",
+                          "title": "Test Product",
+                          "url": "/nl/nl/p/test-product/1234567890/",
+                          "relatedParties": [
+                            { "role": "BRAND", "party": { "name": "Test Brand" } }
+                          ],
+                          "assets": [
+                            { "renditions": [ { "url": "https://example.com/image.jpg" } ] }
+                          ],
+                          "attributes": [
+                            { "name": "Description", "values": [ { "value": "Test Description" } ] }
+                          ],
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "19.99" } },
+                            "retailer": { "name": "Test Seller" },
+                            "bestDeliveryOption": { "deliveryDescription": "Op voorraad. Voor 23:59 uur besteld, morgen in huis" },
+                            "promotionalLabels": [ { "titleText": "deal" } ]
                           }
                         }
-                      }
+                      ]
                     }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            // Use reflection to inject the mock client
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("1234567890")
 
@@ -153,99 +102,46 @@ class BolcomWebDataSourceTest {
             assertEquals("Test Description", item.description)
             assertEquals("https://example.com/image.jpg", item.imageUrl)
 
-            // Verify properties
-            val stockProperty = item.properties.filterIsInstance<ItemProperty.Stock>().first()
-            assertTrue(stockProperty.isInStock)
-            assertEquals(":white_check_mark:", stockProperty.level)
+            val price = item.properties.filterIsInstance<ItemProperty.Price>().first()
+            assertEquals(BigDecimal("19.99"), price.value)
 
-            val sellerProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Seller" }
-            assertNotNull(sellerProperty)
-            assertEquals("Test Seller", sellerProperty.value)
+            val stock = item.properties.filterIsInstance<ItemProperty.Stock>().first()
+            assertTrue(stock.isInStock)
+            assertNull(stock.level)
 
-            val brandProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Brand" }
-            assertNotNull(brandProperty)
-            assertEquals("Test Brand", brandProperty.value)
+            val custom = item.properties.filterIsInstance<ItemProperty.Custom>()
+            assertEquals("Test Seller", custom.first { it.name == "Seller" }.value)
+            assertEquals("Test Brand", custom.first { it.name == "Brand" }.value)
+            assertEquals(
+                "Op voorraad. Voor 23:59 uur besteld, morgen in huis",
+                custom.first { it.name == "Shipping" }.value,
+            )
 
-            val priceProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Price" }
-            assertNotNull(priceProperty)
-            assertTrue(priceProperty.value.contains("19") || priceProperty.value.contains("20"))
-
-            val discountProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Discount" }
-            assertNotNull(discountProperty)
-
-            mockClient.close()
+            // A promotional/campaign label ("deal") is not the product's own discount.
+            assertNull(custom.find { it.name == "Discount" })
         }
 
     @Test
     fun `should parse product with minimal data`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "9876543210",
-                                          "title": "Minimal Product",
-                                          "url": "/nl/nl/p/minimal/9876543210/",
-                                          "bestSellingOffer": {
-                                            "sellingPrice": {
-                                              "price": {
-                                                "amount": 9.99
-                                              }
-                                            },
-                                            "deliveredWithin48Hours": true
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "9876543210",
+                          "title": "Minimal Product",
+                          "url": "/nl/nl/p/minimal/9876543210/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "9.99" } },
+                            "deliveredWithin48Hours": true
                           }
                         }
-                      }
+                      ]
                     }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("9876543210")
 
@@ -253,552 +149,182 @@ class BolcomWebDataSourceTest {
             val item = items.first()
             assertEquals("9876543210", item.id)
             assertEquals("Minimal Product", item.name)
+            assertNull(item.description)
+            assertNull(item.imageUrl)
 
-            // Verify stock property shows orderable
-            val stockProperty = item.properties.filterIsInstance<ItemProperty.Stock>().first()
-            assertTrue(stockProperty.isInStock)
-
-            mockClient.close()
+            val stock = item.properties.filterIsInstance<ItemProperty.Stock>().first()
+            assertTrue(stock.isInStock)
         }
 
     @Test
     fun `should return empty list when no products found`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": []
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
+            val dataSource = dataSourceRespondingWith("""{ "products": [] }""")
 
             val items = dataSource.fetchItemsByEan("0000000000")
 
             assertEquals(0, items.size)
-
-            mockClient.close()
         }
 
     @Test
-    fun `should handle out of stock products`() =
+    fun `should return empty list instead of throwing when the response body is not valid JSON`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "5555555555",
-                                          "title": "Out of Stock Product",
-                                          "url": "/nl/nl/p/out-of-stock/5555555555/",
-                                          "bestSellingOffer": {
-                                            "sellingPrice": {
-                                              "price": {
-                                                "amount": 29.99
-                                              }
-                                            },
-                                            "deliveredWithin48Hours": false,
-                                            "bestDeliveryOption": {
-                                              "deliveryDescription": "Temporarily unavailable"
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
+            val dataSource = dataSourceRespondingWith("<html><body>Service Unavailable</body></html>")
+
+            val items = dataSource.fetchItemsByEan("0000000000")
+
+            assertEquals(0, items.size)
+        }
+
+    @Test
+    fun `should mark product as unavailable when there is no selling offer`() =
+        runTest {
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "5555555555",
+                          "title": "Unavailable Product",
+                          "url": "/nl/nl/p/unavailable/5555555555/"
                         }
-                      }
+                      ]
                     }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("5555555555")
 
             assertEquals(1, items.size)
-            val stockProperty = items.first().properties.filterIsInstance<ItemProperty.Stock>().first()
-            assertEquals(false, stockProperty.isInStock)
-            assertEquals(":x:", stockProperty.level)
-
-            mockClient.close()
+            val stock = items.first().properties.filterIsInstance<ItemProperty.Stock>().first()
+            assertEquals(false, stock.isInStock)
+            assertEquals("Unavailable", stock.level)
         }
 
     @Test
-    fun `should filter out products without title`() =
+    fun `should mark product as preorder when a release date is set`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "1111111111",
-                                          "url": "/nl/nl/p/test/1111111111/"
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "6666666666",
+                          "title": "Preorder Product",
+                          "url": "/nl/nl/p/preorder/6666666666/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "59.99" } },
+                            "bestDeliveryOption": { "productReleaseDate": "2026-08-01" }
                           }
                         }
-                      }
+                      ]
                     }
-                  }
-                }
-                """.trimIndent()
+                    """.trimIndent(),
+                )
 
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
+            val items = dataSource.fetchItemsByEan("6666666666")
 
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
-
-            val items = dataSource.fetchItemsByEan("1111111111")
-
-            // Should filter out product without title
-            assertEquals(0, items.size)
-
-            mockClient.close()
+            assertEquals(1, items.size)
+            val stock = items.first().properties.filterIsInstance<ItemProperty.Stock>().first()
+            assertEquals(false, stock.isInStock)
+            assertEquals("Preorder", stock.level)
         }
 
     @Test
-    fun `should handle products with regular price and discount`() =
+    fun `should mark product as low stock when scarce`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "7777777777",
-                                          "title": "Discounted Product",
-                                          "url": "/nl/nl/p/discounted/7777777777/",
-                                          "bestSellingOffer": {
-                                            "sellingPrice": {
-                                              "price": {
-                                                "amount": 79.99
-                                              }
-                                            },
-                                            "sellingPriceDiscountOnStrikethroughPrice": {
-                                              "amount": {
-                                                "amount": 20.00
-                                              }
-                                            },
-                                            "strikethroughPrice": {
-                                              "price": {
-                                                "amount": 99.99
-                                              }
-                                            },
-                                            "deliveredWithin48Hours": true
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "4444444444",
+                          "title": "Scarce Product",
+                          "url": "/nl/nl/p/scarce/4444444444/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "15.00" } },
+                            "isScarce": true
+                          }
+                        }
+                      ]
+                    }
+                    """.trimIndent(),
+                )
+
+            val items = dataSource.fetchItemsByEan("4444444444")
+
+            assertEquals(1, items.size)
+            val stock = items.first().properties.filterIsInstance<ItemProperty.Stock>().first()
+            assertTrue(stock.isInStock)
+            assertEquals("Low stock", stock.level)
+        }
+
+    @Test
+    fun `should derive discount from savings, not from promotional labels`() =
+        runTest {
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "7777777777",
+                          "title": "Discounted Product",
+                          "url": "/nl/nl/p/discounted/7777777777/",
+                          "bestSellingOffer": {
+                            "sellingPrice": { "price": { "amount": "30.42" } },
+                            "promotionalLabels": [ { "titleText": "deal" } ],
+                            "savings": {
+                              "reference": {
+                                "referencePrice": { "amount": 34.99 },
+                                "sellingPriceDiscount": { "percentage": 13, "amount": { "amount": 4.57 } }
+                              }
                             }
                           }
                         }
-                      }
+                      ]
                     }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("7777777777")
 
             assertEquals(1, items.size)
             val item = items.first()
 
-            // Verify discount property exists
-            val discountProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Discount" }
-            assertNotNull(discountProperty)
+            val price = item.properties.filterIsInstance<ItemProperty.Price>().first()
+            assertEquals(BigDecimal("30.42"), price.value)
 
-            // Verify price property includes strikethrough
-            val priceProperty = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Price" }
-            assertNotNull(priceProperty)
-            assertTrue(priceProperty.value.contains("~~"))
-
-            mockClient.close()
-        }
-
-    @Test
-    fun `should handle products with quick delivery`() =
-        runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "8888888888",
-                                          "title": "Quick Delivery Product",
-                                          "url": "/nl/nl/p/quick/8888888888/",
-                                          "bestSellingOffer": {
-                                            "sellingPrice": {
-                                              "price": {
-                                                "amount": 39.99
-                                              }
-                                            },
-                                            "bestDeliveryOption": {
-                                              "deliveryDescription": "Voor 23:00 besteld, morgen in huis"
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
-
-            val items = dataSource.fetchItemsByEan("8888888888")
-
-            assertEquals(1, items.size)
-            val stockProperty = items.first().properties.filterIsInstance<ItemProperty.Stock>().first()
-            assertTrue(stockProperty.isInStock)
-            assertEquals(":white_check_mark:", stockProperty.level)
-
-            mockClient.close()
-        }
-
-    @Test
-    fun `should skip non-ProductItem slot types`() =
-        runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "BannerItem",
-                                      "props": {}
-                                    },
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "9999999999",
-                                          "title": "Valid Product",
-                                          "url": "/nl/nl/p/valid/9999999999/"
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
-
-            val items = dataSource.fetchItemsByEan("9999999999")
-
-            // Should only get 1 product, not the BannerItem
-            assertEquals(1, items.size)
-            assertEquals("9999999999", items.first().id)
-
-            mockClient.close()
+            val discount = item.properties.filterIsInstance<ItemProperty.Custom>().find { it.name == "Discount" }
+            assertNotNull(discount)
+            assertEquals("13% (was €34.99)", discount.value)
         }
 
     @Test
     fun `should handle multiple products in search results`() =
         runTest {
-            val jsonResponse =
-                """
-                {
-                  "customer": {
-                    "basket": {
-                      "totalQuantity": {
-                        "routes/searchPage": {
-                          "data": {
-                            "template": {
-                              "regions": [
-                                {
-                                  "slots": [
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "1111111111",
-                                          "title": "Product 1",
-                                          "url": "/nl/nl/p/product1/1111111111/"
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "type": "ProductItem",
-                                      "props": {
-                                        "product": {
-                                          "id": "2222222222",
-                                          "title": "Product 2",
-                                          "url": "/nl/nl/p/product2/2222222222/"
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          }
+            val dataSource =
+                dataSourceRespondingWith(
+                    """
+                    {
+                      "products": [
+                        {
+                          "id": "1111111111",
+                          "title": "Product 1",
+                          "url": "/nl/nl/p/product1/1111111111/"
+                        },
+                        {
+                          "id": "2222222222",
+                          "title": "Product 2",
+                          "url": "/nl/nl/p/product2/2222222222/"
                         }
-                      }
+                      ]
                     }
-                  }
-                }
-                """.trimIndent()
-
-            val mockEngine =
-                MockEngine { request ->
-                    respond(
-                        content = jsonResponse,
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-                    )
-                }
-
-            val mockClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json(
-                            Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            },
-                        )
-                    }
-                }
-
-            val dataSource = BolcomWebDataSource(mockLogRepository, null)
-            val clientField = dataSource.javaClass.getDeclaredField("client")
-            clientField.isAccessible = true
-            clientField.set(dataSource, mockClient)
+                    """.trimIndent(),
+                )
 
             val items = dataSource.fetchItemsByEan("test")
 
@@ -807,7 +333,5 @@ class BolcomWebDataSourceTest {
             assertEquals("Product 1", items[0].name)
             assertEquals("2222222222", items[1].id)
             assertEquals("Product 2", items[1].name)
-
-            mockClient.close()
         }
 }

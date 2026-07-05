@@ -33,8 +33,11 @@ private fun buildResolver(table: JsonArray): (JsonElement, MutableSet<Int>) -> J
     ): JsonElement {
         if (index !in table.indices) return JsonPrimitive(index)
         if (!seen.add(index)) return JsonNull
-        val el = table[index]
-        val out = resolve(el, seen)
+        val node = table[index]
+        // A node reached via an index is a value, not another reference: a primitive here
+        // is a literal (percentage, count, rating, price...) and must be returned as-is.
+        // Only containers (objects/arrays) need further decoding.
+        val out = if (node is JsonPrimitive) node else resolve(node, seen)
         seen.remove(index)
         return out
     }
