@@ -1,8 +1,10 @@
 name: Nightly Run
 
 on:
-  schedule:
-    - cron: '0 6 * * *'
+  # Nightly schedule disabled; run manually via workflow_dispatch when needed.
+  # schedule:
+  #   - cron: '0 6 * * *'
+  workflow_dispatch:
 
 jobs:
   integration-test:
