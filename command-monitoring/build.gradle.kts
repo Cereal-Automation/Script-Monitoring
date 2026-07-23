@@ -23,17 +23,7 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform {
-        excludeTags("integration")
-    }
-}
-
-tasks.register<Test>("integrationTest") {
-    useJUnitPlatform {
-        includeTags("integration")
-    }
-    description = "Runs only the integrations tests."
-    group = "verification"
+    useJUnitPlatform()
 }
 
 kotlin {
