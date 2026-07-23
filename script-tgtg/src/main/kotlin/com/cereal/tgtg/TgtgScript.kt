@@ -1,14 +1,11 @@
 package com.cereal.tgtg
 
 import com.cereal.command.monitor.MonitorCommandFactory
-import com.cereal.command.monitor.data.common.cache.PreferenceCacheManager
-import com.cereal.command.monitor.data.tgtg.TgtgItemRepository
-import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
-import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.NewItemAvailableMonitorStrategy
 import com.cereal.command.monitor.strategy.PriceChangedMonitorStrategy
 import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
+import com.cereal.scraping.cache.PreferenceCacheManager
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
@@ -17,6 +14,9 @@ import com.cereal.sdk.component.ComponentProvider
 import com.cereal.tgtg.command.TgtgAuthCommand
 import com.cereal.tgtg.command.TgtgAuthPollCommand
 import com.cereal.tgtg.data.TgtgAuthRepositoryImpl
+import com.cereal.tgtg.data.TgtgItemRepository
+import com.cereal.tgtg.data.apiclients.PlayStoreApiClient
+import com.cereal.tgtg.data.apiclients.TgtgApiClient
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime

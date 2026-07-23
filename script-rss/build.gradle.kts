@@ -9,6 +9,8 @@ dependencies {
         }
     }
     implementation(libs.bundles.cereal.base)
+    implementation(libs.bundles.web.scraping)
+    implementation(libs.bundles.kotlin.coroutines)
 
     implementation(project(":script-common"))
     implementation(project(":command"))

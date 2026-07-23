@@ -1,8 +1,8 @@
 package com.cereal.bdgastore
 
+import com.cereal.bdgastore.data.ShopifyItemRepository
+import com.cereal.bdgastore.data.ShopifyWebsite
 import com.cereal.command.monitor.MonitorCommandFactory
-import com.cereal.command.monitor.data.shopify.ShopifyItemRepository
-import com.cereal.command.monitor.data.shopify.ShopifyWebsite
 import com.cereal.command.monitor.strategy.StockAvailableMonitorStrategy
 import com.cereal.script.CommandExecutionScript
 import com.cereal.sdk.ExecutionResult

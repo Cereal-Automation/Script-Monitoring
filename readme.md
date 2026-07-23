@@ -47,7 +47,7 @@ git clone https://github.com/Cereal-Automation/Script-Monitoring.git
 
 To create a release, use the following steps:
 
-1. Create a git tag in the format `script-<module>:<version>` (e.g., `script-sample:1.0.0`).
+1. Create a git tag in the format `script-<module>:<version>` (e.g., `script-nike:1.0.0`).
     - The `<module>` corresponds to the script module name.
     - The `<version>` is the version number of the release.
 
@@ -79,7 +79,8 @@ A GitHub actions configuration is included in this repository. It contains the f
 | Module             | Description                                                                                                                             |
 |--------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | command            | Contains the command definition and an entry point to easily execute one or more commands.                                              |
-| command-monitoring | Implements the monitoring command used by scripts set up as monitors.                                                                   |
+| command-monitoring | Implements the generic monitoring command used by scripts set up as monitors.                                                          |
+| scraping-common    | Shared scraping infrastructure (HTTP/web clients, caching, user-agents, JSON helpers) used by the data sources in the script modules.    |
 | script-common      | Defines the common dependencies for scripts implemented in this repository and contains code useful for setting up a monitoring script. |
 | script-*           | The actual scripts made available in the Cereal marketplace.                                                                            |
 
@@ -87,20 +88,3 @@ A GitHub actions configuration is included in this repository. It contains the f
 
 * Use the https://plugins.jetbrains.com/plugin/9960-json-to-kotlin-class-jsontokotlinclass- plugin to generate classes
   from JSON.
-
-## Updating Stockx api client
-
-### 1. OpenAPI Specification
-
-Place the updated Stockx OpenAPI JSON file ([found here](https://developer.stockx.com/openapi/reference/overview))
-inside the root `specs/` directory: `specs/stockx.json`.
-
-## 2. Generating the Client
-
-Regenerate the API client from the spec by running:
-
-```bash
-./gradlew openApiGenerate
-```
-
-This will regenerate the client code in the `stockx-api-client` module.

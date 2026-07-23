@@ -1,5 +1,6 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -9,22 +10,37 @@ dependencies {
         }
     }
     implementation(libs.bundles.cereal.base)
+    implementation(libs.bundles.kotlin.coroutines)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.bundles.ktor.client)
 
     implementation(project(":script-common"))
     implementation(project(":command"))
     implementation(project(":command-monitoring"))
+    implementation(project(":scraping-common"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
-
-    testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("io.mockk:mockk:1.14.5")
-    testImplementation("com.cereal-automation:cereal-test-utils:1.7.0")
+    testImplementation(libs.cereal.sdk) {
+        artifact {
+            classifier = "all"
+        }
+    }
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.cereal.test.utils)
+    testImplementation(testFixtures(project(":script-common")))
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    description = "Runs only the integrations tests."
+    group = "verification"
 }
 
 kotlin {

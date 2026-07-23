@@ -1,9 +1,9 @@
 package com.cereal.nike
 
 import com.cereal.command.monitor.MonitorCommandFactory
-import com.cereal.command.monitor.data.nike.NikeItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.MonitorStrategyFactory
+import com.cereal.nike.data.NikeItemRepository
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult

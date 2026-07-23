@@ -1,6 +1,6 @@
 package com.cereal.nike
 
-import com.cereal.command.monitor.data.nike.ScrapeCategory
+import com.cereal.nike.data.ScrapeCategory
 import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 import com.cereal.sdk.models.proxy.RandomProxy

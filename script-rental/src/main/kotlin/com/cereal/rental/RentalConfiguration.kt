@@ -1,7 +1,7 @@
 package com.cereal.rental
 
-import com.cereal.command.monitor.data.rental.Furnishing
-import com.cereal.command.monitor.data.rental.PropertyType
+import com.cereal.rental.data.Furnishing
+import com.cereal.rental.data.PropertyType
 import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 

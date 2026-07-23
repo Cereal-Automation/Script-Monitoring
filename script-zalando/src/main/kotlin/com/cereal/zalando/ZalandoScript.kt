@@ -1,7 +1,6 @@
 package com.cereal.zalando
 
 import com.cereal.command.monitor.MonitorCommandFactory
-import com.cereal.command.monitor.data.zalando.ZalandoItemRepository
 import com.cereal.command.monitor.strategy.MonitorStrategy
 import com.cereal.command.monitor.strategy.MonitorStrategyFactory
 import com.cereal.script.CommandExecutionScript
@@ -9,6 +8,7 @@ import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult
 import com.cereal.sdk.Script
 import com.cereal.sdk.component.ComponentProvider
+import com.cereal.zalando.data.ZalandoItemRepository
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime

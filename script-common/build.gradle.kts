@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    `java-test-fixtures`
 }
 
 dependencies {
@@ -9,6 +10,9 @@ dependencies {
         }
     }
     implementation(libs.bundles.cereal.base)
+
+    // Shared test support reused by the script modules (e.g. FakeLogRepository).
+    testFixturesApi(project(":command"))
 
     testImplementation(libs.cereal.sdk) {
         artifact {

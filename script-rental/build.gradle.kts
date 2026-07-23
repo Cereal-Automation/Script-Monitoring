@@ -9,6 +9,9 @@ dependencies {
         }
     }
     implementation(libs.bundles.cereal.base)
+    implementation(libs.bundles.web.scraping)
+    implementation(libs.bundles.kotlin.coroutines)
+    implementation(libs.kdriver)
 
     implementation(project(":script-common"))
     implementation(project(":command"))
@@ -20,12 +23,25 @@ dependencies {
         }
     }
     testImplementation(libs.bundles.testing)
+    testImplementation(testFixtures(project(":script-common")))
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    description = "Runs only the integrations tests."
+    group = "verification"
 }
 
 kotlin {
-    jvmToolchain(17)
+    // kdriver is published targeting Java 21; the toolchain must match to run
+    // the browser-based repositories and their tests (root still targets 17 bytecode).
+    jvmToolchain(21)
 }
