@@ -1,8 +1,8 @@
 package com.cereal.command.monitor.data.snkrs
 
-import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
-import com.cereal.command.monitor.data.common.json.defaultJson
-import com.cereal.command.monitor.data.common.useragent.MOBILE_USER_AGENTS
+import com.cereal.scraping.httpclient.defaultHttpClient
+import com.cereal.scraping.json.defaultJson
+import com.cereal.scraping.useragent.MOBILE_USER_AGENTS
 import com.cereal.command.monitor.data.snkrs.models.Object
 import com.cereal.command.monitor.data.snkrs.models.ProductInfo
 import com.cereal.command.monitor.data.snkrs.models.SnkrsResponse

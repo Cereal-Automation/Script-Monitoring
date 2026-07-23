@@ -1,7 +1,7 @@
 package com.cereal.command.monitor.data.tgtg.apiclients
 
-import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
-import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.scraping.httpclient.defaultHttpClient
+import com.cereal.scraping.json.defaultJson
 import com.cereal.command.monitor.data.tgtg.TgtgConfig
 import com.cereal.command.monitor.data.tgtg.apiclients.models.DataDomeCookieResponse
 import com.cereal.script.repository.LogRepository

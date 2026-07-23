@@ -1,6 +1,6 @@
 package com.cereal.command.monitor.data.tgtg
 
-import com.cereal.command.monitor.data.common.cache.PreferenceCacheManager
+import com.cereal.scraping.cache.PreferenceCacheManager
 import com.cereal.command.monitor.data.tgtg.apiclients.PlayStoreApiClient
 import com.cereal.command.monitor.data.tgtg.apiclients.TgtgApiClient
 import com.cereal.script.repository.LogRepository

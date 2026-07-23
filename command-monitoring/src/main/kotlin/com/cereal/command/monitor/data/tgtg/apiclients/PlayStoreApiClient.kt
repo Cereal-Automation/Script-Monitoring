@@ -1,7 +1,7 @@
 package com.cereal.command.monitor.data.tgtg.apiclients
 
-import com.cereal.command.monitor.data.common.cache.CacheManager
-import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
+import com.cereal.scraping.cache.CacheManager
+import com.cereal.scraping.httpclient.defaultHttpClient
 import com.cereal.command.monitor.data.tgtg.apiclients.exception.TgtgAppVersionException
 import com.cereal.script.repository.LogRepository
 import io.ktor.client.request.get

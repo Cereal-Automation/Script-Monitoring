@@ -1,8 +1,8 @@
 package com.cereal.command.monitor.data.shopify
 
-import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
-import com.cereal.command.monitor.data.common.json.defaultJson
-import com.cereal.command.monitor.data.common.useragent.MOBILE_USER_AGENTS
+import com.cereal.scraping.httpclient.defaultHttpClient
+import com.cereal.scraping.json.defaultJson
+import com.cereal.scraping.useragent.MOBILE_USER_AGENTS
 import com.cereal.command.monitor.data.shopify.models.ShopifyResponse
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty

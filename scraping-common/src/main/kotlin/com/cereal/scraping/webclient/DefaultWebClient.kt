@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.webclient
+package com.cereal.scraping.webclient
 
 import com.cereal.sdk.models.proxy.Proxy
 import org.htmlunit.DefaultCredentialsProvider

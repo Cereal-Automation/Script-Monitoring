@@ -11,11 +11,11 @@ dependencies {
     }
     implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.web.scraping)
-    implementation(libs.kdriver)
     implementation(libs.bundles.kotlin.coroutines)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.bundles.ktor.client)
-    implementation(libs.logging.interceptor)
+
+    implementation(project(":command"))
 
     testImplementation(libs.cereal.sdk) {
         artifact {
@@ -24,25 +24,10 @@ dependencies {
     }
     testImplementation(libs.bundles.testing)
     testImplementation(libs.ktor.client.mock)
-
-    implementation(project(":command"))
-    implementation(project(":scraping-common"))
-    implementation(project(":stockx-api-client"))
-    testImplementation(project(":command"))
 }
 
 tasks.test {
-    useJUnitPlatform {
-        excludeTags("integration")
-    }
-}
-
-tasks.register<Test>("integrationTest") {
-    useJUnitPlatform {
-        includeTags("integration")
-    }
-    description = "Runs only the integrations tests."
-    group = "verification"
+    useJUnitPlatform()
 }
 
 kotlin {

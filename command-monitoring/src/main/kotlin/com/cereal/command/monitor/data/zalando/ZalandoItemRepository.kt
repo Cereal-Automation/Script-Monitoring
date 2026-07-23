@@ -1,8 +1,8 @@
 package com.cereal.command.monitor.data.zalando
 
-import com.cereal.command.monitor.data.common.json.defaultJson
-import com.cereal.command.monitor.data.common.useragent.DESKTOP_USER_AGENTS
-import com.cereal.command.monitor.data.common.webclient.defaultJSoupClient
+import com.cereal.scraping.json.defaultJson
+import com.cereal.scraping.useragent.DESKTOP_USER_AGENTS
+import com.cereal.scraping.webclient.defaultJSoupClient
 import com.cereal.command.monitor.data.zalando.models.Availability
 import com.cereal.command.monitor.data.zalando.models.ZalandoProduct
 import com.cereal.command.monitor.models.Currency

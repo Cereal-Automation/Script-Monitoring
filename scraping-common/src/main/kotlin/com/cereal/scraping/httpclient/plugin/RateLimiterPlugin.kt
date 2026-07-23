@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.httpclient.plugin
+package com.cereal.scraping.httpclient.plugin
 
 import io.ktor.client.plugins.api.createClientPlugin
 import kotlinx.coroutines.delay

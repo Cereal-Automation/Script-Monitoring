@@ -1,6 +1,6 @@
 package com.cereal.command.monitor.data.zalando.models
 
-import com.cereal.command.monitor.data.common.json.serializer.BigDecimalSerializer
+import com.cereal.scraping.json.serializer.BigDecimalSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal

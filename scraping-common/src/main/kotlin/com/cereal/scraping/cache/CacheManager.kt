@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.cache
+package com.cereal.scraping.cache
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours

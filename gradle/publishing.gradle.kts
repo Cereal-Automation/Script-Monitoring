@@ -12,6 +12,7 @@ afterEvaluate {
                     val displayName = when (project.name) {
                         "command" -> "Cereal Script Command"
                         "command-monitoring" -> "Cereal Script Command Monitoring"
+                        "scraping-common" -> "Cereal Script Scraping Common"
                         else -> project.name
                     }
                     name.set("$displayName Module")

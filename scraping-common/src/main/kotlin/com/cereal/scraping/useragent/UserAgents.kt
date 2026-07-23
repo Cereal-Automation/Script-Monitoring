@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.useragent
+package com.cereal.scraping.useragent
 
 /**
  * Taken from https://www.useragents.me/ Last Updated: 17 December, 2024

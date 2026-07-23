@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.httpclient.plugin
+package com.cereal.scraping.httpclient.plugin
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine

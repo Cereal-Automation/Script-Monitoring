@@ -4,6 +4,7 @@ plugins {
 rootProject.name = "Script Monitoring"
 include("command")
 include("command-monitoring")
+include("scraping-common")
 include("script-common")
 include("script-sample")
 include("script-nike")

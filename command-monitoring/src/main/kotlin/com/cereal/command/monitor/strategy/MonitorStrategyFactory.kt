@@ -1,7 +1,7 @@
 package com.cereal.command.monitor.strategy
 
-import com.cereal.command.monitor.data.common.httpclient.plugin.RateLimiterPlugin
-import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.scraping.httpclient.plugin.RateLimiterPlugin
+import com.cereal.scraping.json.defaultJson
 import com.cereal.command.monitor.data.stockx.OAuthAuthenticator
 import com.cereal.command.monitor.data.stockx.OAuthInterceptor
 import com.cereal.command.monitor.data.stockx.OAuthTokenProvider

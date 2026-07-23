@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.cache
+package com.cereal.scraping.cache
 
 import com.cereal.sdk.component.preference.PreferenceComponent
 import kotlin.time.Clock

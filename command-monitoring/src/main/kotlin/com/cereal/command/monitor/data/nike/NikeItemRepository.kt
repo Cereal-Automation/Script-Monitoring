@@ -1,9 +1,9 @@
 package com.cereal.command.monitor.data.nike
 
-import com.cereal.command.monitor.data.common.httpclient.defaultHttpClient
-import com.cereal.command.monitor.data.common.json.defaultJson
-import com.cereal.command.monitor.data.common.useragent.MOBILE_USER_AGENTS
-import com.cereal.command.monitor.data.common.webclient.defaultWebClient
+import com.cereal.scraping.httpclient.defaultHttpClient
+import com.cereal.scraping.json.defaultJson
+import com.cereal.scraping.useragent.MOBILE_USER_AGENTS
+import com.cereal.scraping.webclient.defaultWebClient
 import com.cereal.command.monitor.data.nike.models.NikeResponse
 import com.cereal.command.monitor.data.nike.models.Product
 import com.cereal.command.monitor.data.nike.models.Wall

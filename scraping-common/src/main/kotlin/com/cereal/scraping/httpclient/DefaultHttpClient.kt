@@ -1,6 +1,6 @@
-package com.cereal.command.monitor.data.common.httpclient
+package com.cereal.scraping.httpclient
 
-import com.cereal.command.monitor.data.common.json.defaultJson
+import com.cereal.scraping.json.defaultJson
 import com.cereal.script.repository.LogRepository
 import com.cereal.sdk.models.proxy.Proxy
 import io.ktor.client.HttpClient

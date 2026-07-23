@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.json.serializer
+package com.cereal.scraping.json.serializer
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

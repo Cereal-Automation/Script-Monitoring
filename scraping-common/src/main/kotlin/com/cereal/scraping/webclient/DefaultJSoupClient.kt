@@ -1,6 +1,6 @@
-package com.cereal.command.monitor.data.common.webclient
+package com.cereal.scraping.webclient
 
-import com.cereal.command.monitor.data.common.useragent.DESKTOP_USER_AGENTS
+import com.cereal.scraping.useragent.DESKTOP_USER_AGENTS
 import com.cereal.sdk.models.proxy.Proxy
 import org.jsoup.Connection
 import org.jsoup.Jsoup

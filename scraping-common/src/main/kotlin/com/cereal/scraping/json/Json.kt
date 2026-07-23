@@ -1,4 +1,4 @@
-package com.cereal.command.monitor.data.common.json
+package com.cereal.scraping.json
 
 import kotlinx.serialization.json.Json
 
