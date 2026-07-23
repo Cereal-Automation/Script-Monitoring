@@ -1,9 +1,9 @@
 package com.cereal.rss
 
-import com.cereal.command.monitor.data.rss.RssFeedItemRepository
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.strategy.MonitorStrategy
+import com.cereal.rss.data.RssFeedItemRepository
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

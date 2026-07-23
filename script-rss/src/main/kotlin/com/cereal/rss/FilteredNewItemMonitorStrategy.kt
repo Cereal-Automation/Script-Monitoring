@@ -1,9 +1,9 @@
 package com.cereal.rss
 
-import com.cereal.command.monitor.data.rss.RssFeedItemRepository
 import com.cereal.command.monitor.models.Item
 import com.cereal.command.monitor.models.ItemProperty
 import com.cereal.command.monitor.strategy.MonitorStrategy
+import com.cereal.rss.data.RssFeedItemRepository
 
 class FilteredNewItemMonitorStrategy(
     private val baselineStrategy: MonitorStrategy,

@@ -1,10 +1,10 @@
 package com.cereal.rental
 
 import com.cereal.command.monitor.MonitorCommandFactory
-import com.cereal.command.monitor.data.rental.FundaItemRepository
-import com.cereal.command.monitor.data.rental.ParariusItemRepository
 import com.cereal.command.monitor.models.ItemFilter
 import com.cereal.command.monitor.strategy.MonitorStrategyFactory
+import com.cereal.rental.data.FundaItemRepository
+import com.cereal.rental.data.ParariusItemRepository
 import com.cereal.script.CommandExecutionScript
 import com.cereal.script.commands.Command
 import com.cereal.sdk.ExecutionResult

@@ -1,11 +1,11 @@
 package com.cereal.zalando
 
-import com.cereal.command.monitor.data.zalando.ZalandoMonitorType
-import com.cereal.command.monitor.data.zalando.ZalandoProductCategory
-import com.cereal.command.monitor.data.zalando.ZalandoWebsite
 import com.cereal.script.utils.configuration.BaseConfiguration
 import com.cereal.sdk.ScriptConfigurationItem
 import com.cereal.sdk.models.proxy.RandomProxy
+import com.cereal.zalando.data.ZalandoMonitorType
+import com.cereal.zalando.data.ZalandoProductCategory
+import com.cereal.zalando.data.ZalandoWebsite
 
 interface ZalandoConfiguration : BaseConfiguration {
     @ScriptConfigurationItem(

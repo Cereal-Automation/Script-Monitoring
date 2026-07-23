@@ -47,7 +47,7 @@ git clone https://github.com/Cereal-Automation/Script-Monitoring.git
 
 To create a release, use the following steps:
 
-1. Create a git tag in the format `script-<module>:<version>` (e.g., `script-sample:1.0.0`).
+1. Create a git tag in the format `script-<module>:<version>` (e.g., `script-nike:1.0.0`).
     - The `<module>` corresponds to the script module name.
     - The `<version>` is the version number of the release.
 
