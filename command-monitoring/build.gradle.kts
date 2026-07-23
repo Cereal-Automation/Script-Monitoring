@@ -27,7 +27,6 @@ dependencies {
 
     implementation(project(":command"))
     implementation(project(":scraping-common"))
-    implementation(project(":stockx-api-client"))
     testImplementation(project(":command"))
 }
 

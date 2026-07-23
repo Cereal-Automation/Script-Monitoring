@@ -3,8 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.gradleup.shadow)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.openapi.generator)
-    alias(libs.plugins.spotless) apply false
 }
 
 allprojects {
@@ -44,16 +42,7 @@ buildscript {
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
-    ktlint {
-        filter {
-            exclude { element ->
-                val path = element.file.path
-                path.contains("stockx-api-client")
-            }
-        }
-    }
-
-    if (name !in listOf("command", "command-monitoring", "script-common", "stockx-api-client")) {
+    if (name !in listOf("command", "command-monitoring", "script-common", "scraping-common")) {
         apply(plugin = "com.gradleup.shadow")
 
         tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
@@ -93,16 +82,4 @@ subprojects {
             )
         }
     }
-}
-
-openApiGenerate {
-    generatorName.set("kotlin")
-    inputSpec.set("$rootDir/specs/stockx.json")
-    outputDir.set("$rootDir/stockx-api-client")
-    apiPackage.set("com.cereal.stockx.api")
-    invokerPackage.set("com.cereal.stockx.api.invoker")
-    modelPackage.set("com.cereal.stockx.api.model")
-    configOptions.put("dateLibrary", "java8")
-    configOptions.put("omitGradleWrapper", "true")
-    configOptions.put("library", "jvm-ktor")
 }
