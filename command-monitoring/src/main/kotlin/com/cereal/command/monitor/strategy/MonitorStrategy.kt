@@ -16,10 +16,14 @@ interface MonitorStrategy {
      */
     sealed class NotifyResult {
         /** A notification should be sent with this [message]. */
-        data class Notify(val message: String) : NotifyResult()
+        data class Notify(
+            val message: String,
+        ) : NotifyResult()
 
         /** No notification should be sent. [reason] describes why. */
-        data class Skip(val reason: String) : NotifyResult()
+        data class Skip(
+            val reason: String,
+        ) : NotifyResult()
     }
 
     /**

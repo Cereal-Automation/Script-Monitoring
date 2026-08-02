@@ -4,11 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
+    compileOnly(libs.cereal.sdk)
     implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.web.scraping)
     implementation(libs.bundles.kotlin.coroutines)
@@ -17,11 +13,7 @@ dependencies {
 
     implementation(project(":command"))
 
-    testImplementation(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
+    testImplementation(libs.cereal.sdk)
     testImplementation(libs.bundles.testing)
     testImplementation(libs.ktor.client.mock)
 }

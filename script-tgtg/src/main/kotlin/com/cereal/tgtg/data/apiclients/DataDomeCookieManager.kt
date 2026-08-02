@@ -74,7 +74,12 @@ internal class DataDomeCookieManager(
     suspend fun fetch(originalRequestPath: String): String? =
         try {
             val appVersion = playStoreApiClient.getAppVersion()
-            val cid = UUID.randomUUID().toString().replace("-", "").take(64)
+            val cid =
+                UUID
+                    .randomUUID()
+                    .toString()
+                    .replace("-", "")
+                    .take(64)
             val requestUrlEncoded = URLEncoder.encode("$baseUrl$originalRequestPath", StandardCharsets.UTF_8.toString())
             val userAgent = TgtgConstants.USER_AGENT_TEMPLATE.format(appVersion)
             val timestamp = System.currentTimeMillis()

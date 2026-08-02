@@ -130,7 +130,11 @@ abstract class BrowserBasedItemRepository(
 
         fun parseRooms(raw: String): Int? {
             if (raw.isBlank()) return null
-            return raw.trim().split(" ").firstOrNull()?.toIntOrNull()
+            return raw
+                .trim()
+                .split(" ")
+                .firstOrNull()
+                ?.toIntOrNull()
         }
     }
 }
