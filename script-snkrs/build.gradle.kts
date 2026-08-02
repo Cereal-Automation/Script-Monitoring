@@ -4,11 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
+    compileOnly(libs.cereal.sdk)
     implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.kotlin.coroutines)
     implementation(libs.kotlinx.serialization.json)
@@ -19,6 +15,7 @@ dependencies {
     implementation(project(":command-monitoring"))
     implementation(project(":scraping-common"))
 
+    testImplementation(libs.cereal.sdk)
     testImplementation(libs.bundles.testing)
     testImplementation(libs.cereal.test.utils)
 }

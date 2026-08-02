@@ -68,7 +68,9 @@ class ParariusItemRepository(
         val energyLabel =
             doc
                 .select("dd[class*=listing-features__description--energy-label]")
-                .firstOrNull()?.text()?.trim() ?: ""
+                .firstOrNull()
+                ?.text()
+                ?.trim() ?: ""
         val offeredSince = doc.selectFirst("dd.listing-features__description--offered_since")?.text()?.trim() ?: ""
 
         val price = parsePrice(rawPrice)

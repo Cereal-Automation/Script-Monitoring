@@ -4,11 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
+    compileOnly(libs.cereal.sdk)
     implementation(libs.bundles.cereal.base)
     implementation(libs.bundles.web.scraping)
     implementation(libs.bundles.kotlin.coroutines)

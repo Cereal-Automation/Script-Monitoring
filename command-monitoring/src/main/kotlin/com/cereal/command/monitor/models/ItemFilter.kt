@@ -9,15 +9,28 @@ import java.math.BigDecimal
  * If a required property is absent from the item, that filter evaluates to **false** (strict exclusion).
  */
 sealed class ItemFilter {
-    data class PriceAtMost(val value: BigDecimal) : ItemFilter()
+    data class PriceAtMost(
+        val value: BigDecimal,
+    ) : ItemFilter()
 
-    data class PriceAtLeast(val value: BigDecimal) : ItemFilter()
+    data class PriceAtLeast(
+        val value: BigDecimal,
+    ) : ItemFilter()
 
-    data class CustomValueAtLeast(val name: String, val value: Double) : ItemFilter()
+    data class CustomValueAtLeast(
+        val name: String,
+        val value: Double,
+    ) : ItemFilter()
 
-    data class CustomValueAtMost(val name: String, val value: Double) : ItemFilter()
+    data class CustomValueAtMost(
+        val name: String,
+        val value: Double,
+    ) : ItemFilter()
 
-    data class CustomValueEquals(val name: String, val value: String) : ItemFilter()
+    data class CustomValueEquals(
+        val name: String,
+        val value: String,
+    ) : ItemFilter()
 }
 
 private fun parseNumericPrefix(raw: String): Double? = Regex("""^[\d.]+""").find(raw.trim())?.value?.toDoubleOrNull()

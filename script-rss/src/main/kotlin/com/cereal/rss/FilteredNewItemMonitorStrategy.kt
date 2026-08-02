@@ -37,9 +37,11 @@ class FilteredNewItemMonitorStrategy(
                 }
 
         val itemAuthors =
-            item.properties.filterIsInstance<ItemProperty.Custom>().filter {
-                it.name == RssFeedItemRepository.PROPERTY_AUTHOR
-            }.map { it.value }
+            item.properties
+                .filterIsInstance<ItemProperty.Custom>()
+                .filter {
+                    it.name == RssFeedItemRepository.PROPERTY_AUTHOR
+                }.map { it.value }
         val matchesAuthor =
             authors.isNotEmpty() &&
                 authors.any { configured ->
@@ -47,9 +49,11 @@ class FilteredNewItemMonitorStrategy(
                 }
 
         val itemCategories =
-            item.properties.filterIsInstance<ItemProperty.Custom>().filter {
-                it.name == RssFeedItemRepository.PROPERTY_CATEGORY
-            }.map { it.value }
+            item.properties
+                .filterIsInstance<ItemProperty.Custom>()
+                .filter {
+                    it.name == RssFeedItemRepository.PROPERTY_CATEGORY
+                }.map { it.value }
         val matchesCategory =
             categories.isNotEmpty() &&
                 categories.any { configuredCategory ->

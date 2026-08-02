@@ -52,13 +52,15 @@ class TgtgItemRepository(
             )
 
         val items =
-            itemsResponse?.items?.filter { tgtgItem ->
-                if (minimumRating == null) return@filter true
-                val rating = tgtgItem.item.averageOverallRating?.averageOverallRating
-                rating == null || rating >= minimumRating
-            }?.map { tgtgItem ->
-                convertTgtgItemToItem(tgtgItem)
-            } ?: emptyList()
+            itemsResponse
+                ?.items
+                ?.filter { tgtgItem ->
+                    if (minimumRating == null) return@filter true
+                    val rating = tgtgItem.item.averageOverallRating?.averageOverallRating
+                    rating == null || rating >= minimumRating
+                }?.map { tgtgItem ->
+                    convertTgtgItemToItem(tgtgItem)
+                } ?: emptyList()
 
         // Since TGTG doesn't support pagination, nextPageToken is always null
         return Page(nextPageToken = null, items = items)

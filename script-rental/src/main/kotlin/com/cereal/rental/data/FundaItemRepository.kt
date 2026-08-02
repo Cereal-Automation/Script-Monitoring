@@ -84,22 +84,40 @@ class FundaItemRepository(
         val address = title.substringAfter(": ").substringBefore(" |").trim()
         val rawPrice =
             Regex("""€\s*([\d.,]+)\s*(?:/mnd|per maand)""", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+                .find(html)
+                ?.groupValues
+                ?.get(1)
+                ?.trim() ?: ""
         val rawSize =
             Regex("""(\d+)\s*m²""", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+                .find(html)
+                ?.groupValues
+                ?.get(1)
+                ?.trim() ?: ""
         val rawRooms =
             Regex("""(\d+)\s*(?:kamer|kamers|slaapkamers?)""", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+                .find(html)
+                ?.groupValues
+                ?.get(1)
+                ?.trim() ?: ""
         val available =
             Regex("""Aanvaarding["',:\s]+([^"'{]+)""", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+                .find(html)
+                ?.groupValues
+                ?.get(1)
+                ?.trim() ?: ""
         val energyLabel =
             Regex("""Energielabel["',:\s]+([A-G][\+\d]{0,3})(?=["',:\s])""", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+                .find(html)
+                ?.groupValues
+                ?.get(1)
+                ?.trim() ?: ""
         val offeredSince =
             Regex("""Aangeboden sinds["',:\s]+([^"'{]+)""", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.trim() ?: ""
+                .find(html)
+                ?.groupValues
+                ?.get(1)
+                ?.trim() ?: ""
 
         val price = parsePrice(rawPrice)
         val sizeM2 = parseSizeM2(rawSize)

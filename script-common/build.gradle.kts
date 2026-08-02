@@ -4,21 +4,13 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
+    compileOnly(libs.cereal.sdk)
     implementation(libs.bundles.cereal.base)
 
     // Shared test support reused by the script modules (e.g. FakeLogRepository).
     testFixturesApi(project(":command"))
 
-    testImplementation(libs.cereal.sdk) {
-        artifact {
-            classifier = "all"
-        }
-    }
+    testImplementation(libs.cereal.sdk)
     testImplementation(libs.bundles.testing)
 }
 
